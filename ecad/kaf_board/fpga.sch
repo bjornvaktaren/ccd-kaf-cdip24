@@ -181,17 +181,6 @@ F 3 "~" H 5500 2700 50  0001 C CNN
 	1    5500 2700
 	-1   0    0    1   
 $EndComp
-$Comp
-L FPGA_Lattice:ICE40HX4K-TQ144 U?
-U 5 1 5E651A4E
-P 4650 2950
-F 0 "U?" H 5250 2650 50  0000 L CNN
-F 1 "ICE40HX4K-TQ144" H 5250 2750 50  0000 L CNN
-F 2 "Package_QFP:TQFP-144_20x20mm_P0.5mm" H 5650 1050 50  0001 R CNN
-F 3 "http://www.latticesemi.com/Products/FPGAandCPLD/iCE40" H 3650 5450 50  0001 C CNN
-	5    4650 2950
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4050 2850 3550 2850
 Wire Wire Line
@@ -592,4 +581,86 @@ F 3 "" H 6400 4300 50  0001 C CNN
 	1    6400 4300
 	0    1    1    0   
 $EndComp
+$Comp
+L FPGA_Lattice:ICE40HX4K-TQ144 U?
+U 5 1 5E651A4E
+P 4650 2950
+F 0 "U?" H 5250 2650 50  0000 L CNN
+F 1 "ICE40HX4K-TQ144" H 5250 2750 50  0000 L CNN
+F 2 "Package_QFP:TQFP-144_20x20mm_P0.5mm" H 5650 1050 50  0001 R CNN
+F 3 "http://www.latticesemi.com/Products/FPGAandCPLD/iCE40" H 3650 5450 50  0001 C CNN
+	5    4650 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L FPGA_Lattice:ICE40HX4K-TQ144 U?
+U 4 1 5EB8AFD5
+P 10100 2700
+F 0 "U?" H 10449 2878 50  0000 L CNN
+F 1 "ICE40HX4K-TQ144" H 10449 2787 50  0000 L CNN
+F 2 "Package_QFP:TQFP-144_20x20mm_P0.5mm" H 11100 800 50  0001 R CNN
+F 3 "http://www.latticesemi.com/Products/FPGAandCPLD/iCE40" H 9100 5200 50  0001 C CNN
+	4    10100 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5EBA2758
+P 10650 1000
+F 0 "C?" H 10765 1046 50  0000 L CNN
+F 1 "0.1u" H 10765 955 50  0000 L CNN
+F 2 "" H 10688 850 50  0001 C CNN
+F 3 "~" H 10650 1000 50  0001 C CNN
+	1    10650 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5EBA275E
+P 10650 1200
+F 0 "#PWR?" H 10650 950 50  0001 C CNN
+F 1 "GND" H 10655 1027 50  0000 C CNN
+F 2 "" H 10650 1200 50  0001 C CNN
+F 3 "" H 10650 1200 50  0001 C CNN
+	1    10650 1200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5EBA2764
+P 10650 750
+F 0 "#PWR?" H 10650 600 50  0001 C CNN
+F 1 "+3.3V" H 10665 923 50  0000 C CNN
+F 2 "" H 10650 750 50  0001 C CNN
+F 3 "" H 10650 750 50  0001 C CNN
+	1    10650 750 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10650 850  10650 800 
+Wire Wire Line
+	10650 1200 10650 1150
+Wire Wire Line
+	10100 900  10100 800 
+Wire Wire Line
+	10100 800  10650 800 
+Wire Wire Line
+	10650 750  10650 800 
+Connection ~ 10650 800 
+Text HLabel 8600 2650 2    50   Input ~ 0
+FT_RXF#
+Text HLabel 8600 2750 2    50   BiDi ~ 0
+FT_D[0..7]
+Text HLabel 8600 2450 2    50   Output ~ 0
+FT_RD#
+Text HLabel 8600 2350 2    50   Output ~ 0
+FT_WR#
+Text HLabel 8600 2250 2    50   Output ~ 0
+FT_SIWUA
+Text HLabel 8600 2550 2    50   Input ~ 0
+FT_TXE#
+Text HLabel 8600 2150 2    50   Input ~ 0
+FT_CLKOUT
+Text HLabel 8600 2050 2    50   Output ~ 0
+FT_OE#
 $EndSCHEMATC
