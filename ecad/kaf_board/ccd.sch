@@ -1866,8 +1866,6 @@ Text HLabel 2650 6150 0    50   Input ~ 0
 AD_CDSCLK2
 Text HLabel 2650 6250 0    50   Input ~ 0
 AD_ADCLK
-Text HLabel 2650 7250 0    50   Input ~ 0
-AD_D[0..7]
 $Comp
 L ccd_camera:AD9826 U?
 U 1 1 5E5D1465
@@ -1939,4 +1937,6 @@ Wire Wire Line
 	3150 6250 2650 6250
 Wire Bus Line
 	2750 6450 2750 7250
+Text HLabel 2650 7250 0    50   Output ~ 0
+AD_D[0..7]
 $EndSCHEMATC
