@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 8
+Sheet 3 9
 Title ""
 Date ""
 Rev ""
@@ -1935,8 +1935,20 @@ Wire Wire Line
 	2650 6150 3150 6150
 Wire Wire Line
 	3150 6250 2650 6250
-Wire Bus Line
-	2750 6450 2750 7250
 Text HLabel 2650 7250 0    50   Output ~ 0
 AD_D[0..7]
+Text HLabel 4800 6800 2    50   Input ~ 0
+AD_SLOAD
+Text HLabel 4800 6900 2    50   Input ~ 0
+AD_SCLK
+Text HLabel 4800 7000 2    50   BiDi ~ 0
+AD_SDATA
+Wire Wire Line
+	4550 6800 4800 6800
+Wire Wire Line
+	4800 6900 4550 6900
+Wire Wire Line
+	4550 7000 4800 7000
+Wire Bus Line
+	2750 6450 2750 7250
 $EndSCHEMATC

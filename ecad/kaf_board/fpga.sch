@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 8
+Sheet 8 9
 Title ""
 Date ""
 Rev ""
@@ -649,7 +649,7 @@ Wire Wire Line
 Connection ~ 2750 900 
 Text HLabel 1200 2200 0    50   Input ~ 0
 FT_RXF#
-Text HLabel 1200 3150 0    50   BiDi ~ 0
+Text HLabel 1100 3150 0    50   BiDi ~ 0
 FT_D[0..7]
 Text HLabel 1200 2000 0    50   Output ~ 0
 FT_RD#
@@ -678,39 +678,39 @@ Wire Wire Line
 Wire Wire Line
 	1700 2200 1200 2200
 Entry Wire Line
-	1450 2400 1550 2300
+	1350 2400 1450 2300
 Entry Wire Line
-	1450 2500 1550 2400
+	1350 2500 1450 2400
 Entry Wire Line
-	1450 2600 1550 2500
+	1350 2600 1450 2500
 Entry Wire Line
-	1450 2700 1550 2600
+	1350 2700 1450 2600
 Entry Wire Line
-	1450 2800 1550 2700
+	1350 2800 1450 2700
 Entry Wire Line
-	1450 2900 1550 2800
+	1350 2900 1450 2800
 Entry Wire Line
-	1450 3000 1550 2900
+	1350 3000 1450 2900
 Entry Wire Line
-	1450 3100 1550 3000
+	1350 3100 1450 3000
 Wire Bus Line
-	1450 3150 1200 3150
+	1350 3150 1100 3150
 Wire Wire Line
-	1550 2300 1700 2300
+	1450 2300 1700 2300
 Wire Wire Line
-	1700 2400 1550 2400
+	1700 2400 1450 2400
 Wire Wire Line
-	1550 2500 1700 2500
+	1450 2500 1700 2500
 Wire Wire Line
-	1700 2600 1550 2600
+	1700 2600 1450 2600
 Wire Wire Line
-	1550 2700 1700 2700
+	1450 2700 1700 2700
 Wire Wire Line
-	1700 2800 1550 2800
+	1700 2800 1450 2800
 Wire Wire Line
-	1550 2900 1700 2900
+	1450 2900 1700 2900
 Wire Wire Line
-	1700 3000 1550 3000
+	1700 3000 1450 3000
 $Comp
 L FPGA_Lattice:ICE40HX4K-TQ144 U?
 U 3 1 5E817FDD
@@ -766,26 +766,179 @@ Wire Wire Line
 Connection ~ 2750 4650
 Wire Wire Line
 	2200 4650 2200 4800
-Text HLabel 1300 3600 0    50   Output ~ 0
+Text HLabel 1200 6600 0    50   Output ~ 0
 AMP_OFF
-Text HLabel 1200 3900 0    50   Output ~ 0
+Text HLabel 1200 6700 0    50   Output ~ 0
 H_3.3V
-Text HLabel 1200 4100 0    50   Output ~ 0
+Text HLabel 1200 6800 0    50   Output ~ 0
 R_3.3V
-Text HLabel 1200 4250 0    50   Output ~ 0
+Text HLabel 1200 6900 0    50   Output ~ 0
 V1_3.3V
-Text HLabel 1200 4400 0    50   Output ~ 0
+Text HLabel 1200 7000 0    50   Output ~ 0
 V2_3.3V
-Text HLabel 1350 6700 0    50   Output ~ 0
+Text HLabel 1200 6200 0    50   Output ~ 0
 AD_OEB
-Text HLabel 1350 6800 0    50   Output ~ 0
+Text HLabel 1200 6300 0    50   Output ~ 0
 AD_CDSCLK1
-Text HLabel 1350 6900 0    50   Output ~ 0
+Text HLabel 1200 6400 0    50   Output ~ 0
 AD_CDSCLK2
-Text HLabel 1350 7000 0    50   Output ~ 0
+Text HLabel 1200 6500 0    50   Output ~ 0
 AD_ADCLK
-Text HLabel 1150 6350 0    50   Input ~ 0
+Text HLabel 1200 5200 0    50   Input ~ 0
 AD_D[0..7]
+Entry Wire Line
+	1300 5300 1400 5400
+Entry Wire Line
+	1300 5400 1400 5500
+Entry Wire Line
+	1300 5500 1400 5600
+Entry Wire Line
+	1300 5600 1400 5700
+Entry Wire Line
+	1300 5700 1400 5800
+Entry Wire Line
+	1300 5800 1400 5900
+Entry Wire Line
+	1300 5900 1400 6000
+Entry Wire Line
+	1300 6000 1400 6100
+Wire Wire Line
+	1200 7000 1700 7000
+Wire Wire Line
+	1700 6900 1200 6900
+Wire Wire Line
+	1200 6800 1700 6800
+Wire Wire Line
+	1700 6700 1200 6700
+Wire Wire Line
+	1200 6600 1700 6600
+Wire Wire Line
+	1700 6500 1200 6500
+Wire Wire Line
+	1200 6400 1700 6400
+Wire Wire Line
+	1700 6300 1200 6300
+Wire Wire Line
+	1200 6200 1700 6200
+Wire Wire Line
+	1700 5400 1400 5400
+Wire Wire Line
+	1400 5500 1700 5500
+Wire Wire Line
+	1700 5600 1400 5600
+Wire Wire Line
+	1400 5700 1700 5700
+Wire Wire Line
+	1700 5800 1400 5800
+Wire Wire Line
+	1400 5900 1700 5900
+Wire Wire Line
+	1700 6000 1400 6000
+Wire Wire Line
+	1400 6100 1700 6100
 Wire Bus Line
-	1450 2400 1450 3150
+	1300 5200 1200 5200
+Text Label 1400 5400 0    50   ~ 0
+AD_D0
+Text Label 1400 5500 0    50   ~ 0
+AD_D1
+Text Label 1400 5600 0    50   ~ 0
+AD_D2
+Text Label 1400 5700 0    50   ~ 0
+AD_D3
+Text Label 1400 5800 0    50   ~ 0
+AD_D4
+Text Label 1400 5900 0    50   ~ 0
+AD_D5
+Text Label 1400 6000 0    50   ~ 0
+AD_D6
+Text Label 1400 6100 0    50   ~ 0
+AD_D7
+Text Label 1450 2300 0    50   ~ 0
+FT_D7
+Text Label 1450 2400 0    50   ~ 0
+FT_D6
+Text Label 1450 2500 0    50   ~ 0
+FT_D5
+Text Label 1450 2600 0    50   ~ 0
+FT_D4
+Text Label 1450 2700 0    50   ~ 0
+FT_D3
+Text Label 1450 2800 0    50   ~ 0
+FT_D2
+Text Label 1450 2900 0    50   ~ 0
+FT_D1
+Text Label 1450 3000 0    50   ~ 0
+FT_D0
+Text HLabel 1200 4300 0    50   Output ~ 0
+AD_SLOAD
+Text HLabel 1200 4200 0    50   Output ~ 0
+AD_SCLK
+Text HLabel 1200 4100 0    50   BiDi ~ 0
+AD_SDATA
+Wire Wire Line
+	1700 4100 1200 4100
+Wire Wire Line
+	1200 4200 1700 4200
+Wire Wire Line
+	1700 4300 1200 4300
+$Comp
+L FPGA_Lattice:ICE40HX4K-TQ144 U?
+U 2 1 5EA26214
+P 4450 2800
+F 0 "U?" H 4799 3028 50  0000 L CNN
+F 1 "ICE40HX4K-TQ144" H 4799 2937 50  0000 L CNN
+F 2 "Package_QFP:TQFP-144_20x20mm_P0.5mm" H 5450 900 50  0001 R CNN
+F 3 "http://www.latticesemi.com/Products/FPGAandCPLD/iCE40" H 3450 5300 50  0001 C CNN
+	2    4450 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5EA52549
+P 5000 1000
+F 0 "C?" H 5115 1046 50  0000 L CNN
+F 1 "0.1u" H 5115 955 50  0000 L CNN
+F 2 "" H 5038 850 50  0001 C CNN
+F 3 "~" H 5000 1000 50  0001 C CNN
+	1    5000 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5EA5254F
+P 5000 1200
+F 0 "#PWR?" H 5000 950 50  0001 C CNN
+F 1 "GND" H 5005 1027 50  0000 C CNN
+F 2 "" H 5000 1200 50  0001 C CNN
+F 3 "" H 5000 1200 50  0001 C CNN
+	1    5000 1200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5EA52555
+P 5000 750
+F 0 "#PWR?" H 5000 600 50  0001 C CNN
+F 1 "+3.3V" H 5015 923 50  0000 C CNN
+F 2 "" H 5000 750 50  0001 C CNN
+F 3 "" H 5000 750 50  0001 C CNN
+	1    5000 750 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 850  5000 800 
+Wire Wire Line
+	5000 1200 5000 1150
+Wire Wire Line
+	4450 800  5000 800 
+Wire Wire Line
+	5000 750  5000 800 
+Connection ~ 5000 800 
+Wire Wire Line
+	4450 800  4450 900 
+Wire Bus Line
+	1350 2400 1350 3150
+Wire Bus Line
+	1300 5200 1300 6000
 $EndSCHEMATC
