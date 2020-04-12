@@ -15,8 +15,9 @@ R25  = 2000
 beta = 3450
 Rref = 2200
 T25  = 298.15
+T0  = 273.15
 
 R(x) = R25*exp(beta*(1/x - 1/T25))
-U(x) = V0*R(x + T25)/(Rref + R(x + T25))
+U(x) = V0*R(x + T0)/(Rref + R(x + T0))
 
 plot U(x) title 'U_NTC(T)' with lines
