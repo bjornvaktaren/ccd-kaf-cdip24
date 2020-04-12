@@ -22,8 +22,9 @@ public:
    int init();
    int close();
 
-   int write(const unsigned char &byte);
-   int read(unsigned char &byte);
+   int writeByte(const unsigned char &byte);
+   int readByte(unsigned char &byte);
+   int read(unsigned char *buffer, const int nBytes);
    
 private:
    

@@ -22,18 +22,18 @@ void Camera::disconnect()
 
 double Camera::getAmbientTemperature()
 {
-   m_ft.write(fpga::command::sample_mcp);
+   m_ft.writeByte(fpga::command::sample_mcp);
    usleep(fpga::delay::sample_mcp);
 
-   unsigned char byte;
-   m_ft.read(byte);
-   // Apparently shifted by 1 or 2 bit. Bug in firmware?
-   byte = byte << 2;
-   std::cout << "INFO: Received " << std::bitset<8>(byte) << " (bit), "
-   	     << std::hex << (int)byte << " (hex), "
-   	     << std::dec << (int)byte << " (dec)."<< '\n';
-   
-   double U = static_cast<double>(byte)/255.0*m_thAmbient.getV0();
+   unsigned char buffer[2];
+   m_ft.read(buffer, 2);
+   unsigned int result = ( buffer[0] << 8 | buffer[1] );
+   std::cout << "INFO: Received " << std::bitset<8>(buffer[0])
+   	     << ' ' << std::bitset<8>(buffer[1]) << " (bit), "
+   	     << std::hex << result << " (hex), "
+   	     << std::dec << result << " (dec)."<< '\n';
+
+   double U = static_cast<double>(result)/1023.0*m_thAmbient.getV0();
    std::cout << "U = " << U << '\n';
    
    return m_thAmbient.celsius(U);

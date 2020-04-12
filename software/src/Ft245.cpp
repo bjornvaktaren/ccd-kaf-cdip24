@@ -76,7 +76,7 @@ int Ft245::close()
 }
 
 
-int Ft245::write(const unsigned char &byte)
+int Ft245::writeByte(const unsigned char &byte)
 {
    int ftdi_status = ftdi_write_data(&m_ftdi, &byte, 1);
    if ( ftdi_status != 1 ) {
@@ -87,7 +87,7 @@ int Ft245::write(const unsigned char &byte)
 }
 
 
-int Ft245::read(unsigned char &byte)
+int Ft245::readByte(unsigned char &byte)
 {
    // need to purge rx when reading for some etherial reason
    if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
@@ -101,6 +101,27 @@ int Ft245::read(unsigned char &byte)
    }
    // int ftdi_status = ftdi_read_data(&m_ftdi, &byte, 1);
    if ( bytesRead != 1 ) {
+      std::cerr << "ERROR: Ft245::read() failed with status " << bytesRead
+   		<< '\n';
+   }
+   return bytesRead;
+}
+
+
+int Ft245::read(unsigned char *buffer, const int nBytes)
+{
+   // need to purge rx when reading for some etherial reason
+   if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
+      std::cerr << "ERROR: Can't purge FTDI buffers: "
+   		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
+   }
+   
+   int bytesRead = 0;
+   for ( int tries = 0; tries < 10 && bytesRead != nBytes; ++tries) {
+      bytesRead = ftdi_read_data(&m_ftdi, buffer, nBytes);
+   }
+   // int ftdi_status = ftdi_read_data(&m_ftdi, &byte, 1);
+   if ( bytesRead != nBytes ) {
       std::cerr << "ERROR: Ft245::read() failed with status " << bytesRead
    		<< '\n';
    }

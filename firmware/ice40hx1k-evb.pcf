@@ -1,0 +1,22 @@
+set_io clk          15
+set_io mcp_dclk     1
+set_io mcp_dout     2
+set_io mcp_din      3
+set_io mcp_cs_n     4
+set_io ft_bus[0]    7
+set_io ft_bus[1]    8
+set_io ft_bus[2]    9
+set_io ft_bus[3]    10
+set_io ft_bus[4]    12
+set_io ft_bus[5]    13
+set_io ft_bus[6]    16
+set_io ft_bus[7]    18
+set_io ft_rxf_n     19
+set_io ft_txe_n     20
+set_io ft_rd_n      21
+set_io ft_wr_n      24
+set_io ft_siwu_n    25
+set_io ft_clkout    26
+set_io ft_oe_n      27
+# set_io pwm_shutter  28
+# set_io pwm_peltier  29
