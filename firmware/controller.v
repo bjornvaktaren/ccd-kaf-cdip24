@@ -1,10 +1,13 @@
 `default_nettype none
 
+// `include "ram.v"
+// `include "spi_slave.v"
 `include "mcp3008_interface.v"
 `include "sync_ft245.v"
+`include "ccd_readout.v"
 `include "fifo.v"
 
-module breadboard_tests
+module controller
   (clk,         // clock
    ft_bus,      // ft232h data bus
    ft_rxf_n,    // ft232h read fifo (active low)
@@ -18,8 +21,19 @@ module breadboard_tests
    mcp_dout,    // mcp3008 data out
    mcp_din,     // mcp3008 data in
    mcp_cs_n,    // mcp3008 active low chip select
-   // pwm_shutter, // PWM output for controlling the shutter servo
-   // pwm_peltier  // PWM output for controlling the peltier cooling
+   ad_cdsclk1,  // AD9826 correlated double-sampling clock 1
+   ad_cdsclk2,  // AD9826 correlated double-sampling clock 1
+   ad_adclk,    // AD9826 data clock
+   ad_oeb_n,    // AD9826 output enable (active low)
+   kaf_r,       // CCD reset clock
+   kaf_h1,      // CCD H1 clock
+   kaf_h2,      // CCD H2 clock
+   kaf_v1,      // CCD V1 clock
+   kaf_v2,      // CCD V2 clock
+   kaf_amp,     // CCD amplifier on/off
+   ad_data,     // Data output form the AD9826
+   pwm_shutter, // PWM output for controlling the shutter servo
+   pwm_peltier  // PWM output for controlling the peltier cooling
    );
    
    input        clk;
@@ -35,8 +49,19 @@ module breadboard_tests
    output wire 	mcp_dclk;
    output wire  mcp_din;
    output wire 	mcp_cs_n;
-   // output wire 	pwm_shutter;
-   // output wire 	pwm_peltier;
+   output wire  ad_cdsclk1;
+   output wire 	ad_cdsclk2;
+   output wire 	ad_adclk;
+   output wire 	ad_oeb_n;
+   output wire  kaf_r;
+   output wire 	kaf_h1;
+   output wire 	kaf_h2;
+   output wire 	kaf_v1;
+   output wire 	kaf_v2;
+   output wire 	kaf_amp;
+   input [7:0]  ad_data;
+   output wire 	pwm_shutter;
+   output wire 	pwm_peltier;
 
    // Gray coded states
    // 
@@ -60,16 +85,16 @@ module breadboard_tests
    // read out the ccd
    localparam state_ccd_wait_busy    = 4'b1101;
 
-   // // Shutter states
-   // localparam shutter_state_open   = 1'b0; // open shutter
-   // localparam shutter_state_closed = 1'b1; // close shutter
+   // Shutter states
+   localparam shutter_state_open   = 1'b0; // open shutter
+   localparam shutter_state_closed = 1'b1; // close shutter
 
    // include header file with localparams needed across modules or for sim
    `include "controller.vh"
 
    // Clock divider
    
-   reg [23:0] 	clk_div = 0;
+   reg [15:0] 	clk_div = 0;
 
    always @(posedge clk) begin
       clk_div <= clk_div + 1;
@@ -78,9 +103,8 @@ module breadboard_tests
       
    // Synchronous FT245 Interface
    
-   wire       data_to_ft_avail;
-   wire       next_data_to_ft;
-   wire [7:0] data_to_ft;
+   reg        data_to_ft_avail;
+   reg  [7:0] data_to_ft;
    wire       data_from_ft_avail;
    wire [7:0] data_from_ft;
 
@@ -96,49 +120,8 @@ module breadboard_tests
       .ft_oe_n(ft_oe_n),
       .data_to_ft(data_to_ft),
       .data_to_ft_avail(data_to_ft_avail),
-      .next_data_to_ft(next_data_to_ft),
       .data_from_ft(data_from_ft),
       .data_from_ft_avail(data_from_ft_avail)
-      );
-
-   
-   // // FIFO for receiving data from FT245 interface
-
-   // fifo #(8, 8) rx_fifo
-   //   (
-   //    .rdata(),
-   //    .wfull(),
-   //    .rempty(),
-   //    .wdata(ad_data),
-   //    .winc(),
-   //    .wclk(fifo_write_clk),
-   //    .wrst_n(),
-   //    .rinc(),
-   //    .rclk(ft_clkout),
-   //    .rrst_n()
-   //    );
-
-   // FIFO for sending data to FT245 interface
-   wire       tx_fifo_rempty;
-   assign data_to_ft_avail = ! tx_fifo_rempty;
-   wire	      tx_fifo_wfull;
-   reg 	      tx_fifo_winc = 0;
-   reg 	      tx_fifo_wrst_n = 1;
-   reg 	      tx_fifo_rrst_n = 1;
-   reg [7:0]  tx_fifo_wdata = 8'b0;
-
-   fifo #(8, 3) tx_fifo
-     (
-      .rdata(data_to_ft),
-      .wfull(tx_fifo_wfull),
-      .rempty(tx_fifo_rempty),
-      .wdata(tx_fifo_wdata),
-      .winc(tx_fifo_winc),
-      .wclk(clk),
-      .wrst_n(tx_fifo_wrst_n),
-      .rinc(next_data_to_ft),
-      .rclk(ft_clkout),
-      .rrst_n(tx_fifo_rrst_n)
       );
 
 
@@ -170,22 +153,66 @@ module breadboard_tests
       );
 
 
-
-   // // Shutter PWM
+   // Readout module for the CCD and CCD signal processor
    
-   // localparam shutter_closed_duty_cycle = 8'h10;
-   // localparam shutter_open_duty_cycle = 8'h20;
-   // reg [7:0] pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
+   `include "ccd_readout.vh"
+
+   wire      ccd_busy;
+   reg       ccd_toggle;
+   reg [1:0] ccd_mode = ccd_mode_readout_1x1;
+   
+   ccd_readout ccd
+     (
+      .ad_cdsclk1(ad_cdsclk1),
+      .ad_cdsclk2(ad_cdsclk2),
+      .ad_adclk(ad_adclk),
+      .ad_oeb_n(ad_oeb_n),
+      .kaf_r(kaf_r),
+      .kaf_h1(kaf_h1),
+      .kaf_h2(kaf_h2),
+      .kaf_v1(kaf_v1),
+      .kaf_v2(kaf_v2),
+      .kaf_amp(kaf_amp),
+      .counter(clk_div),
+      .busy(ccd_busy),
+      .toggle(ccd_toggle),
+      .mode(ccd_mode)
+      );
+
+
+   // FIFO for ccd readout
+   wire      fifo_write_clk = clk_div[ccd_counter_clk_bit];
+
+   fifo #(8, 8) fifo
+     (
+      .rdata(),
+      .wfull(),
+      .rempty(),
+      .wdata(ad_data),
+      .winc(),
+      .wclk(fifo_write_clk),
+      .wrst_n(),
+      .rinc(),
+      .rclk(ft_clkout),
+      .rrst_n()
+      );
+   
+
+   // Shutter PWM
+   
+   reg [7:0] pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
+   localparam shutter_closed_duty_cycle = 8'h10;
+   localparam shutter_open_duty_cycle = 8'h20;
   
-   // assign pwm_shutter = clk_div[7:0] <= pwm_shutter_duty_cycle ? 1 : 0;
+   assign pwm_shutter = clk_div[7:0] <= pwm_shutter_duty_cycle ? 1 : 0;
 
 
    // State-machine
    
    reg [3:0]   state = state_idle;
-   // reg 	       shutter_state = shutter_state_closed;
-   reg [15:0]  ft_output_reg = 0;
-   reg [7:0]   command = 0;
+   reg 	       shutter_state = shutter_state_closed;
+   reg [15:0]  ft_output_reg;
+   reg [7:0]   command;
    
    // state logic
    always @(posedge clk) begin
@@ -209,10 +236,10 @@ module breadboard_tests
 	     state <= state_move_mcp;
 	   if (data_from_ft == cmd_read_ccd)
 	     state <= state_toggle_ccd;
-	   // if (data_from_ft == cmd_shutter_close)
-	   //   shutter_state <= shutter_state_closed;
-	   // if (data_from_ft == cmd_shutter_open)
-	   //   shutter_state <= shutter_state_open;
+	   if (data_from_ft == cmd_shutter_close)
+	     shutter_state <= shutter_state_closed;
+	   if (data_from_ft == cmd_shutter_open)
+	     shutter_state <= shutter_state_open;
 	end
 
 	// state_sample_mcp:
@@ -223,14 +250,14 @@ module breadboard_tests
 	//   if (mcp_busy == 1'b0)
 	//     state <= state_mcp_to_ft_bus;
 	
-	// state_toggle_ccd:
-	//   if (ccd_busy == 1'b0)
-	//     state <= state_ccd_wait_busy;
+	state_toggle_ccd:
+	  if (ccd_busy == 1'b0)
+	    state <= state_ccd_wait_busy;
 	
-	// state_ccd_wait_busy:
-	//   // while there is data in the fifo
-	//   if (ccd_busy == 1'b1)
-	//     state <= state_ft_send_lsb;
+	state_ccd_wait_busy:
+	  // while there is data in the fifo
+	  if (ccd_busy == 1'b1)
+	    state <= state_ft_send_lsb;
 
 	state_move_mcp:
 	  if (ft_txe_n == 1'b0)
@@ -269,8 +296,10 @@ module breadboard_tests
    // state task logic
    always @* begin
 
-      tx_fifo_winc  = 1'b0;
-      tx_fifo_wdata = 8'b0;
+      data_to_ft_avail   = 1'b0;
+      data_to_ft         = 8'b0;
+      ccd_toggle         = 0;
+      ft_output_reg      = 16'b0;
 	
       if(state == state_idle) begin
       end
@@ -279,44 +308,44 @@ module breadboard_tests
       if(state == state_eval_cmd) begin
       end
       if(state == state_ft_send_msb) begin
-	 tx_fifo_wdata = ft_output_reg[15:8];
-	 tx_fifo_winc  = 1'b1;
+	 data_to_ft       = ft_output_reg[15:8];
+	 data_to_ft_avail = 1'b1;
       end
       if(state == state_ft_send_msb_wait) begin
-	 tx_fifo_wdata = ft_output_reg[15:8];
-	 tx_fifo_winc  = 1'b0;
+	 data_to_ft       = ft_output_reg[15:8];
+	 data_to_ft_avail = 1'b0;
       end
       if(state == state_ft_send_lsb) begin
-	 tx_fifo_wdata = ft_output_reg[7:0];
-	 tx_fifo_winc  = 1'b1;
+	 data_to_ft       = ft_output_reg[7:0];
+	 data_to_ft_avail = 1'b1;
       end
       if(state == state_ft_send_lsb_wait) begin
-	 tx_fifo_wdata = ft_output_reg[7:0];
-	 tx_fifo_winc  = 1'b0;
+	 data_to_ft       = ft_output_reg[7:0];
+	 data_to_ft_avail = 1'b0;
       end
-      // if(state == state_toggle_ccd) begin
-      // 	 ccd_toggle = 1'b1;
-      // end
-      // if(state == state_ccd_wait_busy) begin
-      // 	 ccd_toggle = 1'b1;
-      // end
+      if(state == state_toggle_ccd) begin
+	 ccd_toggle = 1'b1;
+      end
+      if(state == state_ccd_wait_busy) begin
+	 ccd_toggle = 1'b1;
+      end
       if(state == state_move_mcp) begin
 	 ft_output_reg[9:0]   = mcp_data;
 	 ft_output_reg[15:10] = 6'b0;
       end
       
-      // // shutter states
-      // if(shutter_state == shutter_state_open) begin
-      // 	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
-      // end
-      // if(shutter_state == shutter_state_closed) begin
-      // 	 pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
-      // end
+      // shutter states
+      if(shutter_state == shutter_state_open) begin
+	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
+      end
+      if(shutter_state == shutter_state_closed) begin
+	 pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
+      end
    end // always @*
 
 
    // continuously sample the temperture sensors connected to the mcp
-   wire mcp_sample_clk = clk_div[23]; // 100MHz/2^23 = 11.9 Hz
+   wire mcp_sample_clk = clk_div[11]; // should be every second or so.
    
    always @(posedge mcp_sample_clk) begin
       // If the ADC is done converting, shift out the 16 bits
@@ -325,4 +354,4 @@ module breadboard_tests
 
 
    
-endmodule // breadboard_tests
+endmodule // controller

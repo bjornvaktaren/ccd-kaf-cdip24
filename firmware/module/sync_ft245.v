@@ -13,13 +13,15 @@ module sync_ft245
    ft_oe_n, 
    data_to_ft,
    data_to_ft_avail,
+   next_data_to_ft,
    data_from_ft,
    data_from_ft_avail
    );
 
    input ft_rxf_n, ft_txe_n, ft_clkout, data_to_ft_avail;
-   output reg ft_rd_n, ft_wr_n, ft_siwu_n, ft_oe_n, data_from_ft_avail;
+   output reg ft_rd_n, ft_wr_n, ft_siwu_n, ft_oe_n;
    inout [7:0] ft_bus;
+   output reg data_from_ft_avail, next_data_to_ft;
    input [7:0] data_to_ft;
    output reg [7:0] data_from_ft;
 
@@ -55,10 +57,12 @@ module sync_ft245
       ft_wr_n   <= 1'b1;
       ft_siwu_n <= 1'b1;
       ft_oe_n   <= 1'b1;
+      next_data_to_ft <= 1'b0;
 
       // write to ft
       if (ft_txe_n == 1'b0 && data_to_ft_avail == 1'b1) begin
 	 ft_wr_n <= 1'b0;
+	 next_data_to_ft <= 1'b1; // tell tx fifo to increase read pointer
       end
 
       // accept request to recieve from ft
