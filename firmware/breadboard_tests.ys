@@ -1,0 +1,3 @@
+read_verilog -Imodule -Iinclude breadboard_tests.v
+proc; opt; memory -nomap; opt; techmap; opt
+synth_ice40 -top breadboard_tests -blif breadboard_tests.blif

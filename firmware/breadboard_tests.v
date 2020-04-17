@@ -127,7 +127,7 @@ module breadboard_tests
    reg 	      tx_fifo_rrst_n = 1;
    reg [7:0]  tx_fifo_wdata = 8'b0;
 
-   fifo #(8, 3) tx_fifo
+   fifo #(16, 8) tx_fifo
      (
       .rdata(data_to_ft),
       .wfull(tx_fifo_wfull),

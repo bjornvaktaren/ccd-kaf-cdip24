@@ -12,7 +12,7 @@ DEVICE = hx1k
 	vvp -N $< +vcd=$@
 
 %.blif: %.v $(MODULES)
-	yosys -Dname=SYNTHESIS -p 'read_verilog -Iinclude -Imodule $<; synth_ice40 -blif $@'
+	yosys $(TOP).ys
 
 %.asc: $(PIN_DEF) %.blif
 	arachne-pnr -d $(subst hx,,$(subst lp,,$(DEVICE))) -o $@ -p $^ -P vq100

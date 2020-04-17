@@ -48,12 +48,14 @@ module fifo #(parameter data_width = 16, parameter addr_width = 8)
    fifomem #(data_width, addr_width) fifomem
      (
       .rdata(rdata), 
+      .raddr(raddr),
+      .rclk(rclk),
+      .rclken(rinc),
       .wdata(wdata),
       .waddr(waddr), 
-      .raddr(raddr),
+      .wclk(wclk),
       .wclken(winc), 
-      .wfull(wfull),
-      .wclk(wclk)
+      .wfull(wfull)
       );
 
    rptr_empty #(addr_width) rptr_empty
