@@ -1,3 +1,13 @@
 read_verilog -Imodule -Iinclude breadboard_tests.v
-proc; opt; memory -nomap; opt; techmap; opt
+show -format ps -prefix graphs/breadboard_tests
+
+# proc; opt
+# show -format ps -prefix graphs/breadboard_tests_proc
+
+# memory -nomap; opt
+# show -format ps -prefix graphs/breadboard_tests_memory
+
+# techmap; opt
+# show -format ps -prefix graphs/breadboard_tests_techmap
+
 synth_ice40 -top breadboard_tests -blif breadboard_tests.blif

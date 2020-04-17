@@ -11,7 +11,7 @@ module fifomem #(parameter data_width = 16, addr_width = 8)
     wfull
     );
    
-   output [data_width - 1:0] rdata;
+   output reg [data_width - 1:0] rdata;
    input [data_width - 1:0]  wdata;
    input [addr_width - 1:0]  waddr, raddr;
    input 		     wclken, wfull, wclk, rclk, rclken;
@@ -21,11 +21,17 @@ module fifomem #(parameter data_width = 16, addr_width = 8)
    reg [data_width-1:0]      mem [0:DEPTH-1];
    
    always @(posedge rclk)
-     if (rclken) 
-       rdata = mem[raddr];
+     rdata <= mem[raddr];
    
    always @(posedge wclk)
      if (wclken && !wfull) 
        mem[waddr] <= wdata;
+
+`ifndef SYNTHESIS
+   wire [data_width-1:0]     mem_x00 = mem[0];
+   wire [data_width-1:0]     mem_x01 = mem[1];
+   wire [data_width-1:0]     mem_x02 = mem[2];
+   wire [data_width-1:0]     mem_x03 = mem[3];
+`endif   
    
 endmodule // fifomem

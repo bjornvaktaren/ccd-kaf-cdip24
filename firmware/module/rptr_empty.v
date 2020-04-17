@@ -17,7 +17,7 @@ module rptr_empty #(parameter addr_width = 8)
    input [addr_width :0]      rq2_wptr;
    input 		      rinc, rclk, rrst_n;
    
-   reg [addr_width:0] 	     rbin;
+   reg [addr_width:0] 	     rbin = 0;
    wire [addr_width:0] 	     rgraynext, rbinnext;
    wire 		     rempty_val;
    

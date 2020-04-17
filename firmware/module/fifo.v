@@ -50,11 +50,10 @@ module fifo #(parameter data_width = 16, parameter addr_width = 8)
       .rdata(rdata), 
       .raddr(raddr),
       .rclk(rclk),
-      .rclken(rinc),
       .wdata(wdata),
       .waddr(waddr), 
       .wclk(wclk),
-      .wclken(winc), 
+      .wclken(winc),
       .wfull(wfull)
       );
 

@@ -39,27 +39,41 @@ module breadboard_tests
    // output wire 	pwm_peltier;
 
    // Gray coded states
+   // reset state for 1 clock 
+   localparam state_reset             = 4'b0000; 
    // 
-   localparam state_idle             = 4'b0000; 
+   localparam state_idle              = 4'b0001; 
    // get command from FT245 interface
-   localparam state_get_cmd          = 4'b0001;
+   localparam state_get_cmd           = 4'b0011;
    // evaluate the recieved command
-   localparam state_eval_cmd         = 4'b0011;
-   // send msb of ft_output_reg
-   localparam state_ft_send_msb      = 4'b0010;
+   localparam state_eval_cmd          = 4'b0010;
+   // send mcp datao to tx_fifo
+   localparam state_tx_write_mcp_msb  = 4'b0110;
    // wait for handshake
-   localparam state_ft_send_msb_wait = 4'b0110;
-   // send lsb of ft_output_reg
-   localparam state_ft_send_lsb      = 4'b0111;
-   // wait for handshake
-   localparam state_ft_send_lsb_wait = 4'b0101;
-   // move mcp3008 output to ft_output_reg
-   localparam state_move_mcp         = 4'b0100;
+   localparam state_tx_write_mcp_lsb  = 4'b0111;
    // read out the ccd
-   localparam state_toggle_ccd       = 4'b1100;
+   localparam state_toggle_ccd        = 4'b0101;
    // read out the ccd
-   localparam state_ccd_wait_busy    = 4'b1101;
+   localparam state_ccd_wait_busy     = 4'b0100;
 
+   // Gray code for reference:
+   // 4'b0000;
+   // 4'b0001;
+   // 4'b0011;
+   // 4'b0010;
+   // 4'b0110;
+   // 4'b0111;
+   // 4'b0101;
+   // 4'b0100;
+   // 4'b1100;
+   // 4'b1101;
+   // 4'b1111;
+   // 4'b1110;
+   // 4'b1010;
+   // 4'b1011;
+   // 4'b1001;
+   // 4'b1000;
+   
    // // Shutter states
    // localparam shutter_state_open   = 1'b0; // open shutter
    // localparam shutter_state_closed = 1'b1; // close shutter
@@ -122,12 +136,12 @@ module breadboard_tests
    wire       tx_fifo_rempty;
    assign data_to_ft_avail = ! tx_fifo_rempty;
    wire	      tx_fifo_wfull;
-   reg 	      tx_fifo_winc = 0;
-   reg 	      tx_fifo_wrst_n = 1;
-   reg 	      tx_fifo_rrst_n = 1;
-   reg [7:0]  tx_fifo_wdata = 8'b0;
+   reg 	      tx_fifo_winc;
+   reg 	      tx_fifo_wrst_n;
+   reg 	      tx_fifo_rrst_n;
+   reg [7:0]  tx_fifo_wdata;
 
-   fifo #(16, 8) tx_fifo
+   fifo #(8, 8) tx_fifo
      (
       .rdata(data_to_ft),
       .wfull(tx_fifo_wfull),
@@ -160,13 +174,13 @@ module breadboard_tests
 
    mcp3008_interface mcp3008
      (
-      mcp_sample,
-      mcp_dclk_internal, // mcp3008 data clock, internal to the FPGA
-      mcp_dout,          // mcp3008 data out
-      mcp_din,           // mcp3008 data in
-      mcp_cs_n,          // mcp3008 active low chip select
-      mcp_busy,
-      mcp_data
+      .sample(mcp_sample),       // sample on posedge
+      .dclk(mcp_dclk_internal),  // mcp3008 data clock
+      .dout(mcp_dout),           // mcp3008 data out
+      .din(mcp_din),             // mcp3008 data in
+      .cs_n(mcp_cs_n),           // mcp3008 active low chip select
+      .busy(mcp_busy),           // this interface is busy
+      .dout_reg(mcp_data)        // 10 bit output
       );
 
 
@@ -182,15 +196,18 @@ module breadboard_tests
 
    // State-machine
    
-   reg [3:0]   state = state_idle;
+   reg [3:0]   state = state_reset;
    // reg 	       shutter_state = shutter_state_closed;
-   reg [15:0]  ft_output_reg = 0;
-   reg [7:0]   command = 0;
+   // reg [15:0]  ft_output_reg = 0;
+   // reg [7:0]   command = 0;
    
    // state logic
    always @(posedge clk) begin
 
       case (state)
+
+	state_reset:
+	  state <= state_idle;
 	
    	state_idle:
 	  // wait for ft245 interface to tell the fpga what to do
@@ -206,9 +223,9 @@ module breadboard_tests
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
 	   if (data_from_ft == cmd_get_mcp)
-	     state <= state_move_mcp;
-	   if (data_from_ft == cmd_read_ccd)
-	     state <= state_toggle_ccd;
+	     state <= state_tx_write_mcp_msb;
+	   // if (data_from_ft == cmd_read_ccd)
+	   //   state <= state_toggle_ccd;
 	   // if (data_from_ft == cmd_shutter_close)
 	   //   shutter_state <= shutter_state_closed;
 	   // if (data_from_ft == cmd_shutter_open)
@@ -230,36 +247,21 @@ module breadboard_tests
 	// state_ccd_wait_busy:
 	//   // while there is data in the fifo
 	//   if (ccd_busy == 1'b1)
-	//     state <= state_ft_send_lsb;
+	//     state <= state_tx_write_lsb;
 
-	state_move_mcp:
-	  if (ft_txe_n == 1'b0)
-	    state <= state_ft_send_msb;
+	state_tx_write_mcp_msb:
+	  state <= state_tx_write_mcp_lsb;
 
-	state_ft_send_msb:
-	  if (ft_wr_n == 1'b0)
-	    state <= state_ft_send_msb_wait;
+	state_tx_write_mcp_lsb:
+	  state <= state_idle;
 	
-	state_ft_send_msb_wait:
-	  if (ft_wr_n == 1'b1)
-	    state <= state_ft_send_lsb;
-
-	state_ft_send_lsb:
-	  if (ft_wr_n == 1'b0)
-	    state <= state_ft_send_lsb_wait;
-	
-	state_ft_send_lsb_wait:
-	  // should go back to state_ccd_to_ft_bus if streaming
-	  if (ft_wr_n == 1'b1)
-	    state <= state_idle; 
-
 	// state_shutter_open:
 	//     state <= state_idle; 
 
 	// state_shutter_close:
 	//     state <= state_idle; 
 	
-   	default: state <= state_idle;
+   	default: state <= state_reset;
 	
       endcase // case (state)
       
@@ -269,30 +271,29 @@ module breadboard_tests
    // state task logic
    always @* begin
 
-      tx_fifo_winc  = 1'b0;
-      tx_fifo_wdata = 8'b0;
+      tx_fifo_winc   = 1'b0;
+      tx_fifo_wdata  = 8'b0;
+      tx_fifo_wrst_n = 1'b0;
+      tx_fifo_rrst_n = 1'b0;
 	
+      if(state == state_reset) begin
+	 tx_fifo_wrst_n = 1'b1;
+	 tx_fifo_rrst_n = 1'b1;
+      end
       if(state == state_idle) begin
       end
       if(state == state_get_cmd) begin
       end
       if(state == state_eval_cmd) begin
       end
-      if(state == state_ft_send_msb) begin
-	 tx_fifo_wdata = ft_output_reg[15:8];
+      if(state == state_tx_write_mcp_msb) begin
+	 tx_fifo_wdata = mcp_data[7:0];
 	 tx_fifo_winc  = 1'b1;
       end
-      if(state == state_ft_send_msb_wait) begin
-	 tx_fifo_wdata = ft_output_reg[15:8];
-	 tx_fifo_winc  = 1'b0;
-      end
-      if(state == state_ft_send_lsb) begin
-	 tx_fifo_wdata = ft_output_reg[7:0];
+      if(state == state_tx_write_mcp_lsb) begin
+	 tx_fifo_wdata[1:0] = mcp_data[9:8];
+	 tx_fifo_wdata[7:2] = 6'b0;
 	 tx_fifo_winc  = 1'b1;
-      end
-      if(state == state_ft_send_lsb_wait) begin
-	 tx_fifo_wdata = ft_output_reg[7:0];
-	 tx_fifo_winc  = 1'b0;
       end
       // if(state == state_toggle_ccd) begin
       // 	 ccd_toggle = 1'b1;
@@ -300,11 +301,6 @@ module breadboard_tests
       // if(state == state_ccd_wait_busy) begin
       // 	 ccd_toggle = 1'b1;
       // end
-      if(state == state_move_mcp) begin
-	 ft_output_reg[9:0]   = mcp_data;
-	 ft_output_reg[15:10] = 6'b0;
-      end
-      
       // // shutter states
       // if(shutter_state == shutter_state_open) begin
       // 	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
@@ -316,11 +312,16 @@ module breadboard_tests
 
 
    // continuously sample the temperture sensors connected to the mcp
-   wire mcp_sample_clk = clk_div[23]; // 100MHz/2^23 = 11.9 Hz
+`ifdef SYNTHESIS
+   wire mcp_sample_clk = clk_div[23]; // 100 MHz / 2^(23+1) = 5.96 Hz
+`else
+   // Makes is easier to see in simulation
+   wire mcp_sample_clk = clk_div[7]; // 100 MHz / 2^(7+1) = 390 kHz
+`endif
    
    always @(posedge mcp_sample_clk) begin
       // If the ADC is done converting, shift out the 16 bits
-      mcp_sample <= ~mcp_sample;
+      mcp_sample <= !mcp_sample;
    end
 
 

@@ -13,8 +13,8 @@ module wptr_full #(parameter addr_width = 4)
    
    output reg 		       wfull;
    output [addr_width-1:0]     waddr;
-   output reg [addr_width :0]  wptr;
-   input [addr_width :0]       wq2_rptr;
+   output reg [addr_width:0]  wptr;
+   input [addr_width:0]       wq2_rptr;
    input 		       winc, wclk, wrst_n;
 
    reg [addr_width:0] 	       wbin;
@@ -30,6 +30,7 @@ module wptr_full #(parameter addr_width = 4)
    
    // Memory write-address pointer (okay to use binary to address memory)
    assign waddr = wbin[addr_width-1:0];
+   // assign wbinnext = !wfull ? wbin + winc : wbin;
    assign wbinnext = wbin + (winc & ~wfull);
    assign wgraynext = (wbinnext>>1) ^ wbinnext;
    
