@@ -1,7 +1,7 @@
 `default_nettype none
 
 `include "mcp3008_interface.v"
-`include "sync_ft245.v"
+`include "ft245.v"
 `include "fifo.v"
 
 module breadboard_tests
@@ -47,14 +47,14 @@ module breadboard_tests
    localparam state_get_cmd           = 4'b0011;
    // evaluate the recieved command
    localparam state_eval_cmd          = 4'b0010;
-   // send mcp datao to tx_fifo
+   // send mcp most significant bits to tx_fifo
    localparam state_tx_write_mcp_msb  = 4'b0110;
-   // wait for handshake
+   // send mcp least significant bits to tx_fifo
    localparam state_tx_write_mcp_lsb  = 4'b0111;
+   // wait for handshake
+   localparam state_toggle_ccd        = 4'b1000;
    // read out the ccd
-   localparam state_toggle_ccd        = 4'b0101;
-   // read out the ccd
-   localparam state_ccd_wait_busy     = 4'b0100;
+   localparam state_ccd_wait_busy     = 4'b1001;
 
    // Gray code for reference:
    // 4'b0000;
@@ -92,13 +92,14 @@ module breadboard_tests
       
    // Synchronous FT245 Interface
    
-   wire       data_to_ft_avail;
-   wire       next_data_to_ft;
-   wire [7:0] data_to_ft;
-   wire       data_from_ft_avail;
-   wire [7:0] data_from_ft;
+   wire tx_fifo_rinc;
+   wire tx_fifo_rempty;
+   wire [7:0] tx_fifo_rdata;
+   wire [7:0] rx_fifo_wdata;
+   wire rx_fifo_wfull;
+   wire rx_fifo_winc;
 
-   sync_ft245 sync_ft245 
+   ft245 ft245 
      (
       .ft_bus(ft_bus),
       .ft_rxf_n(ft_rxf_n),
@@ -108,52 +109,58 @@ module breadboard_tests
       .ft_siwu_n(ft_siwu_n),
       .ft_clkout(ft_clkout),
       .ft_oe_n(ft_oe_n),
-      .data_to_ft(data_to_ft),
-      .data_to_ft_avail(data_to_ft_avail),
-      .next_data_to_ft(next_data_to_ft),
-      .data_from_ft(data_from_ft),
-      .data_from_ft_avail(data_from_ft_avail)
+      .tx_rinc(tx_fifo_rinc),
+      .tx_rempty(tx_fifo_rempty),
+      .tx_rdata(tx_fifo_rdata),
+      .rx_wdata(rx_fifo_wdata),
+      .rx_wfull(rx_fifo_wfull),
+      .rx_winc(rx_fifo_winc)
       );
 
    
    // // FIFO for receiving data from FT245 interface
 
-   // fifo #(8, 8) rx_fifo
-   //   (
-   //    .rdata(),
-   //    .wfull(),
-   //    .rempty(),
-   //    .wdata(ad_data),
-   //    .winc(),
-   //    .wclk(fifo_write_clk),
-   //    .wrst_n(),
-   //    .rinc(),
-   //    .rclk(ft_clkout),
-   //    .rrst_n()
-   //    );
+   reg 	rx_fifo_rinc;
+   reg 	rx_fifo_rrst_n;
+   reg 	rx_fifo_wrst_n;
+   wire rx_fifo_rempty;
+   wire [7:0] rx_fifo_rdata;
+   
+   fifo #(8, 8) rx_fifo
+     (
+      .rclk(clk),
+      .rdata(rx_fifo_rdata),
+      .rempty(rx_fifo_rempty),
+      .rinc(rx_fifo_rinc),
+      .rrst_n(rx_fifo_rrst_n),
+      .wclk(ft_clkout),
+      .wdata(rx_fifo_wdata),
+      .wfull(rx_fifo_wfull),
+      .winc(rx_fifo_winc),
+      .wrst_n(rx_fifo_wrst_n)
+      );
 
    // FIFO for sending data to FT245 interface
-   wire       tx_fifo_rempty;
-   assign data_to_ft_avail = ! tx_fifo_rempty;
-   wire	      tx_fifo_wfull;
+   reg 	      tx_fifo_rrst_n;
    reg 	      tx_fifo_winc;
    reg 	      tx_fifo_wrst_n;
-   reg 	      tx_fifo_rrst_n;
    reg [7:0]  tx_fifo_wdata;
+   wire	      tx_fifo_wfull;
 
    fifo #(8, 8) tx_fifo
      (
-      .rdata(data_to_ft),
-      .wfull(tx_fifo_wfull),
-      .rempty(tx_fifo_rempty),
-      .wdata(tx_fifo_wdata),
-      .winc(tx_fifo_winc),
-      .wclk(clk),
-      .wrst_n(tx_fifo_wrst_n),
-      .rinc(next_data_to_ft),
       .rclk(ft_clkout),
-      .rrst_n(tx_fifo_rrst_n)
+      .rdata(tx_fifo_rdata),
+      .rempty(tx_fifo_rempty),
+      .rinc(tx_fifo_rinc),
+      .rrst_n(tx_fifo_rrst_n),
+      .wclk(clk),
+      .wdata(tx_fifo_wdata),
+      .wfull(tx_fifo_wfull),
+      .winc(tx_fifo_winc),
+      .wrst_n(tx_fifo_wrst_n)
       );
+
 
 
    // MCP3008 ADC interface
@@ -210,19 +217,18 @@ module breadboard_tests
 	  state <= state_idle;
 	
    	state_idle:
-	  // wait for ft245 interface to tell the fpga what to do
-	  if (ft_rxf_n == 1'b0) 
+	  // wait for the rx fifo to have data
+	  if (rx_fifo_rempty == 1'b0) 
 	    state <= state_get_cmd;
 	
 	state_get_cmd:
 	  // wait for the sync_ft245 module to have recieved data
-	  if (data_from_ft_avail == 1'b1)
-	    state <= state_eval_cmd;
+	  state <= state_eval_cmd;
 
 	state_eval_cmd: begin
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
-	   if (data_from_ft == cmd_get_mcp)
+	   if (rx_fifo_rdata == cmd_get_mcp)
 	     state <= state_tx_write_mcp_msb;
 	   // if (data_from_ft == cmd_read_ccd)
 	   //   state <= state_toggle_ccd;
@@ -271,18 +277,24 @@ module breadboard_tests
    // state task logic
    always @* begin
 
-      tx_fifo_winc   = 1'b0;
+      rx_fifo_rinc   = 1'b0;
+      rx_fifo_rrst_n = 1'b1;
+      rx_fifo_wrst_n = 1'b1;
+      tx_fifo_rrst_n = 1'b1;
       tx_fifo_wdata  = 8'b0;
-      tx_fifo_wrst_n = 1'b0;
-      tx_fifo_rrst_n = 1'b0;
+      tx_fifo_winc   = 1'b0;
+      tx_fifo_wrst_n = 1'b1;
 	
       if(state == state_reset) begin
-	 tx_fifo_wrst_n = 1'b1;
-	 tx_fifo_rrst_n = 1'b1;
+	 tx_fifo_wrst_n = 1'b0;
+	 tx_fifo_rrst_n = 1'b0;
+	 rx_fifo_wrst_n = 1'b0;
+	 rx_fifo_rrst_n = 1'b0;
       end
       if(state == state_idle) begin
       end
       if(state == state_get_cmd) begin
+	 rx_fifo_rinc   = 1'b1;
       end
       if(state == state_eval_cmd) begin
       end
