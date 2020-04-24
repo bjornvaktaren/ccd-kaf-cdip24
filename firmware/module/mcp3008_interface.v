@@ -12,9 +12,10 @@ module mcp3008_interface
    input      dout;
    input      sample;
    input      dclk;
-   output reg din = 1'b0, cs_n = 1'b1;
+   output reg din  = 1'b0;
+   output reg cs_n = 1'b1;
    output reg busy = 0;
-   output reg [9:0] dout_reg = 10'b0;
+   output reg [9:0] dout_reg = 10'b0000000000;
 
    reg [4:0]  mcp3008_conf = 5'b10000; // start, pseudo-diff, CH[0,1] = IN[+,-]
    reg [4:0]  bit_count = 0;

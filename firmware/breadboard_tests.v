@@ -5,7 +5,7 @@
 `include "fifo.v"
 
 module breadboard_tests
-  (clk,         // clock
+  (clk_in,      // clock
    ft_bus,      // ft232h data bus
    ft_rxf_n,    // ft232h read fifo (active low)
    ft_txe_n,    // ft232h transmit enable (active low)
@@ -22,7 +22,7 @@ module breadboard_tests
    // pwm_peltier  // PWM output for controlling the peltier cooling
    );
    
-   input        clk;
+   input        clk_in;
    inout [7:0]  ft_bus;
    input 	ft_rxf_n;
    input 	ft_txe_n;
@@ -47,10 +47,12 @@ module breadboard_tests
    localparam state_get_cmd           = 4'b0011;
    // evaluate the recieved command
    localparam state_eval_cmd          = 4'b0010;
+   // Check that MCP is not busy
+   localparam state_mcp_busy_check    = 4'b0110;
    // send mcp most significant bits to tx_fifo
-   localparam state_tx_write_mcp_msb  = 4'b0110;
+   localparam state_tx_write_mcp_msb  = 4'b0111;
    // send mcp least significant bits to tx_fifo
-   localparam state_tx_write_mcp_lsb  = 4'b0111;
+   localparam state_tx_write_mcp_lsb  = 4'b0101;
    // wait for handshake
    localparam state_toggle_ccd        = 4'b1000;
    // read out the ccd
@@ -84,8 +86,9 @@ module breadboard_tests
    // Clock divider
    
    reg [23:0] 	clk_div = 0;
+   wire 	clk = clk_div[1]; // 50 MHz
 
-   always @(posedge clk) begin
+   always @(posedge clk_in) begin
       clk_div <= clk_div + 1;
    end
 
@@ -229,7 +232,7 @@ module breadboard_tests
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
 	   if (rx_fifo_rdata == cmd_get_mcp)
-	     state <= state_tx_write_mcp_msb;
+	     state <= state_mcp_busy_check;
 	   // if (data_from_ft == cmd_read_ccd)
 	   //   state <= state_toggle_ccd;
 	   // if (data_from_ft == cmd_shutter_close)
@@ -254,12 +257,16 @@ module breadboard_tests
 	//   // while there is data in the fifo
 	//   if (ccd_busy == 1'b1)
 	//     state <= state_tx_write_lsb;
+	
+	state_mcp_busy_check:
+	  if (mcp_busy == 1'b0)
+	    state <= state_tx_write_mcp_msb;
 
 	state_tx_write_mcp_msb:
-	  state <= state_tx_write_mcp_lsb;
+	    state <= state_tx_write_mcp_lsb;
 
 	state_tx_write_mcp_lsb:
-	  state <= state_idle;
+	    state <= state_idle;
 	
 	// state_shutter_open:
 	//     state <= state_idle; 
@@ -281,7 +288,7 @@ module breadboard_tests
       rx_fifo_rrst_n = 1'b1;
       rx_fifo_wrst_n = 1'b1;
       tx_fifo_rrst_n = 1'b1;
-      tx_fifo_wdata  = 8'b0;
+      tx_fifo_wdata  = 8'h00;
       tx_fifo_winc   = 1'b0;
       tx_fifo_wrst_n = 1'b1;
 	
@@ -298,13 +305,14 @@ module breadboard_tests
       end
       if(state == state_eval_cmd) begin
       end
+      if(state == state_mcp_busy_check) begin
+      end
       if(state == state_tx_write_mcp_msb) begin
 	 tx_fifo_wdata = mcp_data[7:0];
 	 tx_fifo_winc  = 1'b1;
       end
       if(state == state_tx_write_mcp_lsb) begin
-	 tx_fifo_wdata[1:0] = mcp_data[9:8];
-	 tx_fifo_wdata[7:2] = 6'b0;
+	 tx_fifo_wdata = {mcp_data[9:8], 6'b000000};
 	 tx_fifo_winc  = 1'b1;
       end
       // if(state == state_toggle_ccd) begin

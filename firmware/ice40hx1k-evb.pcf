@@ -1,4 +1,4 @@
-set_io clk          15
+set_io clk_in       15
 set_io mcp_dclk     1
 set_io mcp_dout     2
 set_io mcp_din      3
