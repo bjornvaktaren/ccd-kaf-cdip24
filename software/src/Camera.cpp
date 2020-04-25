@@ -1,7 +1,7 @@
 #include <Camera.hpp>
 
 Camera::Camera()
-   : m_thAmbient(2000.0, 3450.0, 3.3, 220)
+   : m_thAmbient(2000.0, 3450.0, 3.3, 2200)
 {
 }
 
@@ -27,8 +27,12 @@ double Camera::getAmbientTemperature()
 
    unsigned char buffer[2];
    m_ft.read(buffer, 2);
-   unsigned int result = ( buffer[0] << 8 | buffer[1] );
-   std::cout << "INFO: Received " << std::bitset<8>(buffer[0])
+   unsigned int result = (
+      static_cast<unsigned int>(buffer[1]) << 2
+      | static_cast<unsigned int>(buffer[0])
+      );
+   std::cout << "INFO: Received " << std::bitset<64>(result)
+	     << ' ' << std::bitset<8>(buffer[0])
    	     << ' ' << std::bitset<8>(buffer[1]) << " (bit), "
    	     << std::hex << result << " (hex), "
    	     << std::dec << result << " (dec)."<< '\n';

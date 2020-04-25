@@ -9,7 +9,7 @@ namespace fpga {
    }
 
    namespace delay {
-      static constexpr int sample_mcp = 60;
+      static constexpr int sample_mcp = 60; // microseconds
    }
 }
 

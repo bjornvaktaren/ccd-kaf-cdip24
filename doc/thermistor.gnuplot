@@ -7,7 +7,7 @@ set xlabel font ",16"
 set ylabel font ",16"
 set xlabel 'Temperature (C)'
 set ylabel 'Voltage (V)'
-set xrange [-50:100]
+set xrange [-50:40]
 set grid
 
 V0   = 3.3

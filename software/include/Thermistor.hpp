@@ -28,7 +28,7 @@ public:
       );
    ~Thermistor(){};
 
-   double celsius(const double &U);
+   double celsius(const double U);
    
    constexpr double getV0(){ return m_V0; };
    

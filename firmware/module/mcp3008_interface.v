@@ -32,7 +32,7 @@ module mcp3008_interface
 	 if (bit_count < 5) begin
 	    din  <= mcp3008_conf[4 - bit_count];
 	 end
-	 if (bit_count == 18) begin
+	 if (bit_count == 19) begin
 	    cs_n      <= 1'b1;
 	    bit_count <= 0;
 	    busy      <= 1'b0;
@@ -42,7 +42,7 @@ module mcp3008_interface
    end // always @ (negedge dclk)
 
    always @(posedge dclk) begin
-      if (bit_count > 6 && bit_count < 17) begin
+      if (bit_count > 5 && bit_count < 18) begin
 	 dout_reg    <= dout_reg << 1;
 	 dout_reg[0] <= dout;
       end
