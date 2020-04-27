@@ -24,7 +24,9 @@ int main(int argc, char* argv[])
    const unsigned int temperatureImgSizeX = 500;
    const unsigned int temperatureImgSizeY = 400;
    std::vector<float> temperatureAmbient;
-   std::vector<float> time;
+   std::vector<float> temperatureCCD;
+   std::vector<float> timeAmbient;
+   std::vector<float> timeCCD;
    CImgPlot temperatureImg(temperatureImgSizeX, temperatureImgSizeY);
    temperatureImg.setTitle("Time (s)","Temperature (C)");
    temperatureImg.setXRange(30.0, true);
@@ -40,16 +42,24 @@ int main(int argc, char* argv[])
 	 = std::chrono::system_clock::now();
       auto msec
 	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
-      
-      temperatureAmbient.push_back(camera.getAmbientTemperature());
-      time.push_back(msec.count()/1000.0);
-      std::cout << "Temperature at time " << msec.count()/1000.0 << " is "
-		<< temperatureAmbient.back() << " C\n";
-      temperatureImg.line(1, time, temperatureAmbient, "l");
+
+      std::pair<std::string, double> thermistorData = camera.getTemperature();
+      if ( thermistorData.first == "ambient" ) {
+	 temperatureAmbient.push_back(thermistorData.second);
+	 timeAmbient.push_back(msec.count()/1000.0);
+      }
+      else if ( thermistorData.first == "ccd" ) {
+	 temperatureCCD.push_back(thermistorData.second);
+	 timeCCD.push_back(msec.count()/1000.0);
+      }
+      // std::cout << "Temperature at time " << msec.count()/1000.0 << " is "
+      // 		<< temperatureAmbient.back() << " C\n";
+      temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
+      temperatureImg.line(2, timeCCD, temperatureCCD, "l");
       temperatureImg.draw();
       temperatureImg.display(temperatureDisplay);
 
-      usleep(100000);
+      usleep(10000);
    }
 
    camera.disconnect();

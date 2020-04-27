@@ -15,9 +15,14 @@ module mcp3008_interface
    output reg din  = 1'b0;
    output reg cs_n = 1'b1;
    output reg busy = 0;
-   output reg [9:0] dout_reg = 10'b0000000000;
+   output reg [15:0] dout_reg = 16'h0000;
 
-   reg [4:0]  mcp3008_conf = 5'b10000; // start, pseudo-diff, CH[0,1] = IN[+,-]
+   // // start-bit, pseudo-diff, CH[0,1] = IN[+,-]
+   // reg [4:0]  mcp3008_conf = 5'b1_0_000; 
+   // // start-bit, pseudo-diff, CH[2,3] = IN[+,-]
+   // reg [4:0]  mcp3008_conf = 5'b1_0_010; 
+   // start-bit, pseudo-diff, CH[0,1] = IN[+,-], then CH[2,3] = IN[+,-]
+   reg [9:0]  mcp3008_conf = 10'b1_0_000_1_0_010;
    reg [4:0]  bit_count = 0;
 
    always @(negedge dclk) begin
@@ -30,7 +35,8 @@ module mcp3008_interface
 	 if (bit_count == 1 )
 	   cs_n <= 1'b0;
 	 if (bit_count < 5) begin
-	    din  <= mcp3008_conf[4 - bit_count];
+	    din          <= mcp3008_conf[9];
+	    mcp3008_conf <= {mcp3008_conf[8:0], mcp3008_conf[9]};
 	 end
 	 if (bit_count == 19) begin
 	    cs_n      <= 1'b1;
@@ -42,7 +48,15 @@ module mcp3008_interface
    end // always @ (negedge dclk)
 
    always @(posedge dclk) begin
-      if (bit_count > 5 && bit_count < 18) begin
+      if (bit_count < 5) begin
+	 dout_reg    <= dout_reg << 1;
+	 dout_reg[0] <= mcp3008_conf[9];
+      end
+      if (bit_count == 5 ) begin
+	 dout_reg    <= dout_reg << 1;
+	 dout_reg[0] <= 1'b1;
+      end
+      if (bit_count > 7 && bit_count < 18) begin
 	 dout_reg    <= dout_reg << 1;
 	 dout_reg[0] <= dout;
       end

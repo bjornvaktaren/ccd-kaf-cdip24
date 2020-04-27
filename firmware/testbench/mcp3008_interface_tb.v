@@ -6,7 +6,7 @@ module mcp3008_interface_tb();
    wire     din;
    wire     cs_n;
    wire     busy;
-   wire [9:0] dout_reg;
+   wire [15:0] dout_reg;
    
    mcp3008_interface dut
      (
@@ -23,10 +23,38 @@ module mcp3008_interface_tb();
       #1 dclk <= !dclk;
    end
 
+   task mcp_wait;
+      begin
+	 fork : f // implement a wait until cs_n goes high
+	    begin
+	       // timeout check
+	       #2000000 $display("%t : mcp_wait timeout", $time);
+	       disable f;
+	    end
+	    begin
+	       @(posedge cs_n);
+	       disable f;
+	    end
+	 join
+      end
+   endtask // mcp_wait
+   
    initial begin
+      
       dclk <= 0;
+      dout <= 1;
+      
       $dumpfile("mcp3008_interface_tb.vcd");
       $dumpvars;
+      
+      sample <= 1;
+      #10 sample <= 0;
+      mcp_wait();
+
+      sample <= 1;
+      #10 sample <= 0;
+      mcp_wait();
+      
       #10000 $finish;
    end
 

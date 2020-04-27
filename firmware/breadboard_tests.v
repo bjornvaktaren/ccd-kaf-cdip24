@@ -170,7 +170,7 @@ module breadboard_tests
 
    reg 	      mcp_sample = 0;
    wire       mcp_busy;
-   wire [9:0] mcp_data;
+   wire [15:0] mcp_data;
    wire       mcp_dclk_internal;
 `ifdef SYNTHESIS
    // 100 MHz / 2^(6+1) = 0.78 MHz
@@ -312,7 +312,7 @@ module breadboard_tests
 	 tx_fifo_winc  = 1'b1;
       end
       if(state == state_tx_write_mcp_lsb) begin
-	 tx_fifo_wdata = {mcp_data[9:8], 6'b000000};
+	 tx_fifo_wdata = mcp_data[15:8];
 	 tx_fifo_winc  = 1'b1;
       end
       // if(state == state_toggle_ccd) begin

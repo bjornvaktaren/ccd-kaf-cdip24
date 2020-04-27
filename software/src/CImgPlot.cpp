@@ -120,6 +120,8 @@ void CImgPlot::setXRange(const float min, const float max, bool follow)
 
 void CImgPlot::handleLine(line_t &line)
 {
+   if ( line.x.size() < 2 ) return;
+   if ( line.y.size() < 2 ) return;
    // compute line max and min
    line.xMin = *std::min_element(line.x.begin(), line.x.end());
    line.xMax = *std::max_element(line.x.begin(), line.x.end());

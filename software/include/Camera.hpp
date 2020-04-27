@@ -21,7 +21,7 @@ public:
    void connect();
    void disconnect();
 
-   double getAmbientTemperature();
+   std::pair<std::string, double> getTemperature();
    
 private:
    
@@ -29,6 +29,7 @@ private:
    Verbosity m_verbosity = Verbosity::info;
    Ft245 m_ft;
    Thermistor m_thAmbient;
+   Thermistor m_thCCD;
 
 };
 
