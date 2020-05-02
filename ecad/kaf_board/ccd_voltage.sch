@@ -83,22 +83,6 @@ F 3 "~" H 2800 5750 50  0001 C CNN
 	5    2800 5750
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:R_POT RV?
-U 1 1 5E6E6B3F
-P 1300 1450
-AR Path="/5E76D4CA/5E6E0AA8/5E6E6B3F" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E79BAC8/5E6E6B3F" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E7A07AF/5E6E6B3F" Ref="RV?"  Part="1" 
-F 0 "RV?" H 1230 1496 50  0000 R CNN
-F 1 "10k" H 1230 1405 50  0000 R CNN
-F 2 "" H 1300 1450 50  0001 C CNN
-F 3 "~" H 1300 1450 50  0001 C CNN
-	1    1300 1450
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1450 1450 1700 1450
 Wire Wire Line
 	1700 1650 1650 1650
 Wire Wire Line
@@ -108,49 +92,9 @@ Wire Wire Line
 Text HLabel 2650 1550 2    50   Output ~ 0
 V1
 Wire Wire Line
-	1300 1250 1300 1300
-Wire Wire Line
-	1300 1600 1300 1650
-$Comp
-L Device:R_POT RV?
-U 1 1 5E710EC3
-P 1300 3100
-AR Path="/5E76D4CA/5E6E0AA8/5E710EC3" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E79BAC8/5E710EC3" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E7A07AF/5E710EC3" Ref="RV?"  Part="1" 
-F 0 "RV?" H 1230 3146 50  0000 R CNN
-F 1 "10k" H 1230 3055 50  0000 R CNN
-F 2 "" H 1300 3100 50  0001 C CNN
-F 3 "~" H 1300 3100 50  0001 C CNN
-	1    1300 3100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1450 3100 1700 3100
-Wire Wire Line
 	1700 3300 1650 3300
 Wire Wire Line
 	1650 3300 1650 3500
-Wire Wire Line
-	1300 2900 1300 2950
-Wire Wire Line
-	1300 3250 1300 3300
-$Comp
-L Device:R_POT RV?
-U 1 1 5E711B73
-P 3750 1500
-AR Path="/5E76D4CA/5E6E0AA8/5E711B73" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E79BAC8/5E711B73" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E7A07AF/5E711B73" Ref="RV?"  Part="1" 
-F 0 "RV?" H 3680 1546 50  0000 R CNN
-F 1 "10k" H 3680 1455 50  0000 R CNN
-F 2 "" H 3750 1500 50  0001 C CNN
-F 3 "~" H 3750 1500 50  0001 C CNN
-	1    3750 1500
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3900 1500 4150 1500
 Wire Wire Line
 	4150 1700 4100 1700
 Wire Wire Line
@@ -170,33 +114,9 @@ F 3 "" H 3300 6150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	3750 1300 3750 1350
-Wire Wire Line
-	3750 1650 3750 1700
-$Comp
-L Device:R_POT RV?
-U 1 1 5E712730
-P 3750 3100
-AR Path="/5E76D4CA/5E6E0AA8/5E712730" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E79BAC8/5E712730" Ref="RV?"  Part="1" 
-AR Path="/5E76D4CA/5E7A07AF/5E712730" Ref="RV?"  Part="1" 
-F 0 "RV?" H 3680 3146 50  0000 R CNN
-F 1 "10k" H 3680 3055 50  0000 R CNN
-F 2 "" H 3750 3100 50  0001 C CNN
-F 3 "~" H 3750 3100 50  0001 C CNN
-	1    3750 3100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3900 3100 4150 3100
-Wire Wire Line
 	4150 3300 4100 3300
 Wire Wire Line
 	4100 3300 4100 3500
-Wire Wire Line
-	3750 2900 3750 2950
-Wire Wire Line
-	3750 3250 3750 3300
 Wire Wire Line
 	2300 3200 2350 3200
 Text HLabel 2650 3200 2    50   Output ~ 0
@@ -209,22 +129,10 @@ Wire Wire Line
 	4750 3200 4800 3200
 Text HLabel 5100 3200 2    50   Output ~ 0
 V4
-Text HLabel 1300 1250 1    50   Input ~ 0
+Text HLabel 1200 1050 1    50   Input ~ 0
 +V_REF
-Text HLabel 1300 1650 3    50   Input ~ 0
+Text HLabel 1200 1850 3    50   Input ~ 0
 -V_REF
-Text HLabel 1300 2900 1    50   Input ~ 0
-+V_REF
-Text HLabel 1300 3300 3    50   Input ~ 0
--V_REF
-Text HLabel 3750 3300 3    50   Input ~ 0
--V_REF
-Text HLabel 3750 1700 3    50   Input ~ 0
--V_REF
-Text HLabel 3750 2900 1    50   Input ~ 0
-+V_REF
-Text HLabel 3750 1300 1    50   Input ~ 0
-+V_REF
 $Comp
 L Device:C C?
 U 1 1 5E7538AB
@@ -393,4 +301,172 @@ F 3 "" H 2700 6600 50  0001 C CNN
 	1    2700 6600
 	1    0    0    -1  
 $EndComp
+$Comp
+L Device:R R?
+U 1 1 5EACE091
+P 1200 1250
+AR Path="/5E76D4CA/5E6E0AA8/5EACE091" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EACE091" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EACE091" Ref="R?"  Part="1" 
+F 0 "R?" H 1270 1296 50  0000 L CNN
+F 1 "R" H 1270 1205 50  0000 L CNN
+F 2 "" V 1130 1250 50  0001 C CNN
+F 3 "~" H 1200 1250 50  0001 C CNN
+	1    1200 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5EAD02FA
+P 1200 1650
+AR Path="/5E76D4CA/5E6E0AA8/5EAD02FA" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EAD02FA" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EAD02FA" Ref="R?"  Part="1" 
+F 0 "R?" H 1270 1696 50  0000 L CNN
+F 1 "R" H 1270 1605 50  0000 L CNN
+F 2 "" V 1130 1650 50  0001 C CNN
+F 3 "~" H 1200 1650 50  0001 C CNN
+	1    1200 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1200 1050 1200 1100
+Wire Wire Line
+	1200 1400 1200 1450
+Wire Wire Line
+	1200 1800 1200 1850
+Text HLabel 1200 2700 1    50   Input ~ 0
++V_REF
+Text HLabel 1200 3500 3    50   Input ~ 0
+-V_REF
+$Comp
+L Device:R R?
+U 1 1 5EADFB8D
+P 1200 2900
+AR Path="/5E76D4CA/5E6E0AA8/5EADFB8D" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EADFB8D" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EADFB8D" Ref="R?"  Part="1" 
+F 0 "R?" H 1270 2946 50  0000 L CNN
+F 1 "R" H 1270 2855 50  0000 L CNN
+F 2 "" V 1130 2900 50  0001 C CNN
+F 3 "~" H 1200 2900 50  0001 C CNN
+	1    1200 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5EADFB93
+P 1200 3300
+AR Path="/5E76D4CA/5E6E0AA8/5EADFB93" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EADFB93" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EADFB93" Ref="R?"  Part="1" 
+F 0 "R?" H 1270 3346 50  0000 L CNN
+F 1 "R" H 1270 3255 50  0000 L CNN
+F 2 "" V 1130 3300 50  0001 C CNN
+F 3 "~" H 1200 3300 50  0001 C CNN
+	1    1200 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1200 2700 1200 2750
+Wire Wire Line
+	1200 3050 1200 3100
+Wire Wire Line
+	1200 3450 1200 3500
+Text HLabel 3650 2700 1    50   Input ~ 0
++V_REF
+Text HLabel 3650 3500 3    50   Input ~ 0
+-V_REF
+$Comp
+L Device:R R?
+U 1 1 5EAE1097
+P 3650 2900
+AR Path="/5E76D4CA/5E6E0AA8/5EAE1097" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EAE1097" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EAE1097" Ref="R?"  Part="1" 
+F 0 "R?" H 3720 2946 50  0000 L CNN
+F 1 "R" H 3720 2855 50  0000 L CNN
+F 2 "" V 3580 2900 50  0001 C CNN
+F 3 "~" H 3650 2900 50  0001 C CNN
+	1    3650 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5EAE109D
+P 3650 3300
+AR Path="/5E76D4CA/5E6E0AA8/5EAE109D" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EAE109D" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EAE109D" Ref="R?"  Part="1" 
+F 0 "R?" H 3720 3346 50  0000 L CNN
+F 1 "R" H 3720 3255 50  0000 L CNN
+F 2 "" V 3580 3300 50  0001 C CNN
+F 3 "~" H 3650 3300 50  0001 C CNN
+	1    3650 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3650 2700 3650 2750
+Wire Wire Line
+	3650 3050 3650 3100
+Wire Wire Line
+	3650 3450 3650 3500
+Text HLabel 3650 1100 1    50   Input ~ 0
++V_REF
+Text HLabel 3650 1900 3    50   Input ~ 0
+-V_REF
+$Comp
+L Device:R R?
+U 1 1 5EAE24C1
+P 3650 1300
+AR Path="/5E76D4CA/5E6E0AA8/5EAE24C1" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EAE24C1" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EAE24C1" Ref="R?"  Part="1" 
+F 0 "R?" H 3720 1346 50  0000 L CNN
+F 1 "R" H 3720 1255 50  0000 L CNN
+F 2 "" V 3580 1300 50  0001 C CNN
+F 3 "~" H 3650 1300 50  0001 C CNN
+	1    3650 1300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5EAE24C7
+P 3650 1700
+AR Path="/5E76D4CA/5E6E0AA8/5EAE24C7" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E79BAC8/5EAE24C7" Ref="R?"  Part="1" 
+AR Path="/5E76D4CA/5E7A07AF/5EAE24C7" Ref="R?"  Part="1" 
+F 0 "R?" H 3720 1746 50  0000 L CNN
+F 1 "R" H 3720 1655 50  0000 L CNN
+F 2 "" V 3580 1700 50  0001 C CNN
+F 3 "~" H 3650 1700 50  0001 C CNN
+	1    3650 1700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3650 1100 3650 1150
+Wire Wire Line
+	3650 1450 3650 1500
+Wire Wire Line
+	3650 1850 3650 1900
+Wire Wire Line
+	1200 1450 1700 1450
+Connection ~ 1200 1450
+Wire Wire Line
+	1200 1450 1200 1500
+Wire Wire Line
+	3650 1500 4150 1500
+Connection ~ 3650 1500
+Wire Wire Line
+	3650 1500 3650 1550
+Wire Wire Line
+	1200 3100 1700 3100
+Connection ~ 1200 3100
+Wire Wire Line
+	1200 3100 1200 3150
+Wire Wire Line
+	3650 3100 4150 3100
+Connection ~ 3650 3100
+Wire Wire Line
+	3650 3100 3650 3150
 $EndSCHEMATC
