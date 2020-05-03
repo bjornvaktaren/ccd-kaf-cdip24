@@ -43,23 +43,19 @@ int main(int argc, char* argv[])
       auto msec
 	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
 
-      std::pair<std::string, double> thermistorData = camera.getTemperature();
-      if ( thermistorData.first == "ambient" ) {
-	 temperatureAmbient.push_back(thermistorData.second);
-	 timeAmbient.push_back(msec.count()/1000.0);
-      }
-      else if ( thermistorData.first == "ccd" ) {
-	 temperatureCCD.push_back(thermistorData.second);
-	 timeCCD.push_back(msec.count()/1000.0);
-      }
-      // std::cout << "Temperature at time " << msec.count()/1000.0 << " is "
-      // 		<< temperatureAmbient.back() << " C\n";
+      camera.sampleTemperatures();
+      
+      temperatureAmbient.push_back(camera.getTemperature("ambient"));
+      timeAmbient.push_back(msec.count()/1000.0);
+      temperatureCCD.push_back(camera.getTemperature("ccd"));
+      timeCCD.push_back(msec.count()/1000.0);
+
       temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
       temperatureImg.line(2, timeCCD, temperatureCCD, "l");
       temperatureImg.draw();
       temperatureImg.display(temperatureDisplay);
 
-      usleep(10000);
+      // usleep(1000);
    }
 
    camera.disconnect();

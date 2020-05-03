@@ -40,41 +40,27 @@ module breadboard_tests
 
    // Gray coded states
    // reset state for 1 clock 
-   localparam state_reset             = 4'b0000; 
+   localparam state_reset             = 5'b00000; 
    // 
-   localparam state_idle              = 4'b0001; 
+   localparam state_idle              = 5'b00001; 
    // get command from FT245 interface
-   localparam state_get_cmd           = 4'b0011;
+   localparam state_get_cmd           = 5'b00011;
    // evaluate the recieved command
-   localparam state_eval_cmd          = 4'b0010;
+   localparam state_eval_cmd          = 5'b00010;
+   // Toggle MCP to sample
+   localparam state_mcp_toggle        = 5'b00110;
    // Check that MCP is not busy
-   localparam state_mcp_busy_check    = 4'b0110;
-   // send mcp most significant bits to tx_fifo
-   localparam state_tx_write_mcp_msb  = 4'b0111;
-   // send mcp least significant bits to tx_fifo
-   localparam state_tx_write_mcp_lsb  = 4'b0101;
+   localparam state_mcp_busy_check    = 5'b00111;
+   // send mcp bytes to tx_fifo
+   localparam state_tx_write_mcp_b1   = 5'b00101;
+   localparam state_tx_write_mcp_b2   = 5'b00100;
+   localparam state_tx_write_mcp_b3   = 5'b01100;
+   localparam state_tx_write_mcp_b4   = 5'b01101;
    // wait for handshake
-   localparam state_toggle_ccd        = 4'b1000;
+   localparam state_toggle_ccd        = 5'b01000;
    // read out the ccd
-   localparam state_ccd_wait_busy     = 4'b1001;
+   localparam state_ccd_wait_busy     = 5'b11000;
 
-   // Gray code for reference:
-   // 4'b0000;
-   // 4'b0001;
-   // 4'b0011;
-   // 4'b0010;
-   // 4'b0110;
-   // 4'b0111;
-   // 4'b0101;
-   // 4'b0100;
-   // 4'b1100;
-   // 4'b1101;
-   // 4'b1111;
-   // 4'b1110;
-   // 4'b1010;
-   // 4'b1011;
-   // 4'b1001;
-   // 4'b1000;
    
    // // Shutter states
    // localparam shutter_state_open   = 1'b0; // open shutter
@@ -86,7 +72,8 @@ module breadboard_tests
    // Clock divider
    
    reg [23:0] 	clk_div = 0;
-   wire 	clk = clk_div[1]; // 50 MHz
+   wire 	clk = clk_in; // 100 MHz
+   // wire 	clk = clk_div[1]; // 50 MHz
 
    always @(posedge clk_in) begin
       clk_div <= clk_div + 1;
@@ -150,7 +137,7 @@ module breadboard_tests
    reg [7:0]  tx_fifo_wdata;
    wire	      tx_fifo_wfull;
 
-   fifo #(8, 8) tx_fifo
+   fifo #(8, 12) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
@@ -168,9 +155,9 @@ module breadboard_tests
 
    // MCP3008 ADC interface
 
-   reg 	      mcp_sample = 0;
+   reg 	      mcp_sample;
    wire       mcp_busy;
-   wire [15:0] mcp_data;
+   wire [31:0] mcp_data;
    wire       mcp_dclk_internal;
 `ifdef SYNTHESIS
    // 100 MHz / 2^(6+1) = 0.78 MHz
@@ -206,7 +193,7 @@ module breadboard_tests
 
    // State-machine
    
-   reg [3:0]   state = state_reset;
+   reg [4:0]   state = state_reset;
    // reg 	       shutter_state = shutter_state_closed;
    // reg [15:0]  ft_output_reg = 0;
    // reg [7:0]   command = 0;
@@ -232,7 +219,7 @@ module breadboard_tests
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
 	   if (rx_fifo_rdata == cmd_get_mcp)
-	     state <= state_mcp_busy_check;
+	     state <= state_mcp_toggle;
 	   // if (data_from_ft == cmd_read_ccd)
 	   //   state <= state_toggle_ccd;
 	   // if (data_from_ft == cmd_shutter_close)
@@ -258,14 +245,19 @@ module breadboard_tests
 	//   if (ccd_busy == 1'b1)
 	//     state <= state_tx_write_lsb;
 	
+	state_mcp_toggle:
+	  if (mcp_busy == 1'b1)
+	    state <= state_mcp_busy_check;
 	state_mcp_busy_check:
-	  if (mcp_busy == 1'b0)
-	    state <= state_tx_write_mcp_msb;
-
-	state_tx_write_mcp_msb:
-	    state <= state_tx_write_mcp_lsb;
-
-	state_tx_write_mcp_lsb:
+	  if (mcp_busy == 1'b0 && tx_fifo_wfull == 1'b0)
+	    state <= state_tx_write_mcp_b1;
+	state_tx_write_mcp_b1:
+	    state <= state_tx_write_mcp_b2;
+	state_tx_write_mcp_b2:
+	    state <= state_tx_write_mcp_b3;
+	state_tx_write_mcp_b3:
+	    state <= state_tx_write_mcp_b4;
+	state_tx_write_mcp_b4:
 	    state <= state_idle;
 	
 	// state_shutter_open:
@@ -291,6 +283,8 @@ module breadboard_tests
       tx_fifo_wdata  = 8'h00;
       tx_fifo_winc   = 1'b0;
       tx_fifo_wrst_n = 1'b1;
+
+      mcp_sample     = 1'b0;
 	
       if(state == state_reset) begin
 	 tx_fifo_wrst_n = 1'b0;
@@ -305,14 +299,25 @@ module breadboard_tests
       end
       if(state == state_eval_cmd) begin
       end
+      if(state == state_mcp_toggle) begin
+	 mcp_sample     = 1'b1;
+      end
       if(state == state_mcp_busy_check) begin
       end
-      if(state == state_tx_write_mcp_msb) begin
+      if(state == state_tx_write_mcp_b1) begin
 	 tx_fifo_wdata = mcp_data[7:0];
 	 tx_fifo_winc  = 1'b1;
       end
-      if(state == state_tx_write_mcp_lsb) begin
+      if(state == state_tx_write_mcp_b2) begin
 	 tx_fifo_wdata = mcp_data[15:8];
+	 tx_fifo_winc  = 1'b1;
+      end
+      if(state == state_tx_write_mcp_b3) begin
+	 tx_fifo_wdata = mcp_data[23:16];
+	 tx_fifo_winc  = 1'b1;
+      end
+      if(state == state_tx_write_mcp_b4) begin
+	 tx_fifo_wdata = mcp_data[31:24];
 	 tx_fifo_winc  = 1'b1;
       end
       // if(state == state_toggle_ccd) begin
@@ -331,18 +336,18 @@ module breadboard_tests
    end // always @*
 
 
-   // continuously sample the temperture sensors connected to the mcp
-`ifdef SYNTHESIS
-   wire mcp_sample_clk = clk_div[23]; // 100 MHz / 2^(23+1) = 5.96 Hz
-`else
-   // Makes is easier to see in simulation
-   wire mcp_sample_clk = clk_div[7]; // 100 MHz / 2^(7+1) = 390 kHz
-`endif
+//    // continuously sample the temperture sensors connected to the mcp
+// `ifdef SYNTHESIS
+//    wire mcp_sample_clk = clk_div[23]; // 100 MHz / 2^(23+1) = 5.96 Hz
+// `else
+//    // Makes is easier to see in simulation
+//    wire mcp_sample_clk = clk_div[7]; // 100 MHz / 2^(7+1) = 390 kHz
+// `endif
    
-   always @(posedge mcp_sample_clk) begin
-      // If the ADC is done converting, shift out the 16 bits
-      mcp_sample <= !mcp_sample;
-   end
+//    always @(posedge mcp_sample_clk) begin
+//       // If the ADC is done converting, shift out the 16 bits
+//       mcp_sample <= !mcp_sample;
+//    end
 
 
    

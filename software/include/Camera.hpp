@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <bitset>
+#include <map>
 
 #include "Ft245.hpp"
 #include "Fpga.hpp"
@@ -21,15 +22,18 @@ public:
    void connect();
    void disconnect();
 
-   std::pair<std::string, double> getTemperature();
+   bool sampleTemperatures();
+   double getTemperature(const std::string &thermistor);
    
 private:
    
    enum class Verbosity {debug,warnings,info};
    Verbosity m_verbosity = Verbosity::info;
    Ft245 m_ft;
-   Thermistor m_thAmbient;
-   Thermistor m_thCCD;
+   std::map<std::string,Thermistor> m_thermistors =
+   {{"ambient", Thermistor(2000.0, 3450.0, 3.3, 2200, 1023.0)},
+    {"ccd",     Thermistor(10000.0, 4080.0, 3.3, 10000, 1023.0)}};
+
 
 };
 

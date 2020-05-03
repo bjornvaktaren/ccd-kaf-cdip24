@@ -1,8 +1,6 @@
 #include <Camera.hpp>
 
-Camera::Camera() :
-   m_thAmbient(2000.0, 3450.0, 3.3, 2200),
-   m_thCCD(10000.0, 4080.0, 3.3, 10000)
+Camera::Camera()
 {
 }
 
@@ -21,42 +19,49 @@ void Camera::disconnect()
 }
 
 
-std::pair<std::string, double> Camera::getTemperature()
+bool Camera::sampleTemperatures()
 {
    m_ft.writeByte(fpga::command::get_temperature);
-   usleep(fpga::delay::sample_mcp);
+   // the FTDI latency timer is dominating the delay, so below delay is not
+   // needed
+   // usleep(fpga::delay::sample_mcp);
 
-   unsigned char buffer[2];
-   m_ft.read(buffer, 2);
-   unsigned int result = (
-      ((( static_cast<unsigned int>(buffer[1]) &
-	  ~fpga::thermistor_id::idBitMask )) << 8 )
-      | static_cast<unsigned int>(buffer[0]) 
-      );
+   const size_t nBytes = 4;
+   unsigned char buffer[nBytes];
+   int readBytes = m_ft.read(buffer, nBytes);
+   for ( unsigned int i = 0; i < 2; ++i ) {
+      unsigned int result = (
+	 ((( static_cast<unsigned int>(buffer[1 + 2*i]) &
+	     ~fpga::thermistor_id::idBitMask )) << 8 )
+	 | static_cast<unsigned int>(buffer[0 + 2*i]) 
+	 );
 
-   double U = 0.0;
-   std::string thermistor = "unknown";
-   double temperature = 0.0;
-   if ( ( buffer[1] & fpga::thermistor_id::idBitMask ) ==
-	fpga::thermistor_id::ambient ) {
-      thermistor = "ambient";
-      U = static_cast<double>(result)/1023.0*m_thAmbient.getV0();
-      temperature = m_thAmbient.celsius(U);
-   }
-   else if ( ( buffer[1] & fpga::thermistor_id::idBitMask ) ==
-	fpga::thermistor_id::ccd ) {
-      thermistor = "ccd";
-      U = static_cast<double>(result)/1023.0*m_thCCD.getV0();
-      temperature = m_thCCD.celsius(U);
+      if ( ( buffer[1 + 2*i] & fpga::thermistor_id::idBitMask ) ==
+	   fpga::thermistor_id::ambient ) {
+	 m_thermistors.at("ambient").setMeasurement(result);
+      }
+      else if ( ( buffer[1 + 2*i] & fpga::thermistor_id::idBitMask ) ==
+		fpga::thermistor_id::ccd ) {
+	 m_thermistors.at("ccd").setMeasurement(result);
+      }
    }
 
-   // std::cout << "INFO: Received " << std::bitset<64>(result)
-   // 	     << ' ' << std::bitset<8>(buffer[0])
-   // 	     << ' ' << std::bitset<8>(buffer[1]) << " (bit), "
-   // 	     << std::hex << result << " (hex), "
-   // 	     << std::dec << result << " (dec)."<< '\n';
+   std::cout << "INFO: Received "
+   	     << ' ' << std::bitset<8>(buffer[0])
+   	     << ' ' << std::bitset<8>(buffer[1])
+   	     << ' ' << std::bitset<8>(buffer[2])
+   	     << ' ' << std::bitset<8>(buffer[3])
+	     << ' ' << m_thermistors.at("ccd").getMeasuredVoltage()
+	     << ' ' << m_thermistors.at("ambient").getMeasuredVoltage()
+	     << ' ' << m_thermistors.at("ccd").getCelsius()
+	     << ' ' << m_thermistors.at("ambient").getCelsius()
+	     << '\n';
 
-   // std::cout << "U = " << U << '\n';
-   
-   return std::pair<std::string, double>(thermistor, temperature);
+   return readBytes == nBytes;
+}
+
+
+double Camera::getTemperature(const std::string &thermistor)
+{
+   return m_thermistors.at(thermistor).getCelsius();
 }

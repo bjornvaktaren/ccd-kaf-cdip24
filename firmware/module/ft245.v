@@ -51,7 +51,7 @@ module ft245
    
    `ifndef SYNTHESIS
    always @(posedge ft_clkout)
-     if (ft_rd_n == 1'b0)
+     if (ft_oe_n == 1'b0)
        rx_wdata <= ft_bus;
    `endif
    

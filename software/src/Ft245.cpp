@@ -29,7 +29,7 @@ int Ft245::init()
       return ftdi_status;
    }
    
-   ftdi_status = ftdi_set_latency_timer(&m_ftdi, 255);
+   ftdi_status = ftdi_set_latency_timer(&m_ftdi, 16);
    if ( ftdi_status != 0 ) {
       std::cerr << "ERROR: Can't set latency timer. Got error\n"
 	       << ftdi_get_error_string(&m_ftdi) << '\n';
@@ -62,7 +62,6 @@ int Ft245::init()
       return -1;
    }
    
-
    return 0;
 }
 
@@ -111,6 +110,8 @@ int Ft245::readByte(unsigned char &byte)
 int Ft245::read(unsigned char *buffer, const int nBytes)
 {
    // need to purge rx when reading for some etherial reason
+   // otherwise a lot of old crap it still there
+   // this seems to take a lot of time though
    if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
       std::cerr << "ERROR: Can't purge FTDI buffers: "
    		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
@@ -118,11 +119,11 @@ int Ft245::read(unsigned char *buffer, const int nBytes)
    
    int bytesRead = 0;
    for ( int tries = 0; tries < 10 && bytesRead != nBytes; ++tries) {
-      bytesRead = ftdi_read_data(&m_ftdi, buffer, nBytes);
+      bytesRead += ftdi_read_data(&m_ftdi, buffer, nBytes - bytesRead);
    }
-   // int ftdi_status = ftdi_read_data(&m_ftdi, &byte, 1);
    if ( bytesRead != nBytes ) {
-      std::cerr << "ERROR: Ft245::read() failed with status " << bytesRead
+      std::cerr << "ERROR: Ft245::read() failed with error "
+		<< ftdi_get_error_string(&m_ftdi)
    		<< '\n';
    }
    return bytesRead;

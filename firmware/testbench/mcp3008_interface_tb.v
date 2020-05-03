@@ -6,7 +6,7 @@ module mcp3008_interface_tb();
    wire     din;
    wire     cs_n;
    wire     busy;
-   wire [15:0] dout_reg;
+   wire [31:0] dout_reg;
    
    mcp3008_interface dut
      (
@@ -16,7 +16,7 @@ module mcp3008_interface_tb();
       din,     // mcp3008 data in
       cs_n,    // mcp3008 active low chip select
       busy,    // this interface is busy
-      dout_reg // 10 bit output
+      dout_reg // output
       );
 
    always begin
@@ -32,7 +32,7 @@ module mcp3008_interface_tb();
 	       disable f;
 	    end
 	    begin
-	       @(posedge cs_n);
+	       @(negedge busy);
 	       disable f;
 	    end
 	 join
@@ -51,7 +51,7 @@ module mcp3008_interface_tb();
       #10 sample <= 0;
       mcp_wait();
 
-      sample <= 1;
+      #10 sample <= 1;
       #10 sample <= 0;
       mcp_wait();
       
