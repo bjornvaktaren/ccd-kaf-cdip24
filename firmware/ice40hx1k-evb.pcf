@@ -18,5 +18,5 @@ set_io ft_wr_n      24
 set_io ft_siwu_n    25
 set_io ft_clkout    26
 set_io ft_oe_n      27
-# set_io pwm_shutter  28
+set_io pwm_shutter  28
 # set_io pwm_peltier  29

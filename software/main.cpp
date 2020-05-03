@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
    std::cout << "Press ENTER to exit\n";
    std::string input;
    bool exit = false;
+   bool shutterClosed = true;
    while ( !temperatureDisplay.is_closed() ) {
       std::chrono::system_clock::time_point now
 	 = std::chrono::system_clock::now();
@@ -55,7 +56,15 @@ int main(int argc, char* argv[])
       temperatureImg.draw();
       temperatureImg.display(temperatureDisplay);
 
-      // usleep(1000);
+      if ( shutterClosed ) {
+	 camera.openShutter();
+	 shutterClosed = false;
+      }
+      else {
+	 camera.closeShutter();
+	 shutterClosed = true;
+      }
+      usleep(10000000);
    }
 
    camera.disconnect();

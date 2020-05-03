@@ -24,6 +24,8 @@ public:
 
    bool sampleTemperatures();
    double getTemperature(const std::string &thermistor);
+   bool openShutter();
+   bool closeShutter();
    
 private:
    

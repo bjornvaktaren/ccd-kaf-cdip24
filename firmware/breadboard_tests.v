@@ -18,7 +18,7 @@ module breadboard_tests
    mcp_dout,    // mcp3008 data out
    mcp_din,     // mcp3008 data in
    mcp_cs_n,    // mcp3008 active low chip select
-   // pwm_shutter, // PWM output for controlling the shutter servo
+   pwm_shutter, // PWM output for controlling the shutter servo
    // pwm_peltier  // PWM output for controlling the peltier cooling
    );
    
@@ -35,7 +35,7 @@ module breadboard_tests
    output wire 	mcp_dclk;
    output wire  mcp_din;
    output wire 	mcp_cs_n;
-   // output wire 	pwm_shutter;
+   output wire 	pwm_shutter;
    // output wire 	pwm_peltier;
 
    // Gray coded states
@@ -62,9 +62,9 @@ module breadboard_tests
    localparam state_ccd_wait_busy     = 5'b11000;
 
    
-   // // Shutter states
-   // localparam shutter_state_open   = 1'b0; // open shutter
-   // localparam shutter_state_closed = 1'b1; // close shutter
+   // Shutter states
+   localparam shutter_state_open   = 1'b0; // open shutter
+   localparam shutter_state_closed = 1'b1; // close shutter
 
    // include header file with localparams needed across modules or for sim
    `include "controller.vh"
@@ -181,22 +181,19 @@ module breadboard_tests
       );
 
 
-
-   // // Shutter PWM
+   // Shutter PWM
    
-   // localparam shutter_closed_duty_cycle = 8'h10;
-   // localparam shutter_open_duty_cycle = 8'h20;
-   // reg [7:0] pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
+   localparam shutter_closed_duty_cycle = 8'h96; // approx 1500 us
+   localparam shutter_open_duty_cycle = 8'h50; // approx 800 us
+   reg [7:0] pwm_shutter_duty_cycle;
   
-   // assign pwm_shutter = clk_div[7:0] <= pwm_shutter_duty_cycle ? 1 : 0;
+   assign pwm_shutter = (clk_div[17:10] <= pwm_shutter_duty_cycle);
 
 
    // State-machine
    
    reg [4:0]   state = state_reset;
-   // reg 	       shutter_state = shutter_state_closed;
-   // reg [15:0]  ft_output_reg = 0;
-   // reg [7:0]   command = 0;
+   reg 	       shutter_state = shutter_state_closed;
    
    // state logic
    always @(posedge clk) begin
@@ -222,10 +219,10 @@ module breadboard_tests
 	     state <= state_mcp_toggle;
 	   // if (data_from_ft == cmd_read_ccd)
 	   //   state <= state_toggle_ccd;
-	   // if (data_from_ft == cmd_shutter_close)
-	   //   shutter_state <= shutter_state_closed;
-	   // if (data_from_ft == cmd_shutter_open)
-	   //   shutter_state <= shutter_state_open;
+	   if (rx_fifo_rdata == cmd_shutter_close)
+	     shutter_state <= shutter_state_closed;
+	   if (rx_fifo_rdata == cmd_shutter_open)
+	     shutter_state <= shutter_state_open;
 	end
 
 	// state_sample_mcp:
@@ -326,29 +323,16 @@ module breadboard_tests
       // if(state == state_ccd_wait_busy) begin
       // 	 ccd_toggle = 1'b1;
       // end
-      // // shutter states
-      // if(shutter_state == shutter_state_open) begin
-      // 	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
-      // end
-      // if(shutter_state == shutter_state_closed) begin
-      // 	 pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
-      // end
    end // always @*
 
 
-//    // continuously sample the temperture sensors connected to the mcp
-// `ifdef SYNTHESIS
-//    wire mcp_sample_clk = clk_div[23]; // 100 MHz / 2^(23+1) = 5.96 Hz
-// `else
-//    // Makes is easier to see in simulation
-//    wire mcp_sample_clk = clk_div[7]; // 100 MHz / 2^(7+1) = 390 kHz
-// `endif
+   // shutter state task logic
+   always @* begin
+      pwm_shutter_duty_cycle = shutter_closed_duty_cycle;
+      if(shutter_state == shutter_state_open) begin
+      	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
+      end
+   end
    
-//    always @(posedge mcp_sample_clk) begin
-//       // If the ADC is done converting, shift out the 16 bits
-//       mcp_sample <= !mcp_sample;
-//    end
-
-
    
 endmodule // breadboard_tests

@@ -65,3 +65,15 @@ double Camera::getTemperature(const std::string &thermistor)
 {
    return m_thermistors.at(thermistor).getCelsius();
 }
+
+
+bool Camera::openShutter()
+{
+   return m_ft.writeByte(fpga::command::open_shutter) == 1;
+}
+
+
+bool Camera::closeShutter()
+{
+   return m_ft.writeByte(fpga::command::close_shutter) == 1;
+}

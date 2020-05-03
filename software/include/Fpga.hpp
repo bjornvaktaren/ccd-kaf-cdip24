@@ -4,8 +4,10 @@
 namespace fpga {
 
    namespace command {
-      static constexpr unsigned char none = 0x00;
+      static constexpr unsigned char none            = 0x00;
       static constexpr unsigned char get_temperature = 0x01;
+      static constexpr unsigned char open_shutter    = 0x03;
+      static constexpr unsigned char close_shutter   = 0x04;
    }
 
    namespace delay {
