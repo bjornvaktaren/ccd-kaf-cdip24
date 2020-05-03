@@ -15,8 +15,8 @@ namespace fpga {
    namespace thermistor_id {
       // Identifier for the thermistor, sent from the FPGA.
       // The 2 least significant bits are not used.
-      static constexpr unsigned char ambient   = 0b10000100;
-      static constexpr unsigned char ccd       = 0b10010100;
+      static constexpr unsigned char ambient   = 0b11000100;
+      static constexpr unsigned char ccd       = 0b11010100;
       static constexpr unsigned char idBitMask = 0b11111100;
    }
 }

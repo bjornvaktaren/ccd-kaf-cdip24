@@ -19,8 +19,8 @@ module mcp3008_interface
 
    // Two samples, first CH[0,1], then CH[2,3].
    localparam number_of_samples = 2;
-   // start-bit, pseudo-diff, CH[0,1] = IN[+,-], then CH[2,3] = IN[+,-]
-   reg [9:0]  mcp3008_conf = 10'b1_0_000_1_0_010;
+   // start-bit, single-ended, CH[0,1] = IN[+,-], then CH[2,3] = IN[+,-]
+   reg [9:0]  mcp3008_conf = 10'b1_1_000_1_1_010;
    reg [4:0]  bit_count = 0;
    reg [1:0]  sample_count = 0;
 
