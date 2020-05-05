@@ -186,8 +186,11 @@ module breadboard_tests
    localparam shutter_closed_duty_cycle = 8'h96; // approx 1500 us
    localparam shutter_open_duty_cycle = 8'h50; // approx 800 us
    reg [7:0] pwm_shutter_duty_cycle;
-  
-   assign pwm_shutter = (clk_div[17:10] <= pwm_shutter_duty_cycle);
+
+   // The last equality makes the PWM skip all but every 4th pulse, so that 
+   // there is approximately 20 us between pulses.
+   assign pwm_shutter = ( clk_div[17:10] <= pwm_shutter_duty_cycle && 
+			  clk_div[20:17] == 0 );
 
 
    // State-machine
