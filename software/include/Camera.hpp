@@ -26,6 +26,8 @@ public:
    double getTemperature(const std::string &thermistor);
    bool openShutter();
    bool closeShutter();
+   bool setCooling(const bool on=true);
+   bool setPeltierPWM(const int peltier, const unsigned char pwmVal);
    
 private:
    

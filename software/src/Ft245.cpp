@@ -107,6 +107,17 @@ int Ft245::readByte(unsigned char &byte)
 }
 
 
+int Ft245::write(const unsigned char *buffer, const int nBytes)
+{
+   int ftdi_status = ftdi_write_data(&m_ftdi, buffer, nBytes);
+   if ( ftdi_status != nBytes ) {
+      std::cerr << "ERROR: Ft245::write() failed with status " << ftdi_status
+		<< '\n';
+   }
+   return ftdi_status;
+}
+
+
 int Ft245::read(unsigned char *buffer, const int nBytes)
 {
    // need to purge rx when reading for some etherial reason

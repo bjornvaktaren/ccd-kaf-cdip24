@@ -5,21 +5,22 @@
 `include "fifo.v"
 
 module breadboard_tests
-  (clk_in,      // clock
-   ft_bus,      // ft232h data bus
-   ft_rxf_n,    // ft232h read fifo (active low)
-   ft_txe_n,    // ft232h transmit enable (active low)
-   ft_rd_n,     // ft232h read data (active low)
-   ft_wr_n,     // ft232h write (active low)
-   ft_siwu_n,   // ft232h send immediate / wake up (active low)
-   ft_clkout,   // ft232h clock
-   ft_oe_n,     // ft232h output enable (active low)
-   mcp_dclk,    // mcp3008 data clock
-   mcp_dout,    // mcp3008 data out
-   mcp_din,     // mcp3008 data in
-   mcp_cs_n,    // mcp3008 active low chip select
-   pwm_shutter, // PWM output for controlling the shutter servo
-   // pwm_peltier  // PWM output for controlling the peltier cooling
+  (clk_in,        // clock
+   ft_bus,        // ft232h data bus
+   ft_rxf_n,      // ft232h read fifo (active low)
+   ft_txe_n,      // ft232h transmit enable (active low)
+   ft_rd_n,       // ft232h read data (active low)
+   ft_wr_n,       // ft232h write (active low)
+   ft_siwu_n,     // ft232h send immediate / wake up (active low)
+   ft_clkout,     // ft232h clock
+   ft_oe_n,       // ft232h output enable (active low)
+   mcp_dclk,      // mcp3008 data clock
+   mcp_dout,      // mcp3008 data out
+   mcp_din,       // mcp3008 data in
+   mcp_cs_n,      // mcp3008 active low chip select
+   pwm_shutter,   // PWM output for controlling the shutter servo
+   pwm_peltier_1, // PWM output for controlling the peltier cooler number 1
+   pwm_peltier_2, // PWM output for controlling the peltier cooler number 2
    );
    
    input        clk_in;
@@ -36,7 +37,8 @@ module breadboard_tests
    output wire  mcp_din;
    output wire 	mcp_cs_n;
    output wire 	pwm_shutter;
-   // output wire 	pwm_peltier;
+   output wire 	pwm_peltier_1;
+   output wire 	pwm_peltier_2;
 
    // Gray coded states
    // reset state for 1 clock 
@@ -56,6 +58,10 @@ module breadboard_tests
    localparam state_tx_write_mcp_b2   = 5'b00100;
    localparam state_tx_write_mcp_b3   = 5'b01100;
    localparam state_tx_write_mcp_b4   = 5'b01101;
+   // wait for rx fifo to receive set value for pwm
+   localparam state_peltier_1_rx      = 5'b01111;
+   // wait for rx fifo to receive set value for pwm
+   localparam state_peltier_2_rx      = 5'b01110;
    // wait for handshake
    localparam state_toggle_ccd        = 5'b01000;
    // read out the ccd
@@ -193,6 +199,18 @@ module breadboard_tests
 			  clk_div[20:17] == 0 );
 
 
+   // Peltier element control
+
+   reg [7:0] peltier_1_duty_cycle = 8'h00;
+   reg [7:0] peltier_2_duty_cycle = 8'h00;
+   reg 	     peltier_on;
+
+   assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle
+			    && peltier_on );
+   assign pwm_peltier_2 = ( clk_div[7:0] < peltier_2_duty_cycle
+			    && peltier_on );
+   
+
    // State-machine
    
    reg [4:0]   state = state_reset;
@@ -226,6 +244,14 @@ module breadboard_tests
 	     shutter_state <= shutter_state_closed;
 	   if (rx_fifo_rdata == cmd_shutter_open)
 	     shutter_state <= shutter_state_open;
+	   if (rx_fifo_rdata == cmd_peltier_on)
+	     peltier_on <= 1'b1;
+	   if (rx_fifo_rdata == cmd_peltier_off)
+	     peltier_on <= 1'b0;
+	   if (rx_fifo_rdata == cmd_peltier_1_set)
+	     state <= state_peltier_1_rx;
+	   if (rx_fifo_rdata == cmd_peltier_2_set)
+	     state <= state_peltier_2_rx;
 	end
 
 	// state_sample_mcp:
@@ -260,11 +286,16 @@ module breadboard_tests
 	state_tx_write_mcp_b4:
 	    state <= state_idle;
 	
-	// state_shutter_open:
-	//     state <= state_idle; 
-
-	// state_shutter_close:
-	//     state <= state_idle; 
+	state_peltier_1_rx:
+	  if (rx_fifo_rempty == 1'b0) begin
+	     peltier_1_duty_cycle <= rx_fifo_rdata;
+	     state <= state_idle;
+	  end
+	state_peltier_2_rx:
+	  if (rx_fifo_rempty == 1'b0) begin
+	     peltier_2_duty_cycle <= rx_fifo_rdata;
+	     state <= state_idle;
+	  end
 	
    	default: state <= state_reset;
 	
@@ -336,6 +367,6 @@ module breadboard_tests
       	 pwm_shutter_duty_cycle = shutter_open_duty_cycle;
       end
    end
-   
+
    
 endmodule // breadboard_tests

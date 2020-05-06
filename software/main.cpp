@@ -38,6 +38,9 @@ int main(int argc, char* argv[])
    std::string input;
    bool exit = false;
    bool shutterClosed = true;
+   bool coolingOn     = false;
+   camera.setPeltierPWM(1, 0xF0);
+   camera.setPeltierPWM(2, 0x0F);
    while ( !temperatureDisplay.is_closed() ) {
       std::chrono::system_clock::time_point now
 	 = std::chrono::system_clock::now();
@@ -63,6 +66,15 @@ int main(int argc, char* argv[])
       else {
 	 camera.closeShutter();
 	 shutterClosed = true;
+      }
+      
+      if ( coolingOn ) {
+	 camera.setCooling(false);
+	 coolingOn = false;
+      }
+      else {
+	 camera.setCooling(true);
+	 coolingOn = true;
       }
       usleep(10000000);
    }

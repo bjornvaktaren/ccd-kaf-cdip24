@@ -77,3 +77,26 @@ bool Camera::closeShutter()
 {
    return m_ft.writeByte(fpga::command::close_shutter) == 1;
 }
+
+
+bool Camera::setCooling(const bool on)
+{
+   if ( on ) return m_ft.writeByte(fpga::command::peltier_on);
+   else return m_ft.writeByte(fpga::command::peltier_off);
+}
+
+
+bool Camera::setPeltierPWM(const int peltier, const unsigned char pwmVal)
+{
+   if ( peltier == 1 ) {
+      m_ft.writeByte(fpga::command::peltier_1_set);
+   }
+   else if ( peltier == 2 ) {
+      m_ft.writeByte(fpga::command::peltier_2_set);
+   }
+   else {
+      std::cerr << "Unsupported peltier '" << peltier << "'\n";
+      return false;
+   }
+   return m_ft.writeByte(pwmVal) == 1;
+}
