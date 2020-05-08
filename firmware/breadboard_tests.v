@@ -58,14 +58,13 @@ module breadboard_tests
    localparam state_tx_write_mcp_b2   = 5'b00100;
    localparam state_tx_write_mcp_b3   = 5'b01100;
    localparam state_tx_write_mcp_b4   = 5'b01101;
-   // wait for rx fifo to receive set value for pwm
+   // move rx fifo data to pwm duty cycle reg
    localparam state_peltier_1_rx      = 5'b01111;
-   // wait for rx fifo to receive set value for pwm
    localparam state_peltier_2_rx      = 5'b01110;
    // wait for handshake
-   localparam state_toggle_ccd        = 5'b01000;
-   // read out the ccd
-   localparam state_ccd_wait_busy     = 5'b11000;
+   // localparam state_toggle_ccd        = 5'b01000;
+   // // read out the ccd
+   // localparam state_ccd_wait_busy     = 5'b11000;
 
    
    // Shutter states
@@ -78,8 +77,8 @@ module breadboard_tests
    // Clock divider
    
    reg [23:0] 	clk_div = 0;
-   wire 	clk = clk_in; // 100 MHz
-   // wire 	clk = clk_div[1]; // 50 MHz
+   // wire 	clk = clk_in; // 100 MHz
+   wire 	clk = clk_div[0]; // 50 MHz
 
    always @(posedge clk_in) begin
       clk_div <= clk_div + 1;
@@ -203,7 +202,7 @@ module breadboard_tests
 
    reg [7:0] peltier_1_duty_cycle = 8'h00;
    reg [7:0] peltier_2_duty_cycle = 8'h00;
-   reg 	     peltier_on;
+   reg 	     peltier_on = 1'b0;
 
    assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle
 			    && peltier_on );
@@ -249,9 +248,9 @@ module breadboard_tests
 	   if (rx_fifo_rdata == cmd_peltier_off)
 	     peltier_on <= 1'b0;
 	   if (rx_fifo_rdata == cmd_peltier_1_set)
-	     state <= state_peltier_1_rx;
+	       state <= state_peltier_1_rx;
 	   if (rx_fifo_rdata == cmd_peltier_2_set)
-	     state <= state_peltier_2_rx;
+	       state <= state_peltier_2_rx;
 	end
 
 	// state_sample_mcp:
@@ -287,12 +286,13 @@ module breadboard_tests
 	    state <= state_idle;
 	
 	state_peltier_1_rx:
-	  if (rx_fifo_rempty == 1'b0) begin
+	  begin
 	     peltier_1_duty_cycle <= rx_fifo_rdata;
 	     state <= state_idle;
 	  end
-	state_peltier_2_rx:
-	  if (rx_fifo_rempty == 1'b0) begin
+	
+	state_peltier_2_rx: 
+	  begin
 	     peltier_2_duty_cycle <= rx_fifo_rdata;
 	     state <= state_idle;
 	  end
@@ -350,6 +350,10 @@ module breadboard_tests
       if(state == state_tx_write_mcp_b4) begin
 	 tx_fifo_wdata = mcp_data[31:24];
 	 tx_fifo_winc  = 1'b1;
+      end
+      if(state == state_peltier_1_rx) begin
+      end
+      if(state == state_peltier_2_rx) begin
       end
       // if(state == state_toggle_ccd) begin
       // 	 ccd_toggle = 1'b1;

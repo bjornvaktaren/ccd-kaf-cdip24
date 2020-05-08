@@ -39,8 +39,12 @@ int main(int argc, char* argv[])
    bool exit = false;
    bool shutterClosed = true;
    bool coolingOn     = false;
+   camera.setCooling(true);
+   // usleep(20000);
    camera.setPeltierPWM(1, 0xF0);
+   // usleep(20000);
    camera.setPeltierPWM(2, 0x0F);
+   // usleep(20000);
    while ( !temperatureDisplay.is_closed() ) {
       std::chrono::system_clock::time_point now
 	 = std::chrono::system_clock::now();
@@ -54,29 +58,34 @@ int main(int argc, char* argv[])
       temperatureCCD.push_back(camera.getTemperature("ccd"));
       timeCCD.push_back(msec.count()/1000.0);
 
-      temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
-      temperatureImg.line(2, timeCCD, temperatureCCD, "l");
-      temperatureImg.draw();
-      temperatureImg.display(temperatureDisplay);
+      if ( temperatureAmbient.size() > 2 &&
+	   temperatureCCD.size()     > 2 &&
+	   timeAmbient.size()        > 2 &&
+	   timeCCD.size()            > 2 ) {
+	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
+	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
+	 temperatureImg.draw();
+	 temperatureImg.display(temperatureDisplay);
+      }
 
-      if ( shutterClosed ) {
-	 camera.openShutter();
-	 shutterClosed = false;
-      }
-      else {
-	 camera.closeShutter();
-	 shutterClosed = true;
-      }
+      // if ( shutterClosed ) {
+      // 	 camera.openShutter();
+      // 	 shutterClosed = false;
+      // }
+      // else {
+      // 	 camera.closeShutter();
+      // 	 shutterClosed = true;
+      // }
       
-      if ( coolingOn ) {
-	 camera.setCooling(false);
-	 coolingOn = false;
-      }
-      else {
-	 camera.setCooling(true);
-	 coolingOn = true;
-      }
-      usleep(10000000);
+      // if ( coolingOn ) {
+      // 	 camera.setCooling(false);
+      // 	 coolingOn = false;
+      // }
+      // else {
+      // 	 camera.setCooling(true);
+      // 	 coolingOn = true;
+      // }
+      usleep(500000);
    }
 
    camera.disconnect();

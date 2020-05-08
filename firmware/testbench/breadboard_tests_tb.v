@@ -15,6 +15,9 @@ module breadboard_tests_tb();
    wire mcp_dclk;
    wire mcp_din;
    wire mcp_cs_n;
+   wire	pwm_shutter;
+   wire	pwm_peltier_1;
+   wire	pwm_peltier_2;
 
    // include header file with localparams containing the command definitions
    `include "controller.vh"
@@ -36,7 +39,10 @@ module breadboard_tests_tb();
       .mcp_dclk(mcp_dclk),   // mcp3008 data clock
       .mcp_dout(mcp_dout),   // mcp3008 data out
       .mcp_din(mcp_din),     // mcp3008 data in
-      .mcp_cs_n(mcp_cs_n)    // mcp3008 active low chip select
+      .mcp_cs_n(mcp_cs_n),    // mcp3008 active low chip select
+      .pwm_shutter(pwm_shutter), 
+      .pwm_peltier_1(pwm_peltier_1),
+      .pwm_peltier_2(pwm_peltier_2)
       );
    
    always begin
@@ -106,12 +112,13 @@ module breadboard_tests_tb();
       $dumpfile("breadboard_tests_tb.vcd");
       $dumpvars;
 
-      #250 ft245_send(8'hF0);
-      #250 ft245_send(8'hF1);
-      #250 ft245_send(8'hF2);
-      #250 ft245_send(8'hF3);
+      #250 ft245_send(cmd_peltier_on);
+      ft245_send(cmd_peltier_1_set);
+      ft245_send(8'h0F);
+      ft245_send(cmd_peltier_2_set);
+      ft245_send(8'hF0);
       
-      #250 ft245_send(cmd_get_mcp);
+      ft245_send(cmd_get_mcp);
       #50 ft_txe_n <= 0;
       mcp_dout <= 1;
       // sampling two times

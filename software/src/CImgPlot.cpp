@@ -158,8 +158,8 @@ void CImgPlot::line(const int index, std::vector<float> x,
    }
    catch (std::exception &e) {
       m_lines.push_back(line);
-      std::cout << "WARNING: Caught exception " << e.what() << "Probably, line"
-		<< " index " << index << " does not exist. Adding it.\n";
+      // std::cout << "WARNING: Caught exception " << e.what() << "Probably, line"
+      // 		<< " index " << index << " does not exist. Adding it.\n";
    }
 
    return;

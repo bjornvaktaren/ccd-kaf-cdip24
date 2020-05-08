@@ -88,15 +88,19 @@ bool Camera::setCooling(const bool on)
 
 bool Camera::setPeltierPWM(const int peltier, const unsigned char pwmVal)
 {
+   unsigned char writeBuffer[2];
+   
    if ( peltier == 1 ) {
-      m_ft.writeByte(fpga::command::peltier_1_set);
+      writeBuffer[0] = fpga::command::peltier_1_set;
    }
    else if ( peltier == 2 ) {
-      m_ft.writeByte(fpga::command::peltier_2_set);
+      writeBuffer[0] = fpga::command::peltier_2_set;
    }
    else {
       std::cerr << "Unsupported peltier '" << peltier << "'\n";
       return false;
    }
-   return m_ft.writeByte(pwmVal) == 1;
+   writeBuffer[1] = pwmVal;
+   
+   return m_ft.write(writeBuffer, 2);
 }
