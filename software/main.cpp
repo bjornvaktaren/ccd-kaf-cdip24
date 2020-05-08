@@ -40,16 +40,17 @@ int main(int argc, char* argv[])
    bool shutterClosed = true;
    bool coolingOn     = false;
    camera.setCooling(true);
-   // usleep(20000);
-   camera.setPeltierPWM(1, 0xF0);
-   // usleep(20000);
-   camera.setPeltierPWM(2, 0x0F);
-   // usleep(20000);
+   // // usleep(20000);
+   // camera.setPeltierPWM(1, 0xF0);
+   // // usleep(20000);
+   // camera.setPeltierPWM(2, 0x0F);
+   // // usleep(20000);
+   int i = 0;
    while ( !temperatureDisplay.is_closed() ) {
       std::chrono::system_clock::time_point now
-	 = std::chrono::system_clock::now();
+   	 = std::chrono::system_clock::now();
       auto msec
-	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
+   	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
 
       camera.sampleTemperatures();
       
@@ -59,13 +60,13 @@ int main(int argc, char* argv[])
       timeCCD.push_back(msec.count()/1000.0);
 
       if ( temperatureAmbient.size() > 2 &&
-	   temperatureCCD.size()     > 2 &&
-	   timeAmbient.size()        > 2 &&
-	   timeCCD.size()            > 2 ) {
-	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
-	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
-	 temperatureImg.draw();
-	 temperatureImg.display(temperatureDisplay);
+   	   temperatureCCD.size()     > 2 &&
+   	   timeAmbient.size()        > 2 &&
+   	   timeCCD.size()            > 2 ) {
+   	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
+   	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
+   	 temperatureImg.draw();
+   	 temperatureImg.display(temperatureDisplay);
       }
 
       // if ( shutterClosed ) {
@@ -85,8 +86,25 @@ int main(int argc, char* argv[])
       // 	 camera.setCooling(true);
       // 	 coolingOn = true;
       // }
+      unsigned char duty = 1 << i;
+      std::cout << static_cast<int>(duty) << '\n';
+      camera.setPeltierPWM(1, duty);
+      if ( i == 7 ) i = 0;
+      else ++i;
+      
       usleep(500000);
    }
+   
+   // camera.setCooling(true);
+
+   // for ( int j = 0; j < 10; ++j ) {
+   //    for ( int i = 0; i < 8; ++i ){
+   // 	 unsigned char duty = 1 << i;
+   // 	 std::cout << static_cast<int>(duty) << '\n';
+   // 	 camera.setPeltierPWM(1, duty);
+   // 	 usleep(1000000);
+   //    }
+   // }
 
    camera.disconnect();
 

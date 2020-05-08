@@ -55,12 +55,18 @@ module breadboard_tests
    localparam state_mcp_busy_check    = 5'b00111;
    // send mcp bytes to tx_fifo
    localparam state_tx_write_mcp_b1   = 5'b00101;
-   localparam state_tx_write_mcp_b2   = 5'b00100;
-   localparam state_tx_write_mcp_b3   = 5'b01100;
-   localparam state_tx_write_mcp_b4   = 5'b01101;
+   localparam state_tx_write_mcp_b1_2 = 5'b00100;
+   localparam state_tx_write_mcp_b2   = 5'b01100;
+   localparam state_tx_write_mcp_b2_2 = 5'b01101;
+   localparam state_tx_write_mcp_b3   = 5'b01111;
+   localparam state_tx_write_mcp_b3_2 = 5'b01110;
+   localparam state_tx_write_mcp_b4   = 5'b01010;
+   localparam state_tx_write_mcp_b4_2 = 5'b01000;
    // move rx fifo data to pwm duty cycle reg
-   localparam state_peltier_1_rx      = 5'b01111;
-   localparam state_peltier_2_rx      = 5'b01110;
+   localparam state_peltier_1_rx_1    = 5'b10000;
+   localparam state_peltier_1_rx_2    = 5'b10001;
+   localparam state_peltier_2_rx_1    = 5'b10011;
+   localparam state_peltier_2_rx_2    = 5'b10010;
    // wait for handshake
    // localparam state_toggle_ccd        = 5'b01000;
    // // read out the ccd
@@ -214,6 +220,7 @@ module breadboard_tests
    
    reg [4:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
+   reg [7:0]   rx_reg = 8'h00;
    
    // state logic
    always @(posedge clk) begin
@@ -228,74 +235,86 @@ module breadboard_tests
 	  if (rx_fifo_rempty == 1'b0) 
 	    state <= state_get_cmd;
 	
-	state_get_cmd:
-	  // wait for the sync_ft245 module to have recieved data
-	  state <= state_eval_cmd;
+	state_get_cmd: begin
+	   // wait for the sync_ft245 module to have recieved data
+	   state <= state_eval_cmd;
+	   rx_reg <= rx_fifo_rdata;
+	end
+	
 
 	state_eval_cmd: begin
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
-	   if (rx_fifo_rdata == cmd_get_mcp)
+	   if (rx_reg == cmd_get_mcp)
 	     state <= state_mcp_toggle;
 	   // if (data_from_ft == cmd_read_ccd)
 	   //   state <= state_toggle_ccd;
-	   if (rx_fifo_rdata == cmd_shutter_close)
+	   if (rx_reg == cmd_shutter_close)
 	     shutter_state <= shutter_state_closed;
-	   if (rx_fifo_rdata == cmd_shutter_open)
+	   if (rx_reg == cmd_shutter_open)
 	     shutter_state <= shutter_state_open;
-	   if (rx_fifo_rdata == cmd_peltier_on)
+	   if (rx_reg == cmd_peltier_on)
 	     peltier_on <= 1'b1;
-	   if (rx_fifo_rdata == cmd_peltier_off)
+	   if (rx_reg == cmd_peltier_off)
 	     peltier_on <= 1'b0;
-	   if (rx_fifo_rdata == cmd_peltier_1_set)
-	       state <= state_peltier_1_rx;
-	   if (rx_fifo_rdata == cmd_peltier_2_set)
-	       state <= state_peltier_2_rx;
+	   if (rx_reg == cmd_peltier_1_set)
+	       state <= state_peltier_1_rx_1;
+	   if (rx_reg == cmd_peltier_2_set)
+	       state <= state_peltier_2_rx_1;
 	end
 
-	// state_sample_mcp:
-	//   if (mcp_busy == 1'b1)
-	//     state <= state_mcp_wait;
-	
-	// state_mcp_wait:
-	//   if (mcp_busy == 1'b0)
-	//     state <= state_mcp_to_ft_bus;
-	
-	// state_toggle_ccd:
-	//   if (ccd_busy == 1'b0)
-	//     state <= state_ccd_wait_busy;
-	
-	// state_ccd_wait_busy:
-	//   // while there is data in the fifo
-	//   if (ccd_busy == 1'b1)
-	//     state <= state_tx_write_lsb;
-	
 	state_mcp_toggle:
 	  if (mcp_busy == 1'b1)
 	    state <= state_mcp_busy_check;
 	state_mcp_busy_check:
 	  if (mcp_busy == 1'b0 && tx_fifo_wfull == 1'b0)
 	    state <= state_tx_write_mcp_b1;
-	state_tx_write_mcp_b1:
+	
+	state_tx_write_mcp_b1: begin
+	   state  <= state_tx_write_mcp_b1_2;
+	   tx_fifo_wdata <= mcp_data[7:0];
+	end
+	state_tx_write_mcp_b1_2:
 	    state <= state_tx_write_mcp_b2;
-	state_tx_write_mcp_b2:
+	
+	state_tx_write_mcp_b2: begin
+	   state  <= state_tx_write_mcp_b2_2;
+	   tx_fifo_wdata <= mcp_data[15:8];
+	end
+	state_tx_write_mcp_b2_2:
 	    state <= state_tx_write_mcp_b3;
-	state_tx_write_mcp_b3:
+	
+	state_tx_write_mcp_b3: begin
+	   state  <= state_tx_write_mcp_b3_2;
+	   tx_fifo_wdata <= mcp_data[23:16];
+	end
+	state_tx_write_mcp_b3_2:
 	    state <= state_tx_write_mcp_b4;
-	state_tx_write_mcp_b4:
+	
+	state_tx_write_mcp_b4: begin
+	   state  <= state_tx_write_mcp_b4_2;
+	   tx_fifo_wdata <= mcp_data[31:24];
+	end
+	state_tx_write_mcp_b4_2:
 	    state <= state_idle;
 	
-	state_peltier_1_rx:
-	  begin
-	     peltier_1_duty_cycle <= rx_fifo_rdata;
-	     state <= state_idle;
-	  end
-	
-	state_peltier_2_rx: 
-	  begin
-	     peltier_2_duty_cycle <= rx_fifo_rdata;
-	     state <= state_idle;
-	  end
+	state_peltier_1_rx_1: begin
+	   rx_reg <= rx_fifo_rdata;
+	   state  <= state_peltier_1_rx_2;
+	end
+	state_peltier_1_rx_2: begin
+	   peltier_1_duty_cycle <= rx_reg;
+	   state <= state_idle;
+	end
+	state_peltier_2_rx_1: begin
+	   rx_reg <= rx_fifo_rdata;
+	   state  <= state_peltier_2_rx_2;
+	end
+	state_peltier_2_rx_2: begin
+	   peltier_2_duty_cycle <= rx_reg;
+	   state <= state_idle;
+	end
+
 	
    	default: state <= state_reset;
 	
@@ -311,7 +330,6 @@ module breadboard_tests
       rx_fifo_rrst_n = 1'b1;
       rx_fifo_wrst_n = 1'b1;
       tx_fifo_rrst_n = 1'b1;
-      tx_fifo_wdata  = 8'h00;
       tx_fifo_winc   = 1'b0;
       tx_fifo_wrst_n = 1'b1;
 
@@ -336,24 +354,24 @@ module breadboard_tests
       if(state == state_mcp_busy_check) begin
       end
       if(state == state_tx_write_mcp_b1) begin
-	 tx_fifo_wdata = mcp_data[7:0];
+      end
+      if(state == state_tx_write_mcp_b1_2) begin
 	 tx_fifo_winc  = 1'b1;
       end
       if(state == state_tx_write_mcp_b2) begin
-	 tx_fifo_wdata = mcp_data[15:8];
+      end
+      if(state == state_tx_write_mcp_b2_2) begin
 	 tx_fifo_winc  = 1'b1;
       end
       if(state == state_tx_write_mcp_b3) begin
-	 tx_fifo_wdata = mcp_data[23:16];
+      end
+      if(state == state_tx_write_mcp_b3_2) begin
 	 tx_fifo_winc  = 1'b1;
       end
       if(state == state_tx_write_mcp_b4) begin
-	 tx_fifo_wdata = mcp_data[31:24];
+      end
+      if(state == state_tx_write_mcp_b4_2) begin
 	 tx_fifo_winc  = 1'b1;
-      end
-      if(state == state_peltier_1_rx) begin
-      end
-      if(state == state_peltier_2_rx) begin
       end
       // if(state == state_toggle_ccd) begin
       // 	 ccd_toggle = 1'b1;
