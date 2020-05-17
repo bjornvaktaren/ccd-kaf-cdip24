@@ -3,6 +3,7 @@
 `include "mcp3008_interface.v"
 `include "ft245.v"
 `include "fifo.v"
+`include "ccd_readout.v"
 
 module breadboard_tests
   (clk_in,        // clock
@@ -21,6 +22,16 @@ module breadboard_tests
    pwm_shutter,   // PWM output for controlling the shutter servo
    pwm_peltier_1, // PWM output for controlling the peltier cooler number 1
    pwm_peltier_2, // PWM output for controlling the peltier cooler number 2
+   ad_cdsclk1,    // AD9826 correlated double sampling clock input 1
+   ad_cdsclk2,    // AD9826 correlated double sampling clock input 2
+   ad_adclk,      // AD9826 clock
+   ad_oeb_n,      // AD9826 output enable, active low
+   kaf_r,         // CCD R clock
+   kaf_h1,        // CCD H1 clock
+   kaf_h2,        // CCD H2 clock
+   kaf_v1,        // CCD V1 clock
+   kaf_v2,        // CCD V2 clock
+   kaf_amp        // CCD Amplifier supply on/off
    );
    
    input        clk_in;
@@ -39,6 +50,16 @@ module breadboard_tests
    output wire 	pwm_shutter;
    output wire 	pwm_peltier_1;
    output wire 	pwm_peltier_2;
+   output wire  ad_cdsclk1;
+   output wire 	ad_cdsclk2;
+   output wire 	ad_adclk;
+   output wire 	ad_oeb_n;
+   output wire  kaf_r;
+   output wire 	kaf_h1;
+   output wire 	kaf_h2;
+   output wire 	kaf_v1;
+   output wire 	kaf_v2;
+   output wire 	kaf_amp;
 
    // Gray coded states
    // reset state for 1 clock 
@@ -68,9 +89,9 @@ module breadboard_tests
    localparam state_peltier_2_rx_1    = 5'b10011;
    localparam state_peltier_2_rx_2    = 5'b10010;
    // wait for handshake
-   // localparam state_toggle_ccd        = 5'b01000;
-   // // read out the ccd
-   // localparam state_ccd_wait_busy     = 5'b11000;
+   localparam state_toggle_ccd        = 5'b11000;
+   // read out the ccd
+   localparam state_ccd_wait_busy     = 5'b11001;
 
    
    // Shutter states
@@ -79,6 +100,7 @@ module breadboard_tests
 
    // include header file with localparams needed across modules or for sim
    `include "controller.vh"
+   `include "ccd_readout.vh"
 
    // Clock divider
    
@@ -192,6 +214,31 @@ module breadboard_tests
       );
 
 
+   // CCD clocks and AD9826 sampling
+
+   reg [1:0]  ccd_readout_mode;
+   reg 	      ccd_readout_toggle;
+   wire       ccd_readout_busy;
+   
+   ccd_readout ccd_readout
+     (
+      .ad_cdsclk1(ad_cdsclk1),
+      .ad_cdsclk2(ad_cdsclk2),
+      .ad_adclk(ad_adclk),
+      .ad_oeb_n(ad_oeb_n),
+      .kaf_r(kaf_r),
+      .kaf_h1(kaf_h1),
+      .kaf_h2(kaf_h2),
+      .kaf_v1(kaf_v1),
+      .kaf_v2(kaf_v2),
+      .kaf_amp(kaf_amp),
+      .counter(clk_div[15:0]),
+      .busy(ccd_readout_busy),
+      .toggle(ccd_readout_toggle),
+      .mode(ccd_readout_mode)
+      );
+
+   
    // Shutter PWM
    
    localparam shutter_closed_duty_cycle = 8'h96; // approx 1500 us
@@ -247,8 +294,8 @@ module breadboard_tests
 	   state <= state_idle;
 	   if (rx_reg == cmd_get_mcp)
 	     state <= state_mcp_toggle;
-	   // if (data_from_ft == cmd_read_ccd)
-	   //   state <= state_toggle_ccd;
+	   if (rx_reg == cmd_read_ccd)
+	     state <= state_toggle_ccd;
 	   if (rx_reg == cmd_shutter_close)
 	     shutter_state <= shutter_state_closed;
 	   if (rx_reg == cmd_shutter_open)
@@ -261,7 +308,14 @@ module breadboard_tests
 	       state <= state_peltier_1_rx_1;
 	   if (rx_reg == cmd_peltier_2_set)
 	       state <= state_peltier_2_rx_1;
-	end
+	end // case: state_eval_cmd
+
+	state_toggle_ccd:
+	  if (ccd_readout_busy == 1'b1)
+	    state <= state_ccd_wait_busy;
+	state_ccd_wait_busy:
+	  if (ccd_readout_busy == 1'b0)
+	    state <= state_idle;
 
 	state_mcp_toggle:
 	  if (mcp_busy == 1'b1)
@@ -334,6 +388,9 @@ module breadboard_tests
       tx_fifo_wrst_n = 1'b1;
 
       mcp_sample     = 1'b0;
+
+      ccd_readout_toggle = 1'b0;
+      ccd_readout_mode           = ccd_mode_idle;
 	
       if(state == state_reset) begin
 	 tx_fifo_wrst_n = 1'b0;
@@ -347,6 +404,13 @@ module breadboard_tests
 	 rx_fifo_rinc   = 1'b1;
       end
       if(state == state_eval_cmd) begin
+      end
+      if(state == state_toggle_ccd) begin
+	 ccd_readout_toggle = 1'b1;
+	 ccd_readout_mode   = ccd_mode_readout_1x1;
+      end
+      if(state == state_ccd_wait_busy) begin
+	 ccd_readout_mode   = ccd_mode_readout_1x1;
       end
       if(state == state_mcp_toggle) begin
 	 mcp_sample     = 1'b1;

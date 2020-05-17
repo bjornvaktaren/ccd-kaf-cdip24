@@ -18,6 +18,17 @@ module breadboard_tests_tb();
    wire	pwm_shutter;
    wire	pwm_peltier_1;
    wire	pwm_peltier_2;
+   wire ad_cdsclk1;
+   wire ad_cdsclk2;
+   wire ad_adclk;
+   wire ad_oeb_n;
+   wire kaf_r;
+   wire kaf_h1;
+   wire kaf_h2;
+   wire kaf_v1;
+   wire kaf_v2;
+   wire kaf_amp;
+   
 
    // include header file with localparams containing the command definitions
    `include "controller.vh"
@@ -42,7 +53,17 @@ module breadboard_tests_tb();
       .mcp_cs_n(mcp_cs_n),    // mcp3008 active low chip select
       .pwm_shutter(pwm_shutter), 
       .pwm_peltier_1(pwm_peltier_1),
-      .pwm_peltier_2(pwm_peltier_2)
+      .pwm_peltier_2(pwm_peltier_2),
+      .ad_cdsclk1(ad_cdsclk1),//AD9826 correlated double sampling clock input 1
+      .ad_cdsclk2(ad_cdsclk2),//AD9826 correlated double sampling clock input 2
+      .ad_adclk(ad_adclk),    // AD9826 clock
+      .ad_oeb_n(ad_oeb_n),    // AD9826 output enable, active low
+      .kaf_r(kaf_r),          // CCD R clock
+      .kaf_h1(kaf_h1),        // CCD H1 clock
+      .kaf_h2(kaf_h2),        // CCD H2 clock
+      .kaf_v1(kaf_v1),        // CCD V1 clock
+      .kaf_v2(kaf_v2),        // CCD V2 clock
+      .kaf_amp(kaf_amp)       // CCD Amplifier supply on/off
       );
    
    always begin

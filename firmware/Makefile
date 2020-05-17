@@ -47,3 +47,7 @@ clean:
 # 	@echo 'Executing prog as root!!!'
 # 	sudo iceprogduino $<
 
+# Detailed timing estimate:
+# yosys breadboard_tests.ys
+# arachne-pnr -d 1k -P vq100 -o breadboard_tests.asc -p ice40hx1k-evb.pcf breadboard_tests.blif
+# icetime -mt -p ice40hx1k-evb.pcf -P vq100 -d hx1k breadboard_tests.asc

@@ -21,3 +21,13 @@ set_io ft_oe_n         27
 set_io pwm_shutter     28
 set_io pwm_peltier_1   29
 set_io pwm_peltier_2   30
+set_io ad_adclk        33
+set_io ad_cdsclk1      34
+set_io ad_cdsclk2      36
+set_io ad_oeb_n        37
+set_io kaf_amp         79
+set_io kaf_h1          80
+set_io kaf_h2          81
+set_io kaf_r           82
+set_io kaf_v1          83
+set_io kaf_v2          85
