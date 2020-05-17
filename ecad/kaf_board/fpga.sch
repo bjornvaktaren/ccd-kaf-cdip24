@@ -96,7 +96,7 @@ U 1 1 5E5A7FEA
 P 6450 3750
 F 0 "U19" H 6450 4150 50  0000 C CNN
 F 1 "W25X20CL" H 6450 3350 50  0000 C CNN
-F 2 "" H 6450 3750 50  0001 C CNN
+F 2 "Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm" H 6450 3750 50  0001 C CNN
 F 3 "https://www.winbond.com/resource-files/w25x20cl_revf%2020150806.pdf" H 6450 3750 50  0001 C CNN
 	1    6450 3750
 	1    0    0    -1  
