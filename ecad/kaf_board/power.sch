@@ -384,7 +384,7 @@ AR Path="/5E5DF889/5E943A66" Ref="U?"  Part="1"
 AR Path="/5E643BF7/5E943A66" Ref="U13"  Part="1" 
 F 0 "U13" H 2400 1342 50  0000 C CNN
 F 1 "LD1117S12CTR_SOT223" H 2400 1251 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 2400 1300 50  0001 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-223-3_TabPin2" H 2400 1300 50  0001 C CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00000544.pdf" H 2500 850 50  0001 C CNN
 	1    2400 1100
 	1    0    0    -1  
@@ -552,7 +552,7 @@ U 1 1 5E965774
 P 2400 2300
 F 0 "U14" H 2400 2542 50  0000 C CNN
 F 1 "LD1117S33CTR_SOT223" H 2400 2451 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 2400 2500 50  0001 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-223-3_TabPin2" H 2400 2500 50  0001 C CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00000544.pdf" H 2500 2050 50  0001 C CNN
 	1    2400 2300
 	1    0    0    -1  

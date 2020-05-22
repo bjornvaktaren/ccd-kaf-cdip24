@@ -321,7 +321,7 @@ U 1 1 5E895808
 P 1750 5700
 F 0 "U16" H 1750 6075 50  0000 C CNN
 F 1 "93LCxxBxxOT" H 1750 5984 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23-6" H 1750 6100 50  0001 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23-6_Handsoldering" H 1750 6100 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001749K.pdf" H 1700 5700 50  0001 C CNN
 	1    1750 5700
 	1    0    0    -1  
