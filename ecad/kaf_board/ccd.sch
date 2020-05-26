@@ -1000,9 +1000,9 @@ Wire Wire Line
 Wire Wire Line
 	10950 5750 11150 5750
 Text Label 11150 5650 2    50   ~ 0
-H2
-Text Label 11150 5750 2    50   ~ 0
 H1
+Text Label 11150 5750 2    50   ~ 0
+H2
 $Comp
 L Device:C C27
 U 1 1 5EC1694C
