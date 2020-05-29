@@ -30,7 +30,7 @@ U 1 1 5EA78AD3
 P 1100 4400
 F 0 "TH3" H 1198 4446 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 4355 50  0000 L CNN
-F 2 "Connectors_JST:JST_SH_BM02B-SRSS-TB_02x1.00mm_Straight" H 1100 4450 50  0001 C CNN
+F 2 "Connectors:PINHEAD1-2" H 1100 4450 50  0001 C CNN
 F 3 "~" H 1100 4450 50  0001 C CNN
 	1    1100 4400
 	1    0    0    -1  
@@ -94,7 +94,7 @@ U 1 1 5EA82A48
 P 1100 1500
 F 0 "TH1" H 1198 1546 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 1455 50  0000 L CNN
-F 2 "Connectors_JST:JST_SH_BM02B-SRSS-TB_02x1.00mm_Straight" H 1100 1550 50  0001 C CNN
+F 2 "Connectors:PINHEAD1-2" H 1100 1550 50  0001 C CNN
 F 3 "~" H 1100 1550 50  0001 C CNN
 	1    1100 1500
 	1    0    0    -1  
@@ -158,7 +158,7 @@ U 1 1 5EA8391C
 P 1100 2950
 F 0 "TH2" H 1198 2996 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 2905 50  0000 L CNN
-F 2 "Connectors_JST:JST_SH_BM02B-SRSS-TB_02x1.00mm_Straight" H 1100 3000 50  0001 C CNN
+F 2 "Connectors:PINHEAD1-2" H 1100 3000 50  0001 C CNN
 F 3 "~" H 1100 3000 50  0001 C CNN
 	1    1100 2950
 	1    0    0    -1  
@@ -744,5 +744,49 @@ F 2 "" H 5300 5400 50  0001 C CNN
 F 3 "" H 5300 5400 50  0001 C CNN
 	1    5300 5400
 	0    -1   -1   0   
+$EndComp
+$Comp
+L Mechanical:MountingHole H3
+U 1 1 5ED89457
+P 5100 900
+F 0 "H3" H 5200 946 50  0000 L CNN
+F 1 "MountingHole" H 5200 855 50  0000 L CNN
+F 2 "Mounting_Holes:MountingHole_4.3mm_M4_ISO7380_Pad" H 5100 900 50  0001 C CNN
+F 3 "~" H 5100 900 50  0001 C CNN
+	1    5100 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H2
+U 1 1 5ED8A2CD
+P 5100 750
+F 0 "H2" H 5200 796 50  0000 L CNN
+F 1 "MountingHole" H 5200 705 50  0000 L CNN
+F 2 "Mounting_Holes:MountingHole_4.3mm_M4_ISO7380_Pad" H 5100 750 50  0001 C CNN
+F 3 "~" H 5100 750 50  0001 C CNN
+	1    5100 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H1
+U 1 1 5ED8A6BA
+P 5100 600
+F 0 "H1" H 5200 646 50  0000 L CNN
+F 1 "MountingHole" H 5200 555 50  0000 L CNN
+F 2 "Mounting_Holes:MountingHole_4.3mm_M4_ISO7380_Pad" H 5100 600 50  0001 C CNN
+F 3 "~" H 5100 600 50  0001 C CNN
+	1    5100 600 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H4
+U 1 1 5ED8A918
+P 5100 1050
+F 0 "H4" H 5200 1096 50  0000 L CNN
+F 1 "MountingHole" H 5200 1005 50  0000 L CNN
+F 2 "Mounting_Holes:MountingHole_4.3mm_M4_ISO7380_Pad" H 5100 1050 50  0001 C CNN
+F 3 "~" H 5100 1050 50  0001 C CNN
+	1    5100 1050
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
