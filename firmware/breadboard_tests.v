@@ -26,6 +26,7 @@ module breadboard_tests
    ad_cdsclk2,    // AD9826 correlated double sampling clock input 2
    ad_adclk,      // AD9826 clock
    ad_oeb_n,      // AD9826 output enable, active low
+   ad_data,       // AD9826 output, 8 bits
    kaf_r,         // CCD R clock
    kaf_h1,        // CCD H1 clock
    kaf_h2,        // CCD H2 clock
@@ -54,6 +55,10 @@ module breadboard_tests
    output wire 	ad_cdsclk2;
    output wire 	ad_adclk;
    output wire 	ad_oeb_n;
+   input [7:0] 	ad_data;
+   output wire  ad_sload;
+   output wire  ad_sclk;
+   inout 	ad_sdata;
    output wire  kaf_r;
    output wire 	kaf_h1;
    output wire 	kaf_h2;
