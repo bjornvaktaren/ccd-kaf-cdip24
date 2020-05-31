@@ -181,6 +181,18 @@ X NO 8 -450 50 200 R 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
+# Mechanical_Object
+#
+DEF Mechanical_Object M 0 40 Y Y 1 F N
+F0 "M" 0 200 50 H V C CNN
+F1 "Mechanical_Object" 0 -200 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S 200 150 -200 -150 0 1 0 f
+ENDDRAW
+ENDDEF
+#
 # TC4427
 #
 DEF TC4427 U 0 40 Y Y 1 F N

@@ -789,4 +789,15 @@ F 3 "~" H 5100 1050 50  0001 C CNN
 	1    5100 1050
 	1    0    0    -1  
 $EndComp
+$Comp
+L ccd_camera:Mechanical_Object M2
+U 1 1 5ED3B403
+P 2500 6750
+F 0 "M2" H 2728 6796 50  0000 L CNN
+F 1 "Servo cut-out" H 2728 6705 50  0000 L CNN
+F 2 "kaf_board:HD-1440A" H 2500 6750 50  0001 C CNN
+F 3 "" H 2500 6750 50  0001 C CNN
+	1    2500 6750
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

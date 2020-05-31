@@ -215,7 +215,6 @@ Wire Wire Line
 	4200 1950 2650 1950
 Wire Wire Line
 	4050 1350 4050 1550
-Connection ~ 4050 1550
 Wire Wire Line
 	3700 1350 3700 1650
 Connection ~ 3700 1650
@@ -788,8 +787,6 @@ Wire Wire Line
 Wire Wire Line
 	1750 1600 1750 1550
 Wire Wire Line
-	1750 1550 4050 1550
-Wire Wire Line
 	1800 1650 1800 1700
 Wire Wire Line
 	1800 1700 1700 1700
@@ -1312,7 +1309,7 @@ $EndComp
 Wire Wire Line
 	6750 5250 7100 5250
 Text Label 7100 5250 2    50   ~ 0
-V_AMPL
+VGUARD
 Wire Wire Line
 	1500 2700 1150 2700
 Text Label 1150 2700 0    50   ~ 0
@@ -1334,7 +1331,7 @@ F 3 "" H 1950 2650 50  0001 C CNN
 	1    1950 2750
 	1    0    0    -1  
 $EndComp
-Text Label 2250 1750 0    50   ~ 0
+Text Label 2100 1550 2    50   ~ 0
 V_AMP
 Wire Wire Line
 	2250 1750 3350 1750
@@ -2078,6 +2075,15 @@ Wire Wire Line
 Wire Wire Line
 	6750 750  6750 1150
 Connection ~ 6750 1150
+Wire Wire Line
+	1750 1550 2100 1550
+Wire Wire Line
+	4050 1550 3750 1550
+Connection ~ 4050 1550
+Text Label 3750 1550 0    50   ~ 0
+VGUARD
+Text Label 2250 1750 0    50   ~ 0
+V_AMP
 Wire Bus Line
 	1150 6500 1150 7300
 $EndSCHEMATC
