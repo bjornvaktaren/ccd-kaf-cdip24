@@ -4,6 +4,7 @@
 `include "ft245.v"
 `include "fifo.v"
 `include "ccd_readout.v"
+`include "ad9826_config.v"
 
 module breadboard_tests
   (clk_in,        // clock
@@ -27,6 +28,9 @@ module breadboard_tests
    ad_adclk,      // AD9826 clock
    ad_oeb_n,      // AD9826 output enable, active low
    ad_data,       // AD9826 output, 8 bits
+   ad_sload,      // AD9826 serial interface slave select
+   ad_sclk,       // AD9826 serial interface data clock
+   ad_sdata,      // AD9826 serial interface data i/o
    kaf_r,         // CCD R clock
    kaf_h1,        // CCD H1 clock
    kaf_h2,        // CCD H2 clock
@@ -242,6 +246,27 @@ module breadboard_tests
       .toggle(ccd_readout_toggle),
       .mode(ccd_readout_mode)
       );
+
+   
+   // AD9826 configuration module
+
+   reg [3:0]  ad_config_addr = 0; // first bit is read/write bit
+   reg [7:0]  ad_config_in = 0;
+   wire [7:0] ad_config_out;
+   reg 	      ad_config_toggle = 1'b0;
+   
+   ad9826_config ad9826_config
+     (
+      .ad_config_addr(ad_config_addr),
+      .ad_config_in(ad_config_in),
+      .ad_config_out(ad_config_out),
+      .ad_sload(ad_sload),
+      .ad_sclk(ad_sclk),
+      .ad_sdata(ad_sdata),
+      .toggle(ad_config_toggle),
+      .counter(clk_div[7:0])
+      );
+
 
    
    // Shutter PWM

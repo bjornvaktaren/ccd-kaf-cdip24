@@ -31,3 +31,14 @@ set_io kaf_h2          81
 set_io kaf_r           82
 set_io kaf_v1          83
 set_io kaf_v2          85
+set_io ad_data[0]      86
+set_io ad_data[1]      87
+set_io ad_data[2]      89
+set_io ad_data[3]      90
+set_io ad_data[4]      91
+set_io ad_data[5]      93
+set_io ad_data[6]      94
+set_io ad_data[7]      95
+set_io ad_sload        96
+set_io ad_sclk         97
+set_io ad_sdata        99

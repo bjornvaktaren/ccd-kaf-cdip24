@@ -8,7 +8,6 @@ module ad9826_config
    ad_sclk,
    ad_sdata,
    toggle,
-   busy,
    counter
    );
    
@@ -56,18 +55,30 @@ module ad9826_config
       end
       
       if (ad_sload == 1'b0) begin
-	 bit_pointer <= bit_pointer + 1;
+	 if (bit_pointer < 15)
+	   bit_pointer <= bit_pointer + 1;
+	 else
+	   bit_pointer <= 0;
       end
       
    end
 
+   always @(posedge clk) begin
+      if ( ad_sload == 1'b0 ) begin
+	 if ( bit_pointer > 6 ) begin
+	    ad_config_out <= ad_rdata;
+	 end
+      end
+   end
+
    always @* begin
+      ad_wdata = 0;
       if ( ad_sload == 1'b0 ) begin
 	 if ( bit_pointer < 4 ) 
 	   ad_wdata = ad_config_addr[bit_pointer[2:0]];
 	 if ( bit_pointer > 3 && bit_pointer < 7 ) 
 	   ad_wdata = 1'b0;
-	 if ( bit_pointer > 6 ) 
+	 if ( bit_pointer > 6 && ad_config_addr[0] ) 
 	   ad_wdata = ad_config_in[bit_pointer[2:0]];
       end
    end

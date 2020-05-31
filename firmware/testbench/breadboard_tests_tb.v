@@ -22,6 +22,10 @@ module breadboard_tests_tb();
    wire ad_cdsclk2;
    wire ad_adclk;
    wire ad_oeb_n;
+   reg [7:0] ad_data;
+   wire ad_sload;
+   wire ad_sclk;
+   wire	ad_sdata;
    wire kaf_r;
    wire kaf_h1;
    wire kaf_h2;
@@ -58,6 +62,10 @@ module breadboard_tests_tb();
       .ad_cdsclk2(ad_cdsclk2),//AD9826 correlated double sampling clock input 2
       .ad_adclk(ad_adclk),    // AD9826 clock
       .ad_oeb_n(ad_oeb_n),    // AD9826 output enable, active low
+      .ad_data(ad_data),      // AD9826 output, 8 bits
+      .ad_sload(ad_sload),    // AD9826 serial interface slave select
+      .ad_sclk(ad_sclk),      // AD9826 serial interface data clock
+      .ad_sdata(ad_sdata),    // AD9826 serial interface data i/o
       .kaf_r(kaf_r),          // CCD R clock
       .kaf_h1(kaf_h1),        // CCD H1 clock
       .kaf_h2(kaf_h2),        // CCD H2 clock
@@ -129,9 +137,22 @@ module breadboard_tests_tb();
       clk_div   <= 0;
       ft_rxf_n  <= 1;
       ft_txe_n  <= 0;
+      ad_data   <= 8'h00;
 
       $dumpfile("breadboard_tests_tb.vcd");
       $dumpvars;
+
+      #250 ft245_send(cmd_set_ccd_conf);
+      ft245_send(8'b00000000); // write to 000, "Configuration" register
+      // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
+      // no power-down, unused bit, 2 byre output mode
+      ft245_send(8'b11011000);
+      
+      ft245_send(cmd_set_ccd_conf);
+      ft245_send(8'b00000010); // write to 001, "MUX Config" register
+      // RGB order, red on, green off, blue off
+      ft245_send(8'b11000000);
+
 
       #250 ft245_send(cmd_peltier_on);
       ft245_send(cmd_peltier_1_set);
