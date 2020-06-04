@@ -101,6 +101,13 @@ module breadboard_tests
    localparam state_toggle_ccd        = 5'b11000;
    // read out the ccd
    localparam state_ccd_wait_busy     = 5'b11001;
+   // write config to ad9826
+   localparam state_adconf_rxb1_1     = 5'b11011;
+   localparam state_adconf_rxb1_2     = 5'b11010;
+   localparam state_adconf_rxb2_1     = 5'b11110;
+   localparam state_adconf_rxb2_2     = 5'b11111;
+   localparam state_adconf_toggle     = 5'b11101;
+   localparam state_adconf_wait_busy  = 5'b11100;
 
    
    // Shutter states
@@ -251,9 +258,9 @@ module breadboard_tests
    // AD9826 configuration module
 
    reg [3:0]  ad_config_addr = 0; // first bit is read/write bit
-   reg [7:0]  ad_config_in = 0;
-   wire [7:0] ad_config_out;
-   reg 	      ad_config_toggle = 1'b0;
+   reg [8:0]  ad_config_in = 0;
+   wire [8:0] ad_config_out;
+   reg 	      ad_config_toggle;
    
    ad9826_config ad9826_config
      (
@@ -338,6 +345,8 @@ module breadboard_tests
 	       state <= state_peltier_1_rx_1;
 	   if (rx_reg == cmd_peltier_2_set)
 	       state <= state_peltier_2_rx_1;
+	   if (rx_reg == cmd_set_ccd_conf)
+	       state <= state_adconf_rxb1_1;
 	end // case: state_eval_cmd
 
 	state_toggle_ccd:
@@ -399,6 +408,31 @@ module breadboard_tests
 	   state <= state_idle;
 	end
 
+	// States to fetch 2 bits of AD9826 config data
+	state_adconf_rxb1_1: begin
+	   rx_reg <= rx_fifo_rdata;
+	   state <= state_adconf_rxb1_2;
+	end
+	state_adconf_rxb1_2: begin
+	   ad_config_addr  <= rx_reg[3:0];
+	   ad_config_in[8] <= rx_reg[7];
+	   state <= state_adconf_rxb2_1;
+	end
+	state_adconf_rxb2_1: begin
+	   rx_reg <= rx_fifo_rdata;
+	   state <= state_adconf_rxb2_2;
+	end
+	state_adconf_rxb2_2: begin
+	   ad_config_in[7:0] <= rx_reg;
+	   state <= state_adconf_toggle;
+	end
+	state_adconf_toggle:
+	  if (ad_sload == 1'b0)
+	    state <= state_adconf_wait_busy;
+	state_adconf_wait_busy:
+	  if (ad_sload == 1'b1)
+	    state <= state_idle;
+
 	
    	default: state <= state_reset;
 	
@@ -420,7 +454,9 @@ module breadboard_tests
       mcp_sample     = 1'b0;
 
       ccd_readout_toggle = 1'b0;
-      ccd_readout_mode           = ccd_mode_idle;
+      ccd_readout_mode   = ccd_mode_idle;
+      
+      ad_config_toggle = 1'b0;
 	
       if(state == state_reset) begin
 	 tx_fifo_wrst_n = 1'b0;
@@ -473,6 +509,22 @@ module breadboard_tests
       // if(state == state_ccd_wait_busy) begin
       // 	 ccd_toggle = 1'b1;
       // end
+      
+	if(state == state_adconf_rxb1_1) begin
+	   rx_fifo_rinc   = 1'b1;
+	end
+	if(state == state_adconf_rxb1_2) begin
+	end
+	if(state == state_adconf_rxb2_1) begin
+	   rx_fifo_rinc   = 1'b1;
+	end
+	if(state == state_adconf_rxb2_2) begin
+	end
+	if(state == state_adconf_toggle) begin
+	   ad_config_toggle = 1'b1;
+	end
+	if(state == state_adconf_wait_busy) begin
+	end
    end // always @*
 
 

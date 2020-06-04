@@ -153,6 +153,7 @@ module breadboard_tests_tb();
       // RGB order, red on, green off, blue off
       ft245_send(8'b11000000);
 
+      #5000 $finish;
 
       #250 ft245_send(cmd_peltier_on);
       ft245_send(cmd_peltier_1_set);

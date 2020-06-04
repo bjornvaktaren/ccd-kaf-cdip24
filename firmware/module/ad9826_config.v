@@ -12,11 +12,11 @@ module ad9826_config
    );
    
    input [3:0]      ad_config_addr;
-   input [7:0] 	    ad_config_in;
-   output reg [7:0] ad_config_out;
+   input [8:0] 	    ad_config_in;
+   output reg [8:0] ad_config_out;
    output wire 	    ad_sclk;
-   output reg 	    ad_sload = 1;
-   inout 	    ad_sdata; // Also works as not busy signal
+   output reg 	    ad_sload = 1;  // Also works as not busy signal
+   inout 	    ad_sdata;
    input 	    toggle;
    input [7:0] 	    counter;
    
@@ -24,11 +24,11 @@ module ad9826_config
    wire 	    clk = counter[3];
    assign 	ad_sclk = ( ad_sload == 1'b0 ) ? clk : 1'b0;
    reg 		    ad_wdata;
-   reg 		    ad_rdata;
+   reg		    ad_rdata;
    reg [3:0] 	    bit_pointer;
 
    // arachne-pnr cannot infer tristate, so need to intatiate explicitly
-   reg 		    drive_sdata = 1'b0;
+   wire		    drive_sdata = ad_config_addr[0] && counter < 6;
    `ifdef SYNTHESIS
    SB_IO #(.PIN_TYPE(6'b 1010_01), .PULLUP(1'b 0)) ad_sdata_tristate
      (
@@ -38,23 +38,23 @@ module ad9826_config
       .D_IN_0(ad_rdata)
       );
    `else
-   assign ad_sdata = drive_sdata ? ad_wdata : 8'hZZ;
+   assign ad_sdata = drive_sdata ? ad_wdata : 1'bz;
    `endif
    
    `ifndef SYNTHESIS
-   always @(posedge ft_clkout)
-     if (ft_oe_n == 1'b0)
-       rx_wdata <= ft_bus;
+   always @(posedge ad_sclk)
+     if (! drive_sdata)
+       ad_rdata <= ad_sdata;
    `endif
    
    always @(negedge clk) begin
       
       if (toggle == 1'b1) begin
-	 ad_sload    <= 1'b0;
+	 ad_wdata    <= 1'b0;
 	 bit_pointer <= 0;
       end
       
-      if (ad_sload == 1'b0) begin
+      if (ad_wdata == 1'b0 && ) begin
 	 if (bit_pointer < 15)
 	   bit_pointer <= bit_pointer + 1;
 	 else
@@ -64,7 +64,7 @@ module ad9826_config
    end
 
    always @(posedge clk) begin
-      if ( ad_sload == 1'b0 ) begin
+      if ( ad_wdata == 1'b0 ) begin
 	 if ( bit_pointer > 6 ) begin
 	    ad_config_out <= ad_rdata;
 	 end
@@ -73,7 +73,7 @@ module ad9826_config
 
    always @* begin
       ad_wdata = 0;
-      if ( ad_sload == 1'b0 ) begin
+      if ( ad_wdata == 1'b0 ) begin
 	 if ( bit_pointer < 4 ) 
 	   ad_wdata = ad_config_addr[bit_pointer[2:0]];
 	 if ( bit_pointer > 3 && bit_pointer < 7 ) 
