@@ -257,14 +257,13 @@ module breadboard_tests
    
    // AD9826 configuration module
 
-   reg [3:0]  ad_config_addr = 0; // first bit is read/write bit
-   reg [8:0]  ad_config_in = 0;
-   wire [8:0] ad_config_out;
-   reg 	      ad_config_toggle;
+   // 1 r/w bit, 3 address bits, 3 zero bits, 9 config bits
+   reg [15:0]  ad_config_in = 0;
+   wire [15:0] ad_config_out;
+   reg 	       ad_config_toggle;
    
    ad9826_config ad9826_config
      (
-      .ad_config_addr(ad_config_addr),
       .ad_config_in(ad_config_in),
       .ad_config_out(ad_config_out),
       .ad_sload(ad_sload),
@@ -414,8 +413,7 @@ module breadboard_tests
 	   state <= state_adconf_rxb1_2;
 	end
 	state_adconf_rxb1_2: begin
-	   ad_config_addr  <= rx_reg[3:0];
-	   ad_config_in[8] <= rx_reg[7];
+	   ad_config_in[15:8] <= rx_reg;
 	   state <= state_adconf_rxb2_1;
 	end
 	state_adconf_rxb2_1: begin
