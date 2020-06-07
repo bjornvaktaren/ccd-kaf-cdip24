@@ -304,32 +304,32 @@ F 3 "~" H 3650 1750 50  0001 C CNN
 	1    3650 1750
 	1    0    0    -1  
 $EndComp
-Text HLabel 7050 5550 2    50   Input ~ 0
+Text HLabel 7050 5750 2    50   Input ~ 0
 FT_RXF#
-Text HLabel 7050 5750 2    50   Output ~ 0
-FT_RD#
-Text HLabel 7050 5850 2    50   Output ~ 0
-FT_WR#
 Text HLabel 7050 5950 2    50   Output ~ 0
-FT_SIWUA
-Text HLabel 7050 5650 2    50   Input ~ 0
-FT_TXE#
-Text HLabel 7050 6050 2    50   Input ~ 0
-FT_CLKOUT
+FT_RD#
+Text HLabel 7050 6050 2    50   Output ~ 0
+FT_WR#
 Text HLabel 7050 6150 2    50   Output ~ 0
+FT_SIWUA
+Text HLabel 7050 5850 2    50   Input ~ 0
+FT_TXE#
+Text HLabel 7050 6250 2    50   Input ~ 0
+FT_CLKOUT
+Text HLabel 7050 6350 2    50   Output ~ 0
 FT_OE#
+Wire Wire Line
+	7050 6350 6550 6350
+Wire Wire Line
+	6550 6250 7050 6250
 Wire Wire Line
 	7050 6150 6550 6150
 Wire Wire Line
 	6550 6050 7050 6050
 Wire Wire Line
-	7050 5950 6550 5950
+	6550 5950 7050 5950
 Wire Wire Line
-	6550 5850 7050 5850
-Wire Wire Line
-	6550 5750 7050 5750
-Wire Wire Line
-	7050 5650 6550 5650
+	7050 5850 6550 5850
 Wire Wire Line
 	6850 5350 6550 5350
 Wire Wire Line
@@ -1042,7 +1042,7 @@ Wire Wire Line
 Wire Wire Line
 	4850 5650 4350 5650
 Wire Wire Line
-	6550 5550 7050 5550
+	6550 5750 7050 5750
 Wire Bus Line
 	6950 5450 7050 5450
 Entry Wire Line
@@ -1236,6 +1236,90 @@ Entry Wire Line
 	4650 3250 4550 3350
 Wire Wire Line
 	4650 3250 4850 3250
+$Comp
+L Oscillator:SG-7050CBN X1
+U 1 1 5EE5C0C3
+P 8600 2850
+F 0 "X1" H 8700 3150 50  0000 L CNN
+F 1 "KC7050A-C3" H 8650 2600 50  0000 L CNN
+F 2 "Oscillators:Oscillator_SMD_EuroQuartz_XO91-4pin_7.0x5.0mm_HandSoldering" H 9300 2500 50  0001 C CNN
+F 3 "https://global.kyocera.com/prdct/electro/product/pdf/kc7050a_c3_e.pdf" H 8500 2850 50  0001 C CNN
+	1    8600 2850
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Device:C C112
+U 1 1 5EE63C13
+P 9150 2950
+F 0 "C112" H 9265 2996 50  0000 L CNN
+F 1 "C" H 9265 2905 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0603_HandSoldering" H 9188 2800 50  0001 C CNN
+F 3 "~" H 9150 2950 50  0001 C CNN
+	1    9150 2950
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR012
+U 1 1 5EE803E4
+P 8600 3250
+F 0 "#PWR012" H 8600 3000 50  0001 C CNN
+F 1 "GND" H 8605 3077 50  0000 C CNN
+F 2 "" H 8600 3250 50  0001 C CNN
+F 3 "" H 8600 3250 50  0001 C CNN
+	1    8600 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR013
+U 1 1 5EE81344
+P 9200 2500
+F 0 "#PWR013" H 9200 2350 50  0001 C CNN
+F 1 "+3.3V" V 9200 2750 50  0000 C CNN
+F 2 "" H 9200 2500 50  0001 C CNN
+F 3 "" H 9200 2500 50  0001 C CNN
+	1    9200 2500
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	8600 3150 8600 3200
+Wire Wire Line
+	8600 3200 9150 3200
+Wire Wire Line
+	9150 3200 9150 3100
+Connection ~ 8600 3200
+Wire Wire Line
+	8600 3200 8600 3250
+Wire Wire Line
+	9150 2800 9150 2500
+Wire Wire Line
+	9150 2500 8900 2500
+Wire Wire Line
+	8600 2500 8600 2550
+Wire Wire Line
+	9200 2500 9150 2500
+Connection ~ 9150 2500
+Wire Wire Line
+	8900 2850 8900 2500
+Connection ~ 8900 2500
+Wire Wire Line
+	8900 2500 8600 2500
+$Comp
+L Device:R R63
+U 1 1 5EEE0F52
+P 8000 2850
+F 0 "R63" V 7793 2850 50  0000 C CNN
+F 1 "R22" V 7884 2850 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603_HandSoldering" V 7930 2850 50  0001 C CNN
+F 3 "~" H 8000 2850 50  0001 C CNN
+	1    8000 2850
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	8300 2850 8150 2850
+Wire Wire Line
+	6550 2850 7850 2850
+Text Label 7650 2850 0    50   ~ 0
+CLK
 Wire Bus Line
 	4450 4650 4450 5350
 Wire Bus Line
