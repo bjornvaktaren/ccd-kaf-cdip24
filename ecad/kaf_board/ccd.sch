@@ -1332,7 +1332,7 @@ F 3 "" H 1950 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 2100 1550 2    50   ~ 0
-V_AMP
+V_AMPL
 Wire Wire Line
 	2250 1750 3350 1750
 $Comp
@@ -2084,6 +2084,7 @@ Text Label 3750 1550 0    50   ~ 0
 VGUARD
 Text Label 2250 1750 0    50   ~ 0
 V_AMP
+NoConn ~ 10900 3800
 Wire Bus Line
 	1150 6500 1150 7300
 $EndSCHEMATC

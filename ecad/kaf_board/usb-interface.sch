@@ -32,7 +32,7 @@ Wire Wire Line
 Wire Wire Line
 	2000 3750 2000 4250
 Wire Wire Line
-	2250 3950 1550 3950
+	2250 3950 1000 3950
 Connection ~ 2250 4900
 Connection ~ 2250 3950
 Connection ~ 2500 4050
@@ -572,18 +572,7 @@ F 3 "~" H 2550 2250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1550 4050 2500 4050
-$Comp
-L ccd_camera:USB_OTG J2
-U 1 1 5E6DA0AA
-P 1250 3950
-F 0 "J2" H 1307 4417 50  0000 C CNN
-F 1 "USB_OTG" H 1307 4326 50  0000 C CNN
-F 2 "Connectors_USB:USB_Micro-B_Wuerth-629105150521" H 1400 3900 50  0001 C CNN
-F 3 "https://www.we-online.de/katalog/datasheet/629105150521.pdf" H 1400 3900 50  0001 C CNN
-	1    1250 3950
-	1    0    0    -1  
-$EndComp
+	1000 4050 2500 4050
 Connection ~ 5200 2550
 Wire Wire Line
 	3250 3150 3500 3150
@@ -978,7 +967,7 @@ Wire Wire Line
 Wire Wire Line
 	1650 3750 2000 3750
 Wire Wire Line
-	1550 3750 1650 3750
+	1000 3750 1650 3750
 Connection ~ 1650 3750
 Wire Wire Line
 	1650 3750 1650 4250
@@ -1027,20 +1016,12 @@ Wire Wire Line
 	1150 4400 800  4400
 Wire Wire Line
 	1150 4400 1150 4550
-Wire Wire Line
-	1150 4350 1150 4400
 Connection ~ 1150 4400
-Wire Wire Line
-	1250 4350 1250 4400
-Wire Wire Line
-	1250 4400 1450 4400
 Wire Wire Line
 	1450 4900 1650 4900
 Wire Wire Line
 	1150 4900 1450 4900
 Connection ~ 1450 4900
-Wire Wire Line
-	1450 4400 1450 4900
 $Comp
 L power:GNDPWR #PWR0162
 U 1 1 5E96D623
@@ -1125,6 +1106,31 @@ Wire Wire Line
 Connection ~ 2550 6250
 Wire Wire Line
 	2550 6250 2550 6050
+Wire Wire Line
+	1150 4250 1000 4250
+Wire Wire Line
+	1150 4250 1150 4400
+Text HLabel 1000 4250 0    50   UnSpc ~ 0
+USB_SHIELD
+Text HLabel 1000 3750 0    50   UnSpc ~ 0
+VUSB
+Text HLabel 1000 3950 0    50   BiDi ~ 0
+DM
+Text HLabel 1000 4050 0    50   BiDi ~ 0
+DP
+NoConn ~ 5900 4550
+NoConn ~ 5900 5050
+NoConn ~ 5900 5250
+NoConn ~ 5900 5650
+NoConn ~ 5900 5750
+NoConn ~ 5900 5850
+NoConn ~ 5900 5950
+NoConn ~ 5900 6050
+NoConn ~ 5900 6150
+NoConn ~ 5900 6250
+NoConn ~ 5900 6350
+NoConn ~ 5900 6550
+NoConn ~ 5900 6650
 Wire Bus Line
 	6650 3050 6650 3750
 $EndSCHEMATC

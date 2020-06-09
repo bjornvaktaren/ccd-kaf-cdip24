@@ -251,8 +251,8 @@ U 1 1 5EA9F87A
 P 8750 3400
 F 0 "L8" V 8569 3400 50  0000 C CNN
 F 1 "100u" V 8660 3400 50  0000 C CNN
-F 2 "kaf_board:Murata_L_SMD_19.5x27.0mm" H 8750 3400 50  0001 C CNN
-F 3 "https://www.murata-ps.com/pub/data/magnetics/kmp_6000b.pdf" H 8750 3400 50  0001 C CNN
+F 2 "kaf_board:L_Bourns_1210" H 8750 3400 50  0001 C CNN
+F 3 "https://www.bourns.com/docs/Product-Datasheets/SRR1210.pdf" H 8750 3400 50  0001 C CNN
 	1    8750 3400
 	0    1    1    0   
 $EndComp
@@ -387,8 +387,6 @@ Wire Wire Line
 	8250 3400 8250 3550
 Connection ~ 8250 3400
 Connection ~ 6250 5800
-Wire Wire Line
-	5450 5400 5300 5400
 Connection ~ 5450 5400
 Wire Wire Line
 	8250 2900 8100 2900
@@ -612,8 +610,8 @@ U 1 1 5EB40F97
 P 9300 5050
 F 0 "L9" V 9119 5050 50  0000 C CNN
 F 1 "100u" V 9210 5050 50  0000 C CNN
-F 2 "kaf_board:Murata_L_SMD_19.5x27.0mm" H 9300 5050 50  0001 C CNN
-F 3 "https://www.murata-ps.com/pub/data/magnetics/kmp_6000b.pdf" H 9300 5050 50  0001 C CNN
+F 2 "kaf_board:L_Bourns_1210" H 9300 5050 50  0001 C CNN
+F 3 "https://www.bourns.com/docs/Product-Datasheets/SRR1210.pdf" H 9300 5050 50  0001 C CNN
 	1    9300 5050
 	0    1    1    0   
 $EndComp
@@ -688,28 +686,6 @@ Wire Wire Line
 Wire Wire Line
 	7300 5300 7650 5300
 $Comp
-L power:+12V #PWR0210
-U 1 1 5EC3BF43
-P 8100 2900
-F 0 "#PWR0210" H 8100 2750 50  0001 C CNN
-F 1 "+12V" V 8115 3028 50  0000 L CNN
-F 2 "" H 8100 2900 50  0001 C CNN
-F 3 "" H 8100 2900 50  0001 C CNN
-	1    8100 2900
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+12V #PWR0211
-U 1 1 5EC3E058
-P 8700 4550
-F 0 "#PWR0211" H 8700 4400 50  0001 C CNN
-F 1 "+12V" V 8715 4678 50  0000 L CNN
-F 2 "" H 8700 4550 50  0001 C CNN
-F 3 "" H 8700 4550 50  0001 C CNN
-	1    8700 4550
-	0    -1   -1   0   
-$EndComp
-$Comp
 L Device:Q_NMOS_GDSD Q3
 U 1 1 5EC9AED7
 P 8600 5400
@@ -733,17 +709,6 @@ F 2 "kaf_board:ONSemi_DPAK-3_5.97x6.35mm" H 8250 3850 50  0001 C CNN
 F 3 "~" H 8050 3750 50  0001 C CNN
 	1    8050 3750
 	1    0    0    -1  
-$EndComp
-$Comp
-L power:+12V #PWR0212
-U 1 1 5ECB6927
-P 5300 5400
-F 0 "#PWR0212" H 5300 5250 50  0001 C CNN
-F 1 "+12V" V 5315 5528 50  0000 L CNN
-F 2 "" H 5300 5400 50  0001 C CNN
-F 3 "" H 5300 5400 50  0001 C CNN
-	1    5300 5400
-	0    -1   -1   0   
 $EndComp
 $Comp
 L Mechanical:MountingHole H3
@@ -800,4 +765,15 @@ F 3 "" H 2500 6750 50  0001 C CNN
 	1    2500 6750
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	5150 5400 5450 5400
+Text HLabel 5150 5400 0    50   Input ~ 0
+V_TEC1
+Text HLabel 8100 2900 0    50   Input ~ 0
+V_TEC1
+Text HLabel 8700 4550 0    50   Input ~ 0
+V_TEC2
+NoConn ~ 8700 5200
+NoConn ~ 8150 3550
+NoConn ~ 2600 3700
 $EndSCHEMATC

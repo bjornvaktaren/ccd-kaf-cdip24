@@ -1183,7 +1183,7 @@ Wire Wire Line
 Text Label 1200 4050 0    50   ~ 0
 AUX3
 Text Label 1200 4250 0    50   ~ 0
-AUX6
+AUX7
 Text Label 1200 4350 0    50   ~ 0
 AUX9
 Text Label 1200 4450 0    50   ~ 0
@@ -1320,6 +1320,19 @@ Wire Wire Line
 	6550 2850 7850 2850
 Text Label 7650 2850 0    50   ~ 0
 CLK
+NoConn ~ 6550 2950
+NoConn ~ 6550 3050
+NoConn ~ 6550 3150
+NoConn ~ 6550 3250
+NoConn ~ 6550 3350
+NoConn ~ 6550 3450
+NoConn ~ 6550 3550
+NoConn ~ 6550 3650
+NoConn ~ 6550 2350
+NoConn ~ 6550 5450
+NoConn ~ 6550 5550
+NoConn ~ 6550 5650
+NoConn ~ 6550 6450
 Wire Bus Line
 	4450 4650 4450 5350
 Wire Bus Line
