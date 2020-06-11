@@ -234,47 +234,8 @@ Wire Wire Line
 	2100 4200 2100 3600
 Wire Wire Line
 	2100 3600 2600 3600
-$Comp
-L Connector_Generic:Conn_01x02 J4
-U 1 1 5EA9E29D
-P 10000 2900
-F 0 "J4" H 10080 2892 50  0000 L CNN
-F 1 "Peltier1" H 10080 2801 50  0000 L CNN
-F 2 "Connectors:PINHEAD1-2" H 10000 2900 50  0001 C CNN
-F 3 "~" H 10000 2900 50  0001 C CNN
-	1    10000 2900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:L L8
-U 1 1 5EA9F87A
-P 8750 3400
-F 0 "L8" V 8569 3400 50  0000 C CNN
-F 1 "100u" V 8660 3400 50  0000 C CNN
-F 2 "kaf_board:L_Bourns_1210" H 8750 3400 50  0001 C CNN
-F 3 "https://www.bourns.com/docs/Product-Datasheets/SRR1210.pdf" H 8750 3400 50  0001 C CNN
-	1    8750 3400
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:C C107
-U 1 1 5EA9FDA4
-P 9150 3150
-F 0 "C107" H 9265 3196 50  0000 L CNN
-F 1 "4.7u" H 9265 3105 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 9188 3000 50  0001 C CNN
-F 3 "~" H 9150 3150 50  0001 C CNN
-	1    9150 3150
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	9800 3000 9550 3000
-Text Label 9650 2900 0    50   ~ 0
-+
-Text Label 9650 3000 0    50   ~ 0
--
-Wire Wire Line
-	9550 3000 9550 3400
 Wire Wire Line
 	9550 3400 9150 3400
 Wire Wire Line
@@ -371,16 +332,11 @@ Wire Wire Line
 Text HLabel 6150 5200 0    50   Input ~ 0
 PWM_TEC1
 Wire Wire Line
-	6300 5300 6250 5300
-Wire Wire Line
-	6250 5300 6250 5500
-Wire Wire Line
 	6250 5500 6300 5500
 Wire Wire Line
 	6250 5500 6250 5800
 Wire Wire Line
 	5850 5800 6250 5800
-Connection ~ 6250 5500
 Wire Wire Line
 	5850 5400 6300 5400
 Wire Wire Line
@@ -588,22 +544,8 @@ Wire Wire Line
 	2200 6200 1800 6200
 Text Notes 1500 6050 0    50   ~ 0
 Ok with 3.3v for PWM?
-Wire Wire Line
-	6250 5300 6150 5300
 Text HLabel 6150 5300 0    50   Input ~ 0
 PWM_TEC2
-Connection ~ 6250 5300
-$Comp
-L Connector_Generic:Conn_01x02 J5
-U 1 1 5EB40F91
-P 10550 4550
-F 0 "J5" H 10630 4542 50  0000 L CNN
-F 1 "Peltier2" H 10630 4451 50  0000 L CNN
-F 2 "Connectors:PINHEAD1-2" H 10550 4550 50  0001 C CNN
-F 3 "~" H 10550 4550 50  0001 C CNN
-	1    10550 4550
-	1    0    0    -1  
-$EndComp
 $Comp
 L Device:L L9
 U 1 1 5EB40F97
@@ -628,10 +570,6 @@ F 3 "~" H 9700 4800 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	10350 4650 10100 4650
-Text Label 10200 4550 0    50   ~ 0
-+
-Text Label 10200 4650 0    50   ~ 0
--
 Wire Wire Line
 	10100 4650 10100 5050
 Wire Wire Line
@@ -767,13 +705,61 @@ F 3 "" H 2500 6750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5150 5400 5450 5400
-Text HLabel 5150 5400 0    50   Input ~ 0
-V_TEC1
 Text HLabel 8100 2900 0    50   Input ~ 0
 V_TEC1
-Text HLabel 8700 4550 0    50   Input ~ 0
-V_TEC2
 NoConn ~ 8700 5200
 NoConn ~ 8150 3550
 NoConn ~ 2600 3700
+Wire Wire Line
+	9550 3000 9550 3400
+$Comp
+L Device:C C107
+U 1 1 5EA9FDA4
+P 9150 3150
+F 0 "C107" H 9265 3196 50  0000 L CNN
+F 1 "4.7u" H 9265 3105 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 9188 3000 50  0001 C CNN
+F 3 "~" H 9150 3150 50  0001 C CNN
+	1    9150 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:L L8
+U 1 1 5EA9F87A
+P 8750 3400
+F 0 "L8" V 8569 3400 50  0000 C CNN
+F 1 "100u" V 8660 3400 50  0000 C CNN
+F 2 "kaf_board:L_Bourns_1210" H 8750 3400 50  0001 C CNN
+F 3 "https://www.bourns.com/docs/Product-Datasheets/SRR1210.pdf" H 8750 3400 50  0001 C CNN
+	1    8750 3400
+	0    1    1    0   
+$EndComp
+Text HLabel 5150 5400 0    50   Input ~ 0
+V_TEC1
+Text HLabel 8700 4550 0    50   Input ~ 0
+V_TEC2
+$Comp
+L ccd_camera:Peltier J2
+U 1 1 5EEA985C
+P 10050 2950
+F 0 "J2" H 10178 3001 50  0000 L CNN
+F 1 "TEC1" H 10178 2910 50  0000 L CNN
+F 2 "Connectors:PINHEAD1-2" H 9900 2850 50  0001 C CNN
+F 3 "" H 9900 2850 50  0001 C CNN
+	1    10050 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L ccd_camera:Peltier J4
+U 1 1 5EEA9BB8
+P 10600 4600
+F 0 "J4" H 10728 4651 50  0000 L CNN
+F 1 "TEC2" H 10728 4560 50  0000 L CNN
+F 2 "Connectors:PINHEAD1-2" H 10450 4500 50  0001 C CNN
+F 3 "" H 10450 4500 50  0001 C CNN
+	1    10600 4600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 5300 6300 5300
 $EndSCHEMATC

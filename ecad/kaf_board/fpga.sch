@@ -368,34 +368,38 @@ F 3 "" H 3300 4450 50  0001 C CNN
 	1    3300 4450
 	0    1    -1   0   
 $EndComp
-Text HLabel 4350 3350 0    50   Output ~ 0
+Text HLabel 4350 3150 0    50   Output ~ 0
 AMP_OFF
-Text HLabel 4350 3450 0    50   Output ~ 0
+Text HLabel 4350 3250 0    50   Output ~ 0
 H_3.3V
-Text HLabel 4350 3550 0    50   Output ~ 0
+Text HLabel 4350 3350 0    50   Output ~ 0
 R_3.3V
-Text HLabel 7050 3850 2    50   Output ~ 0
+Text HLabel 4350 5550 0    50   Output ~ 0
 V1_3.3V
-Text HLabel 7050 3750 2    50   Output ~ 0
+Text HLabel 4350 5650 0    50   Output ~ 0
 V2_3.3V
-Text HLabel 4350 5350 0    50   Output ~ 0
+Text HLabel 4350 5150 0    50   Output ~ 0
 AD_OEB
 Text HLabel 4350 5450 0    50   Output ~ 0
 AD_CDSCLK1
-Text HLabel 4350 5550 0    50   Output ~ 0
+Text HLabel 4350 5350 0    50   Output ~ 0
 AD_CDSCLK2
-Text HLabel 4350 5650 0    50   Output ~ 0
+Text HLabel 4350 5250 0    50   Output ~ 0
 AD_ADCLK
-Text HLabel 4350 4650 0    50   Input ~ 0
+Text HLabel 4350 3750 0    50   Input ~ 0
 AD_D[0..7]
 Wire Wire Line
-	7050 3750 6550 3750
+	4350 5650 4850 5650
 Wire Wire Line
-	6550 3850 7050 3850
+	4850 5550 4350 5550
 Wire Wire Line
-	4350 3550 4850 3550
+	4350 3350 4850 3350
 Wire Wire Line
-	4850 3450 4350 3450
+	4850 3250 4350 3250
+Wire Wire Line
+	4850 3750 4550 3750
+Wire Wire Line
+	4550 3850 4850 3850
 Wire Wire Line
 	4850 4550 4550 4550
 Wire Wire Line
@@ -408,25 +412,19 @@ Wire Wire Line
 	4850 4950 4550 4950
 Wire Wire Line
 	4550 5050 4850 5050
-Wire Wire Line
-	4850 5150 4550 5150
-Wire Wire Line
-	4550 5250 4850 5250
-Text Label 4550 4550 0    50   ~ 0
+Text Label 4550 3750 0    50   ~ 0
 AD_D0
-Text Label 4550 4650 0    50   ~ 0
-AD_D1
-Text Label 4550 4750 0    50   ~ 0
+Text Label 4550 4550 0    50   ~ 0
 AD_D2
-Text Label 4550 4850 0    50   ~ 0
+Text Label 4550 4650 0    50   ~ 0
 AD_D3
-Text Label 4550 4950 0    50   ~ 0
+Text Label 4550 4750 0    50   ~ 0
 AD_D4
-Text Label 4550 5050 0    50   ~ 0
+Text Label 4550 4850 0    50   ~ 0
 AD_D5
-Text Label 4550 5150 0    50   ~ 0
+Text Label 4550 4950 0    50   ~ 0
 AD_D6
-Text Label 4550 5250 0    50   ~ 0
+Text Label 4550 5050 0    50   ~ 0
 AD_D7
 Text Label 6850 5350 2    50   ~ 0
 FT_D7
@@ -444,18 +442,16 @@ Text Label 6850 4750 2    50   ~ 0
 FT_D1
 Text Label 6850 4650 2    50   ~ 0
 FT_D0
-Text HLabel 4350 3650 0    50   Output ~ 0
+Text HLabel 4350 3450 0    50   Output ~ 0
 AD_SLOAD
-Text HLabel 4350 3750 0    50   Output ~ 0
+Text HLabel 4350 3550 0    50   Output ~ 0
 AD_SCLK
-Text HLabel 4350 3850 0    50   BiDi ~ 0
+Text HLabel 4350 3650 0    50   BiDi ~ 0
 AD_SDATA
 Wire Wire Line
-	4850 3850 4350 3850
+	4350 3550 4850 3550
 Wire Wire Line
-	4350 3750 4850 3750
-Wire Wire Line
-	4850 3650 4350 3650
+	4850 3450 4350 3450
 $Comp
 L Device:C C89
 U 1 1 5EA52549
@@ -496,6 +492,8 @@ PWM_TEC2
 Wire Wire Line
 	6900 2150 6550 2150
 Entry Wire Line
+	4550 3850 4450 3750
+Entry Wire Line
 	4450 4650 4550 4550
 Entry Wire Line
 	4450 4750 4550 4650
@@ -507,12 +505,6 @@ Entry Wire Line
 	4450 5050 4550 4950
 Entry Wire Line
 	4450 5150 4550 5050
-Entry Wire Line
-	4450 5250 4550 5150
-Entry Wire Line
-	4450 5350 4550 5250
-Wire Bus Line
-	4450 4650 4350 4650
 $Comp
 L Device:C C92
 U 1 1 5EBE75AA
@@ -560,8 +552,6 @@ Wire Wire Line
 	4850 4050 4800 4050
 Wire Wire Line
 	4800 4050 4800 3950
-Wire Wire Line
-	4800 3950 3450 3950
 Wire Wire Line
 	4700 4150 4700 4050
 Wire Wire Line
@@ -1026,21 +1016,17 @@ Connection ~ 3050 5850
 Wire Wire Line
 	3050 5850 3000 5850
 Wire Wire Line
-	4350 5350 4400 5350
+	4350 5150 4400 5150
 Wire Wire Line
-	4400 5350 4400 5400
+	4400 5150 4400 5200
 Wire Wire Line
-	4400 5400 4800 5400
-Wire Wire Line
-	4800 5400 4800 5350
-Wire Wire Line
-	4800 5350 4850 5350
+	4400 5200 4800 5200
 Wire Wire Line
 	4850 5450 4350 5450
 Wire Wire Line
-	4350 5550 4850 5550
+	4350 5350 4850 5350
 Wire Wire Line
-	4850 5650 4350 5650
+	4850 5250 4350 5250
 Wire Wire Line
 	6550 5750 7050 5750
 Wire Bus Line
@@ -1078,16 +1064,6 @@ Wire Bus Line
 	4550 2150 4450 2150
 Text Label 4450 2150 2    50   ~ 0
 AUX[1..12]
-Entry Wire Line
-	4550 3250 4650 3150
-Wire Wire Line
-	4850 3350 4850 3400
-Wire Wire Line
-	4850 3400 4450 3400
-Wire Wire Line
-	4450 3400 4450 3350
-Wire Wire Line
-	4450 3350 4350 3350
 Entry Wire Line
 	4650 3050 4550 3150
 Entry Wire Line
@@ -1128,8 +1104,6 @@ Wire Wire Line
 	4850 2950 4650 2950
 Wire Wire Line
 	4650 3050 4850 3050
-Wire Wire Line
-	4850 3150 4650 3150
 Text Label 4650 2250 0    50   ~ 0
 AUX2
 Text Label 4650 2450 0    50   ~ 0
@@ -1146,8 +1120,6 @@ Text Label 4650 2950 0    50   ~ 0
 AUX9
 Text Label 4650 3050 0    50   ~ 0
 AUX10
-Text Label 4650 3150 0    50   ~ 0
-AUX11
 Text Label 4650 2350 0    50   ~ 0
 AUX3
 Text Label 4650 2150 0    50   ~ 0
@@ -1156,8 +1128,6 @@ Wire Bus Line
 	1100 3950 1000 3950
 Text Label 1000 3950 2    50   ~ 0
 AUX[0..12]
-Entry Wire Line
-	1200 4450 1100 4550
 Entry Wire Line
 	1200 4350 1100 4450
 Entry Wire Line
@@ -1178,16 +1148,12 @@ Wire Wire Line
 	1500 4250 1200 4250
 Wire Wire Line
 	1200 4350 1500 4350
-Wire Wire Line
-	1500 4450 1200 4450
 Text Label 1200 4050 0    50   ~ 0
 AUX3
 Text Label 1200 4250 0    50   ~ 0
 AUX7
 Text Label 1200 4350 0    50   ~ 0
 AUX9
-Text Label 1200 4450 0    50   ~ 0
-AUX11
 Text Label 1200 4150 0    50   ~ 0
 AUX5
 Text Label 1200 3950 0    50   ~ 0
@@ -1202,8 +1168,6 @@ Entry Wire Line
 	2300 4250 2400 4350
 Entry Wire Line
 	2300 4350 2400 4450
-Entry Wire Line
-	2300 4450 2400 4550
 Wire Bus Line
 	1100 4600 2400 4600
 Wire Wire Line
@@ -1216,8 +1180,6 @@ Wire Wire Line
 	2300 4250 2000 4250
 Wire Wire Line
 	2000 4350 2300 4350
-Wire Wire Line
-	2300 4450 2000 4450
 Text Label 2050 3950 0    50   ~ 0
 AUX2
 Text Label 2050 4050 0    50   ~ 0
@@ -1228,14 +1190,6 @@ Text Label 2050 4250 0    50   ~ 0
 AUX8
 Text Label 2050 4350 0    50   ~ 0
 AUX10
-Text Label 2050 4450 0    50   ~ 0
-AUX12
-Text Label 4650 3250 0    50   ~ 0
-AUX12
-Entry Wire Line
-	4650 3250 4550 3350
-Wire Wire Line
-	4650 3250 4850 3250
 $Comp
 L Oscillator:SG-7050CBN X1
 U 1 1 5EE5C0C3
@@ -1333,14 +1287,81 @@ NoConn ~ 6550 5450
 NoConn ~ 6550 5550
 NoConn ~ 6550 5650
 NoConn ~ 6550 6450
+$Comp
+L power:+3.3V #PWR0170
+U 1 1 5EF6D978
+P 1500 4450
+F 0 "#PWR0170" H 1500 4300 50  0001 C CNN
+F 1 "+3.3V" V 1500 4700 50  0000 C CNN
+F 2 "" H 1500 4450 50  0001 C CNN
+F 3 "" H 1500 4450 50  0001 C CNN
+	1    1500 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0172
+U 1 1 5EF6EFE2
+P 2000 4450
+F 0 "#PWR0172" H 2000 4200 50  0001 C CNN
+F 1 "GND" V 2000 4250 50  0000 C CNN
+F 2 "" H 2000 4450 50  0001 C CNN
+F 3 "" H 2000 4450 50  0001 C CNN
+	1    2000 4450
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 3150 4650 3150
+Wire Wire Line
+	4650 3150 4650 3200
+Wire Wire Line
+	4650 3200 4450 3200
+Wire Wire Line
+	4450 3200 4450 3150
+Wire Wire Line
+	4450 3150 4350 3150
+Wire Wire Line
+	3450 3950 4800 3950
+Text Label 4550 3850 0    50   ~ 0
+AD_D1
+Wire Wire Line
+	4850 5150 4800 5150
+Wire Wire Line
+	4800 5150 4800 5200
+Entry Wire Line
+	4550 3750 4450 3650
 Wire Bus Line
-	4450 4650 4450 5350
+	4450 3650 4450 3750
+Wire Bus Line
+	4450 3750 4400 3750
+Wire Wire Line
+	4850 3650 4550 3650
+Wire Wire Line
+	4550 3650 4550 3600
+Wire Wire Line
+	4550 3600 4400 3600
+Wire Wire Line
+	4400 3600 4400 3650
+Wire Wire Line
+	4400 3650 4350 3650
+Wire Bus Line
+	4400 3750 4400 3850
+Wire Bus Line
+	4400 3850 2950 3850
+Wire Bus Line
+	2950 3850 2950 4550
+Wire Bus Line
+	2950 4550 4450 4550
+Connection ~ 4400 3750
+Wire Bus Line
+	4400 3750 4350 3750
+Wire Bus Line
+	2400 4050 2400 4600
+Wire Bus Line
+	4450 4550 4450 5150
 Wire Bus Line
 	6950 4750 6950 5450
 Wire Bus Line
 	1100 3950 1100 4600
 Wire Bus Line
-	2400 4050 2400 4600
-Wire Bus Line
-	4550 2150 4550 3350
+	4550 2150 4550 3150
 $EndSCHEMATC
