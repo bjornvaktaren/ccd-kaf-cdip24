@@ -30,7 +30,7 @@ Connection ~ 2000 4900
 Wire Wire Line
 	2000 4550 2000 4900
 Wire Wire Line
-	2000 3750 2000 4250
+	2000 3850 2000 4250
 Wire Wire Line
 	2250 3950 1000 3950
 Connection ~ 2250 4900
@@ -706,19 +706,6 @@ Wire Wire Line
 Wire Wire Line
 	3500 6650 3450 6650
 $Comp
-L kaf_board-rescue:FT2232H-Interface_USB U17
-U 1 1 5E835E13
-P 4700 4850
-AR Path="/5E835E13" Ref="U17"  Part="1" 
-AR Path="/5E6A6B3B/5E835E13" Ref="U17"  Part="1" 
-F 0 "U17" H 4700 5000 50  0000 C CNN
-F 1 "FT2232H" H 4700 4850 50  0000 C CNN
-F 2 "Housings_QFP:LQFP-64_10x10mm_Pitch0.5mm" H 4700 4850 50  0001 C CNN
-F 3 "https://www.ftdichip.com/Support/Documents/DataSheets/ICs/DS_FT2232H.pdf" H 4700 4850 50  0001 C CNN
-	1    4700 4850
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:R R51
 U 1 1 5E81B739
 P 2300 5850
@@ -965,14 +952,14 @@ Connection ~ 1650 4900
 Wire Wire Line
 	1650 4550 1650 4900
 Wire Wire Line
-	1650 3750 2000 3750
+	1650 3850 2000 3850
 Wire Wire Line
-	1000 3750 1650 3750
-Connection ~ 1650 3750
+	1000 3850 1650 3850
+Connection ~ 1650 3850
 Wire Wire Line
-	1650 3750 1650 4250
+	1650 3850 1650 4250
 Wire Wire Line
-	1650 3750 1650 3650
+	1650 3850 1650 3650
 $Comp
 L Device:L L5
 U 1 1 5EA87361
@@ -984,8 +971,6 @@ F 3 "~" H 1650 3500 50  0001 C CNN
 	1    1650 3500
 	-1   0    0    1   
 $EndComp
-Text Label 1850 3750 0    50   ~ 0
-USB_VBUS
 $Comp
 L Device:C C71
 U 1 1 5EA9174E
@@ -1110,14 +1095,6 @@ Wire Wire Line
 	1150 4250 1000 4250
 Wire Wire Line
 	1150 4250 1150 4400
-Text HLabel 1000 4250 0    50   UnSpc ~ 0
-USB_SHIELD
-Text HLabel 1000 3750 0    50   UnSpc ~ 0
-VUSB
-Text HLabel 1000 3950 0    50   BiDi ~ 0
-DM
-Text HLabel 1000 4050 0    50   BiDi ~ 0
-DP
 NoConn ~ 5900 4550
 NoConn ~ 5900 5050
 NoConn ~ 5900 5250
@@ -1131,6 +1108,40 @@ NoConn ~ 5900 6250
 NoConn ~ 5900 6350
 NoConn ~ 5900 6550
 NoConn ~ 5900 6650
+$Comp
+L Interface_USB:FT2232HL U17
+U 1 1 5EE47AC3
+P 4700 4850
+F 0 "U17" H 4700 7231 50  0000 C CNN
+F 1 "FT2232HL" H 4700 7140 50  0000 C CNN
+F 2 "Housings_QFP:LQFP-64_10x10mm_Pitch0.5mm" H 4700 4850 50  0001 C CNN
+F 3 "https://www.ftdichip.com/Support/Documents/DataSheets/ICs/DS_FT2232H.pdf" H 4700 4850 50  0001 C CNN
+	1    4700 4850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x05 J5
+U 1 1 5EE5C275
+P 800 4050
+F 0 "J5" H 718 4467 50  0000 C CNN
+F 1 "USB" H 718 4376 50  0000 C CNN
+F 2 "Connectors_Molex:Molex_PicoBlade_53047-0510_05x1.25mm_Straight" H 800 4050 50  0001 C CNN
+F 3 "~" H 800 4050 50  0001 C CNN
+	1    800  4050
+	-1   0    0    -1  
+$EndComp
+Text Label 1000 3850 0    50   ~ 0
+VUSB
+Text Label 1000 3950 0    50   ~ 0
+DM
+Text Label 1000 4050 0    50   ~ 0
+DP
+Text Label 1000 4250 0    50   ~ 0
+SHIELD
+Wire Wire Line
+	1450 4900 1450 4150
+Wire Wire Line
+	1450 4150 1000 4150
 Wire Bus Line
 	6650 3050 6650 3750
 $EndSCHEMATC

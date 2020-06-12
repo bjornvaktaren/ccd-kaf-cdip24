@@ -49,7 +49,6 @@ S 1750 5300 950  1500
 U 5E643BF7
 F0 "power" 50
 F1 "power.sch" 50
-F2 "V_IN" U L 1750 6650 50 
 $EndSheet
 $Sheet
 S 2350 2100 1050 1550
@@ -70,10 +69,6 @@ F12 "FT_MISO" I R 3400 2350 50
 F13 "FT_SS" O R 3400 2450 50 
 F14 "FT_CDONE" O R 3400 2550 50 
 F15 "FT_CRESET" O R 3400 2650 50 
-F16 "USB_SHIELD" U L 2350 3550 50 
-F17 "VUSB" U L 2350 3450 50 
-F18 "DM" B L 2350 3350 50 
-F19 "DP" B L 2350 3250 50 
 $EndSheet
 Wire Wire Line
 	3400 2950 3850 2950
@@ -169,8 +164,6 @@ F5 "MCP_CLK" I L 6150 4700 50
 F6 "PWM_SERVO" I L 6150 4250 50 
 F7 "PWM_TEC1" I L 6150 4150 50 
 F8 "PWM_TEC2" I L 6150 4050 50 
-F9 "V_TEC1" I L 6150 4950 50 
-F10 "V_TEC2" I L 6150 5050 50 
 $EndSheet
 Wire Wire Line
 	5350 4050 5900 4050
@@ -214,122 +207,4 @@ Wire Wire Line
 	6000 3900 5350 3900
 Wire Wire Line
 	6000 4250 6150 4250
-$Comp
-L Connector_Generic:Conn_02x06_Odd_Even J?
-U 1 1 5EE6FE33
-P 4300 5850
-AR Path="/5E5DF889/5EE6FE33" Ref="J?"  Part="1" 
-AR Path="/5EE6FE33" Ref="J1"  Part="1" 
-F 0 "J1" H 4350 6267 50  0000 C CNN
-F 1 "I/O" H 4350 6176 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_2x06_Pitch2.54mm" H 4300 5850 50  0001 C CNN
-F 3 "~" H 4300 5850 50  0001 C CNN
-	1    4300 5850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	2350 3250 1850 3250
-Wire Wire Line
-	2350 3350 1850 3350
-Wire Wire Line
-	2350 3450 1850 3450
-Wire Wire Line
-	2350 3550 1850 3550
-Text Label 1850 3250 0    50   ~ 0
-DP
-Text Label 1850 3350 0    50   ~ 0
-DM
-Text Label 1850 3450 0    50   ~ 0
-VUSB
-Text Label 1850 3550 0    50   ~ 0
-USB_SHIELD
-Wire Wire Line
-	6150 4950 5750 4950
-Wire Wire Line
-	6150 5050 5750 5050
-Text Label 5750 4950 0    50   ~ 0
-V_TEC1
-Text Label 5750 5050 0    50   ~ 0
-V_TEC2
-Wire Wire Line
-	4600 5650 5100 5650
-Text Label 3600 5650 0    50   ~ 0
-V_TEC1
-Text Label 5100 5650 2    50   ~ 0
-V_TEC2
-Wire Wire Line
-	4600 6050 5100 6050
-Wire Wire Line
-	4100 6050 3600 6050
-Wire Wire Line
-	4100 6150 3600 6150
-Text Label 5100 6150 2    50   ~ 0
-DP
-Text Label 3600 6050 0    50   ~ 0
-VUSB
-Text Label 3600 6150 0    50   ~ 0
-USB_SHIELD
-Text Label 5100 6050 2    50   ~ 0
-DM
-Wire Wire Line
-	4600 6150 5100 6150
-Text Label 3600 5950 0    50   ~ 0
-USB_GND
-Text Label 3600 5750 0    50   ~ 0
-GND_TEC1
-Text Label 5100 5750 2    50   ~ 0
-GND_TEC2
-Wire Wire Line
-	4100 5650 3600 5650
-Wire Wire Line
-	4600 5850 5100 5850
-Text Label 5100 5850 2    50   ~ 0
-V_IN
-Text Label 3600 5850 0    50   ~ 0
-GND_IN
-Text Label 5100 5950 2    50   ~ 0
-GND_IN
-Wire Wire Line
-	3500 5750 3500 5850
-Wire Wire Line
-	3500 6400 4350 6400
-Wire Wire Line
-	5200 6400 5200 5950
-Wire Wire Line
-	4600 5750 5200 5750
-Wire Wire Line
-	3500 5750 4100 5750
-Wire Wire Line
-	4600 5950 5200 5950
-Connection ~ 5200 5950
-Wire Wire Line
-	5200 5950 5200 5750
-Wire Wire Line
-	3500 5850 4100 5850
-Connection ~ 3500 5850
-Wire Wire Line
-	3500 5850 3500 5950
-Wire Wire Line
-	3500 5950 4100 5950
-Connection ~ 3500 5950
-Wire Wire Line
-	3500 5950 3500 6400
-$Comp
-L power:GND #PWR0139
-U 1 1 5EF19FE4
-P 4350 6400
-F 0 "#PWR0139" H 4350 6150 50  0001 C CNN
-F 1 "GND" H 4355 6227 50  0000 C CNN
-F 2 "" H 4350 6400 50  0001 C CNN
-F 3 "" H 4350 6400 50  0001 C CNN
-	1    4350 6400
-	1    0    0    -1  
-$EndComp
-Connection ~ 4350 6400
-Wire Wire Line
-	4350 6400 5200 6400
-Wire Wire Line
-	1750 6650 1450 6650
-Text Label 1450 6650 0    50   ~ 0
-V_IN
 $EndSCHEMATC

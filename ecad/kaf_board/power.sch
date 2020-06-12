@@ -695,14 +695,11 @@ F 3 "~" H 2900 1400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2200 1200 2500 1200
-Wire Wire Line
 	2500 1200 2500 1250
 Wire Wire Line
 	2500 1200 2900 1200
 Wire Wire Line
 	2900 1200 2900 1250
-Connection ~ 2500 1200
 Wire Wire Line
 	2500 1600 2500 1550
 Wire Wire Line
@@ -726,21 +723,6 @@ F 3 "" H 2900 1050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:Fuse F1
-U 1 1 5EEEB9E6
-P 2050 1200
-AR Path="/5E643BF7/5EEEB9E6" Ref="F1"  Part="1" 
-AR Path="/5EEEB9E6" Ref="F?"  Part="1" 
-F 0 "F1" V 1853 1200 50  0000 C CNN
-F 1 "Fuse" V 1944 1200 50  0000 C CNN
-F 2 "Fuse_Holders_and_Fuses:Fuse_SMD1206_HandSoldering" V 1980 1200 50  0001 C CNN
-F 3 "~" H 2050 1200 50  0001 C CNN
-	1    2050 1200
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	1500 1200 1900 1200
-$Comp
 L power:GND #PWR0168
 U 1 1 5EEEB9EE
 P 2700 1650
@@ -753,11 +735,58 @@ F 3 "" H 2700 1650 50  0001 C CNN
 	1    2700 1650
 	1    0    0    -1  
 $EndComp
-Text HLabel 1500 1200 0    50   UnSpc ~ 0
-V_IN
 Wire Wire Line
 	2700 1600 2700 1650
 Connection ~ 2700 1600
 Wire Wire Line
 	2700 1600 2900 1600
+Wire Wire Line
+	2250 1600 2250 1300
+Wire Wire Line
+	2250 1300 2200 1300
+$Comp
+L power:GND #PWR014
+U 1 1 5EEE86A1
+P 6850 3250
+F 0 "#PWR014" H 6850 3000 50  0001 C CNN
+F 1 "GND" H 6855 3077 50  0000 C CNN
+F 2 "" H 6850 3250 50  0001 C CNN
+F 3 "" H 6850 3250 50  0001 C CNN
+	1    6850 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GNDA #PWR015
+U 1 1 5EEE8FDF
+P 7200 3250
+F 0 "#PWR015" H 7200 3000 50  0001 C CNN
+F 1 "GNDA" H 7205 3077 50  0000 C CNN
+F 2 "" H 7200 3250 50  0001 C CNN
+F 3 "" H 7200 3250 50  0001 C CNN
+	1    7200 3250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6850 3250 6850 3200
+Wire Wire Line
+	6850 3200 7200 3200
+Wire Wire Line
+	7200 3200 7200 3250
+$Comp
+L ccd_camera:Peltier J1
+U 1 1 5EEDF492
+P 1950 1250
+F 0 "J1" H 1867 1525 50  0000 C CNN
+F 1 "PWR" H 1867 1434 50  0000 C CNN
+F 2 "Connectors:PINHEAD1-2" H 1800 1150 50  0001 C CNN
+F 3 "" H 1800 1150 50  0001 C CNN
+	1    1950 1250
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 1200 2200 1200
+Connection ~ 2500 1200
+Wire Wire Line
+	2250 1600 2500 1600
+Connection ~ 2500 1600
 $EndSCHEMATC

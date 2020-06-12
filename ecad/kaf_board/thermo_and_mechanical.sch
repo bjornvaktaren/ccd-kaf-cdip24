@@ -30,7 +30,7 @@ U 1 1 5EA78AD3
 P 1100 4400
 F 0 "TH3" H 1198 4446 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 4355 50  0000 L CNN
-F 2 "Connectors:PINHEAD1-2" H 1100 4450 50  0001 C CNN
+F 2 "Connectors_Molex:Molex_PicoBlade_53047-0210_02x1.25mm_Straight" H 1100 4450 50  0001 C CNN
 F 3 "~" H 1100 4450 50  0001 C CNN
 	1    1100 4400
 	1    0    0    -1  
@@ -94,7 +94,7 @@ U 1 1 5EA82A48
 P 1100 1500
 F 0 "TH1" H 1198 1546 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 1455 50  0000 L CNN
-F 2 "Connectors:PINHEAD1-2" H 1100 1550 50  0001 C CNN
+F 2 "Connectors_Molex:Molex_PicoBlade_53047-0210_02x1.25mm_Straight" H 1100 1550 50  0001 C CNN
 F 3 "~" H 1100 1550 50  0001 C CNN
 	1    1100 1500
 	1    0    0    -1  
@@ -158,7 +158,7 @@ U 1 1 5EA8391C
 P 1100 2950
 F 0 "TH2" H 1198 2996 50  0000 L CNN
 F 1 "2000, beta 3450" H 1198 2905 50  0000 L CNN
-F 2 "Connectors:PINHEAD1-2" H 1100 3000 50  0001 C CNN
+F 2 "Connectors_Molex:Molex_PicoBlade_53047-0210_02x1.25mm_Straight" H 1100 3000 50  0001 C CNN
 F 3 "~" H 1100 3000 50  0001 C CNN
 	1    1100 2950
 	1    0    0    -1  
@@ -705,8 +705,6 @@ F 3 "" H 2500 6750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5150 5400 5450 5400
-Text HLabel 8100 2900 0    50   Input ~ 0
-V_TEC1
 NoConn ~ 8700 5200
 NoConn ~ 8150 3550
 NoConn ~ 2600 3700
@@ -734,10 +732,6 @@ F 3 "https://www.bourns.com/docs/Product-Datasheets/SRR1210.pdf" H 8750 3400 50 
 	1    8750 3400
 	0    1    1    0   
 $EndComp
-Text HLabel 5150 5400 0    50   Input ~ 0
-V_TEC1
-Text HLabel 8700 4550 0    50   Input ~ 0
-V_TEC2
 $Comp
 L ccd_camera:Peltier J2
 U 1 1 5EEA985C
@@ -762,4 +756,40 @@ F 3 "" H 10450 4500 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	6150 5300 6300 5300
+Text Label 8100 2900 2    50   ~ 0
+V_TEC
+Text Label 8700 4550 2    50   ~ 0
+V_TEC
+Text Label 5150 5400 2    50   ~ 0
+V_TEC
+$Comp
+L ccd_camera:Peltier J6
+U 1 1 5EEB8832
+P 5700 3600
+F 0 "J6" H 5617 3875 50  0000 C CNN
+F 1 "TECPWR" H 5617 3784 50  0000 C CNN
+F 2 "Connectors:PINHEAD1-2" H 5550 3500 50  0001 C CNN
+F 3 "" H 5550 3500 50  0001 C CNN
+	1    5700 3600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR016
+U 1 1 5EEC828B
+P 6000 3700
+F 0 "#PWR016" H 6000 3450 50  0001 C CNN
+F 1 "GND" H 6005 3527 50  0000 C CNN
+F 2 "" H 6000 3700 50  0001 C CNN
+F 3 "" H 6000 3700 50  0001 C CNN
+	1    6000 3700
+	1    0    0    -1  
+$EndComp
+Text Label 6350 3550 2    50   ~ 0
+V_TEC
+Wire Wire Line
+	5950 3550 6350 3550
+Wire Wire Line
+	5950 3650 6000 3650
+Wire Wire Line
+	6000 3650 6000 3700
 $EndSCHEMATC
