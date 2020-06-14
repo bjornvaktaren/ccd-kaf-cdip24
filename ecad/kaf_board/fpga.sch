@@ -368,11 +368,11 @@ F 3 "" H 3300 4450 50  0001 C CNN
 	1    3300 4450
 	0    1    -1   0   
 $EndComp
-Text HLabel 4350 3150 0    50   Output ~ 0
+Text HLabel 4350 3350 0    50   Output ~ 0
 AMP_OFF
 Text HLabel 4350 3250 0    50   Output ~ 0
 H_3.3V
-Text HLabel 4350 3350 0    50   Output ~ 0
+Text HLabel 4350 3150 0    50   Output ~ 0
 R_3.3V
 Text HLabel 4350 5550 0    50   Output ~ 0
 V1_3.3V
@@ -463,14 +463,14 @@ F 3 "~" H 4050 1750 50  0001 C CNN
 	1    4050 1750
 	1    0    0    -1  
 $EndComp
-Text HLabel 6900 2250 2    50   Output ~ 0
+Text HLabel 6900 3650 2    50   Output ~ 0
 PWM_TEC1
-Text HLabel 6900 2050 2    50   Output ~ 0
+Text HLabel 6900 3850 2    50   Output ~ 0
 PWM_SERVO
 Wire Wire Line
-	6900 2250 6550 2250
+	6900 3650 6550 3650
 Wire Wire Line
-	6550 2050 6900 2050
+	6550 3850 6900 3850
 Text HLabel 7050 2750 2    50   Output ~ 0
 MCP_CS_N
 Text HLabel 7050 2650 2    50   Output ~ 0
@@ -487,10 +487,10 @@ Wire Wire Line
 	7050 2550 6550 2550
 Wire Wire Line
 	6550 2450 7050 2450
-Text HLabel 6900 2150 2    50   Output ~ 0
+Text HLabel 6900 3750 2    50   Output ~ 0
 PWM_TEC2
 Wire Wire Line
-	6900 2150 6550 2150
+	6900 3750 6550 3750
 Entry Wire Line
 	4550 3850 4450 3750
 Entry Wire Line
@@ -1266,7 +1266,7 @@ NoConn ~ 6550 3250
 NoConn ~ 6550 3350
 NoConn ~ 6550 3450
 NoConn ~ 6550 3550
-NoConn ~ 6550 3650
+NoConn ~ 6550 2050
 NoConn ~ 6550 2350
 NoConn ~ 6550 5450
 NoConn ~ 6550 5550
@@ -1352,6 +1352,8 @@ F 3 "~" H 1850 3250 50  0001 C CNN
 	1    1850 3250
 	1    0    0    -1  
 $EndComp
+NoConn ~ 6550 2150
+NoConn ~ 6550 2250
 Wire Bus Line
 	4450 4550 4450 5150
 Wire Bus Line

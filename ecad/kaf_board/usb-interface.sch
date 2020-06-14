@@ -48,7 +48,7 @@ F 3 "~" H 3250 4450 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text Label 2650 4450 0    50   ~ 0
-USB_VBUS
+VUSB
 Wire Wire Line
 	3100 4450 2650 4450
 $Comp

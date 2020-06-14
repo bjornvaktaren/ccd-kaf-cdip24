@@ -340,7 +340,7 @@ Wire Wire Line
 Wire Wire Line
 	5850 5400 6300 5400
 Wire Wire Line
-	8250 3400 8250 3550
+	8250 3400 8250 3500
 Connection ~ 8250 3400
 Connection ~ 6250 5800
 Connection ~ 5450 5400
@@ -635,7 +635,7 @@ F 3 "~" H 8600 5400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8800 5200 8800 5050
+	8800 5200 8800 5150
 Connection ~ 8800 5050
 $Comp
 L Device:Q_NMOS_GDSD Q2
@@ -705,8 +705,6 @@ F 3 "" H 2500 6750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5150 5400 5450 5400
-NoConn ~ 8700 5200
-NoConn ~ 8150 3550
 NoConn ~ 2600 3700
 Wire Wire Line
 	9550 3000 9550 3400
@@ -792,4 +790,18 @@ Wire Wire Line
 	5950 3650 6000 3650
 Wire Wire Line
 	6000 3650 6000 3700
+Wire Wire Line
+	8150 3550 8150 3500
+Wire Wire Line
+	8150 3500 8250 3500
+Connection ~ 8250 3500
+Wire Wire Line
+	8250 3500 8250 3550
+Wire Wire Line
+	8700 5200 8700 5150
+Wire Wire Line
+	8700 5150 8800 5150
+Connection ~ 8800 5150
+Wire Wire Line
+	8800 5150 8800 5050
 $EndSCHEMATC
