@@ -480,17 +480,6 @@ F 3 "" H 1400 6750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L power:+5V #PWR0197
-U 1 1 5E7F08A4
-P 1200 6300
-F 0 "#PWR0197" H 1200 6150 50  0001 C CNN
-F 1 "+5V" V 1215 6428 50  0000 L CNN
-F 2 "" H 1200 6300 50  0001 C CNN
-F 3 "" H 1200 6300 50  0001 C CNN
-	1    1200 6300
-	0    -1   -1   0   
-$EndComp
-$Comp
 L Device:C C102
 U 1 1 5E7F33BE
 P 1400 6500
@@ -542,8 +531,6 @@ Text HLabel 1800 6200 0    50   Input ~ 0
 PWM_SERVO
 Wire Wire Line
 	2200 6200 1800 6200
-Text Notes 1500 6050 0    50   ~ 0
-Ok with 3.3v for PWM?
 Text HLabel 6150 5300 0    50   Input ~ 0
 PWM_TEC2
 $Comp
@@ -782,10 +769,6 @@ F 3 "" H 6000 3700 50  0001 C CNN
 	1    6000 3700
 	1    0    0    -1  
 $EndComp
-Text Label 6350 3550 2    50   ~ 0
-V_TEC
-Wire Wire Line
-	5950 3550 6350 3550
 Wire Wire Line
 	5950 3650 6000 3650
 Wire Wire Line
@@ -804,4 +787,33 @@ Wire Wire Line
 Connection ~ 8800 5150
 Wire Wire Line
 	8800 5150 8800 5050
+$Comp
+L power:+6V #PWR0179
+U 1 1 5EFF2A8A
+P 1200 6300
+F 0 "#PWR0179" H 1200 6150 50  0001 C CNN
+F 1 "+6V" V 1215 6428 50  0000 L CNN
+F 2 "" H 1200 6300 50  0001 C CNN
+F 3 "" H 1200 6300 50  0001 C CNN
+	1    1200 6300
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0106
+U 1 1 5F001649
+P 6250 3550
+F 0 "#FLG0106" H 6250 3625 50  0001 C CNN
+F 1 "PWR_FLAG" H 6250 3723 50  0000 C CNN
+F 2 "" H 6250 3550 50  0001 C CNN
+F 3 "~" H 6250 3550 50  0001 C CNN
+	1    6250 3550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5950 3550 6250 3550
+Text Label 6650 3550 2    50   ~ 0
+V_TEC
+Connection ~ 6250 3550
+Wire Wire Line
+	6250 3550 6650 3550
 $EndSCHEMATC

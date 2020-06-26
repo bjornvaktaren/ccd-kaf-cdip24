@@ -947,42 +947,6 @@ F 3 "" H 3450 7150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1650 4900 2000 4900
-Connection ~ 1650 4900
-Wire Wire Line
-	1650 4550 1650 4900
-Wire Wire Line
-	1650 3850 2000 3850
-Wire Wire Line
-	1000 3850 1650 3850
-Connection ~ 1650 3850
-Wire Wire Line
-	1650 3850 1650 4250
-Wire Wire Line
-	1650 3850 1650 3650
-$Comp
-L Device:L L5
-U 1 1 5EA87361
-P 1650 3500
-F 0 "L5" H 1606 3454 50  0000 R CNN
-F 1 "1K/0.8A" H 1606 3545 50  0000 R CNN
-F 2 "Inductors_SMD:L_0603_HandSoldering" H 1650 3500 50  0001 C CNN
-F 3 "~" H 1650 3500 50  0001 C CNN
-	1    1650 3500
-	-1   0    0    1   
-$EndComp
-$Comp
-L Device:C C71
-U 1 1 5EA9174E
-P 1650 4400
-F 0 "C71" H 1700 4500 50  0000 L CNN
-F 1 "10n" H 1700 4300 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603_HandSoldering" H 1688 4250 50  0001 C CNN
-F 3 "~" H 1650 4400 50  0001 C CNN
-	1    1650 4400
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
 	1150 4850 1150 4900
 $Comp
 L Device:R R49
@@ -1002,8 +966,6 @@ Wire Wire Line
 Wire Wire Line
 	1150 4400 1150 4550
 Connection ~ 1150 4400
-Wire Wire Line
-	1450 4900 1650 4900
 Wire Wire Line
 	1150 4900 1450 4900
 Connection ~ 1450 4900
@@ -1029,19 +991,6 @@ F 3 "" H 1450 4900 50  0001 C CNN
 	1    1450 4900
 	1    0    0    -1  
 $EndComp
-$Comp
-L power:+5V #PWR0209
-U 1 1 5EC203BA
-P 1650 3200
-F 0 "#PWR0209" H 1650 3050 50  0001 C CNN
-F 1 "+5V" H 1665 3373 50  0000 C CNN
-F 2 "" H 1650 3200 50  0001 C CNN
-F 3 "" H 1650 3200 50  0001 C CNN
-	1    1650 3200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1650 3200 1650 3350
 $Comp
 L Device:Crystal_GND24 Y1
 U 1 1 5EBF488A
@@ -1142,6 +1091,44 @@ Wire Wire Line
 	1450 4900 1450 4150
 Wire Wire Line
 	1450 4150 1000 4150
+Wire Wire Line
+	1000 3850 2000 3850
+Wire Wire Line
+	1450 4900 2000 4900
+$Comp
+L power:PWR_FLAG #FLG0103
+U 1 1 5EFFC82B
+P 10350 950
+F 0 "#FLG0103" H 10350 1025 50  0001 C CNN
+F 1 "PWR_FLAG" V 10350 1077 50  0000 L CNN
+F 2 "" H 10350 950 50  0001 C CNN
+F 3 "~" H 10350 950 50  0001 C CNN
+	1    10350 950 
+	0    -1   -1   0   
+$EndComp
+Text Label 3950 2000 0    50   ~ 0
+VPHY
+Wire Wire Line
+	10350 950  10500 950 
+Text Label 10500 950  0    50   ~ 0
+VPHY
+$Comp
+L power:PWR_FLAG #FLG0107
+U 1 1 5F0524C5
+P 10350 1100
+F 0 "#FLG0107" H 10350 1175 50  0001 C CNN
+F 1 "PWR_FLAG" V 10350 1227 50  0000 L CNN
+F 2 "" H 10350 1100 50  0001 C CNN
+F 3 "~" H 10350 1100 50  0001 C CNN
+	1    10350 1100
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	10350 1100 10500 1100
+Text Label 10500 1100 0    50   ~ 0
+SHIELD
+Text Notes 9900 850  0    50   ~ 0
+Flags to appease ERC
 Wire Bus Line
 	6650 3050 6650 3750
 $EndSCHEMATC
