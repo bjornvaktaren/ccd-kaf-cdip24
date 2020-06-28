@@ -2087,4 +2087,12 @@ F 3 "" H 1000 4000 50  0001 C CNN
 $EndComp
 Wire Bus Line
 	1150 6500 1150 7300
+Text Label 3000 4000 0    50   ~ 0
+AVDD
+Text Label 1900 1850 0    50   ~ 0
+VRD
+Text Label 1900 1950 0    50   ~ 0
+VSS
+Text Label 1900 1650 0    50   ~ 0
+VOG
 $EndSCHEMATC
