@@ -304,7 +304,7 @@ $EndComp
 Wire Wire Line
 	2300 3200 2300 3150
 Wire Wire Line
-	2300 3150 2650 3150
+	2300 3150 2500 3150
 Wire Wire Line
 	2650 3150 2650 3200
 $Comp
@@ -894,4 +894,20 @@ F 3 "" H 9950 1250 50  0001 C CNN
 	1    9950 1250
 	-1   0    0    1   
 $EndComp
+$Comp
+L Connector:TestPoint_Probe TP1
+U 1 1 5EFD4B3A
+P 2500 2900
+F 0 "TP1" H 2652 3001 50  0000 L CNN
+F 1 "GND" H 2652 2910 50  0000 L CNN
+F 2 "Measurement_Points:Test_Point_Keystone_5005-5009_Compact" H 2700 2900 50  0001 C CNN
+F 3 "https://www.keyelco.com/userAssets/file/M65p56.pdf" H 2700 2900 50  0001 C CNN
+	1    2500 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 2900 2500 3150
+Connection ~ 2500 3150
+Wire Wire Line
+	2500 3150 2650 3150
 $EndSCHEMATC
