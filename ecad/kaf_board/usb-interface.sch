@@ -245,9 +245,6 @@ F 3 "~" H 2250 4400 50  0001 C CNN
 	1    2250 4400
 	0    1    1    0   
 $EndComp
-Connection ~ 6500 1000
-Wire Wire Line
-	6500 950  6500 1000
 Wire Wire Line
 	2400 5150 2100 5150
 Connection ~ 2400 5150
@@ -425,17 +422,6 @@ F 1 "+3.3V" H 6915 2073 50  0000 C CNN
 F 2 "" H 6900 1900 50  0001 C CNN
 F 3 "" H 6900 1900 50  0001 C CNN
 	1    6900 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+1V8 #PWR0158
-U 1 1 5E77141C
-P 6500 950
-F 0 "#PWR0158" H 6500 800 50  0001 C CNN
-F 1 "+1V8" H 6515 1123 50  0000 C CNN
-F 2 "" H 6500 950 50  0001 C CNN
-F 3 "" H 6500 950 50  0001 C CNN
-	1    6500 950 
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1131,4 +1117,6 @@ Text Notes 9900 850  0    50   ~ 0
 Flags to appease ERC
 Wire Bus Line
 	6650 3050 6650 3750
+Text Label 6300 1000 0    50   ~ 0
+VREG
 $EndSCHEMATC
