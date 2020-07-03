@@ -1115,8 +1115,8 @@ Text Label 10500 1100 0    50   ~ 0
 SHIELD
 Text Notes 9900 850  0    50   ~ 0
 Flags to appease ERC
-Wire Bus Line
-	6650 3050 6650 3750
 Text Label 6300 1000 0    50   ~ 0
 VREG
+Wire Bus Line
+	6650 3050 6650 3750
 $EndSCHEMATC

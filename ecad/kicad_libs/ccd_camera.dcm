@@ -1,5 +1,15 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP +14.5V
+D Power symbol creates a global label with name "+15V"
+K power-flag
+$ENDCMP
+#
+$CMP -14.5V
+D Power symbol creates a global label with name "+15V"
+K power-flag
+$ENDCMP
+#
 $CMP 93LCxxBxxOT
 D Serial EEPROM, 93 Series, 2.5V, SOT-23-6
 K 1K Microwire Serial EEPROM
