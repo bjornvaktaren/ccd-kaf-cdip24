@@ -237,7 +237,7 @@ AR Path="/5E643BF7/5EEEB9CB" Ref="C69"  Part="1"
 AR Path="/5EEEB9CB" Ref="C?"  Part="1" 
 F 0 "C69" H 2868 1996 50  0000 L CNN
 F 1 "47u" H 2868 1905 50  0000 L CNN
-F 2 "Capacitors_Tantalum_SMD:CP_Tantalum_Case-C_EIA-6032-28_Hand" H 2788 1800 50  0001 C CNN
+F 2 "Capacitors_THT:CP_Radial_D5.0mm_P2.00mm" H 2788 1800 50  0001 C CNN
 F 3 "~" H 2750 1950 50  0001 C CNN
 	1    2750 1950
 	1    0    0    -1  
