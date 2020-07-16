@@ -8,7 +8,6 @@ module ccd_readout
    ad_oeb_n,
    kaf_r,
    kaf_h1,
-   kaf_h2,
    kaf_v1,
    kaf_v2,
    kaf_amp,
@@ -47,7 +46,7 @@ module ccd_readout
 
    
    output reg   ad_cdsclk1, ad_cdsclk2, ad_adclk, ad_oeb_n;
-   output reg   kaf_r, kaf_h1, kaf_h2, kaf_v1, kaf_v2, kaf_amp;
+   output reg   kaf_r, kaf_h1, kaf_v1, kaf_v2, kaf_amp;
    input [15:0] counter;
    output reg 	busy = 0;
    input 	toggle;
@@ -139,7 +138,6 @@ module ccd_readout
       ad_oeb_n   = 0;
       kaf_r      = 0;
       kaf_h1     = 0;
-      kaf_h2     = 0;
       kaf_v1     = 0;
       kaf_v2     = 0;
       kaf_amp    = 0;
@@ -147,7 +145,6 @@ module ccd_readout
       if ( state == state_idle ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_h0 ) begin
 	 ad_adclk   = 1;
@@ -169,53 +166,43 @@ module ccd_readout
 	 kaf_h1     = 1;
       end
       if ( state == state_h5 ) begin
-	 kaf_h2     = 1;
       end
       if ( state == state_h6 ) begin
 	 ad_cdsclk2 = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_h7 ) begin
 	 ad_adclk   = 1;
 	 ad_cdsclk2 = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_h8 ) begin
 	 ad_adclk   = 1;
 	 ad_cdsclk2 = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_h9 ) begin
 	 ad_adclk   = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_v0 ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
       end
       if ( state == state_v1 ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
 	 kaf_v2     = 1;
       end
       if ( state == state_v2 ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
 	 kaf_v1     = 1;
       end
       if ( state == state_v3 ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
 	 kaf_v2     = 1;
       end
       if ( state == state_v4 ) begin
 	 ad_adclk   = 1;
 	 ad_oeb_n   = 1;
-	 kaf_h2     = 1;
       end
       
    end // always @*

@@ -32,8 +32,7 @@ module breadboard_tests
    ad_sclk,       // AD9826 serial interface data clock
    ad_sdata,      // AD9826 serial interface data i/o
    kaf_r,         // CCD R clock
-   kaf_h1,        // CCD H1 clock
-   kaf_h2,        // CCD H2 clock
+   kaf_h1,        // CCD H1 clock, H2 is simply not(H1)
    kaf_v1,        // CCD V1 clock
    kaf_v2,        // CCD V2 clock
    kaf_amp        // CCD Amplifier supply on/off
@@ -65,7 +64,6 @@ module breadboard_tests
    inout 	ad_sdata;
    output wire  kaf_r;
    output wire 	kaf_h1;
-   output wire 	kaf_h2;
    output wire 	kaf_v1;
    output wire 	kaf_v2;
    output wire 	kaf_amp;
@@ -244,7 +242,6 @@ module breadboard_tests
       .ad_oeb_n(ad_oeb_n),
       .kaf_r(kaf_r),
       .kaf_h1(kaf_h1),
-      .kaf_h2(kaf_h2),
       .kaf_v1(kaf_v1),
       .kaf_v2(kaf_v2),
       .kaf_amp(kaf_amp),
