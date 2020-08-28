@@ -86,11 +86,11 @@ int main(int argc, char* argv[])
       // 	 camera.setCooling(true);
       // 	 coolingOn = true;
       // }
-      unsigned char duty = 1 << i;
-      std::cout << static_cast<int>(duty) << '\n';
-      camera.setPeltierPWM(1, duty);
-      if ( i == 7 ) i = 0;
-      else ++i;
+      // unsigned char duty = 1 << i;
+      // std::cout << static_cast<int>(duty) << '\n';
+      // camera.setPeltierPWM(1, duty);
+      // if ( i == 7 ) i = 0;
+      // else ++i;
       
       usleep(500000);
    }

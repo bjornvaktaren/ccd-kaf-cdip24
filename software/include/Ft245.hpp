@@ -6,9 +6,9 @@
 #include <unistd.h> // usleep
 
 struct FtdiSetup_t {
-   // UM232H development module
+   // FT2232H
    int vendor = 0x0403;        // ftdi chip usb specification
-   int product = 0x6014;       // ftdi chip usb specification
+   int product = 0x6010;       // ftdi chip usb specification
 };
 
 class Ft245
