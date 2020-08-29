@@ -35,8 +35,8 @@ private:
    Verbosity m_verbosity = Verbosity::info;
    Ft245 m_ft;
    std::map<std::string,Thermistor> m_thermistors =
-   {{"ambient", Thermistor(2000.0, 3450.0, 3.3, 2200, 1023.0)},
-    {"ccd",     Thermistor(10000.0, 4080.0, 3.3, 10000, 1023.0)}};
+   {{"ambient", Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)},
+    {"ccd",     Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)}};
 
 
 };

@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
    bool exit = false;
    bool shutterClosed = true;
    bool coolingOn     = false;
-   camera.setCooling(true);
+   // camera.setCooling(true);
    // // usleep(20000);
    // camera.setPeltierPWM(1, 0xF0);
    // // usleep(20000);

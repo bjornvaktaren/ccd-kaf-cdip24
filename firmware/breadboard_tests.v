@@ -206,13 +206,8 @@ module breadboard_tests
    wire       mcp_busy;
    wire [31:0] mcp_data;
    wire       mcp_dclk_internal;
-`ifdef SYNTHESIS
    // 100 MHz / 2^(6+1) = 0.78 MHz
    assign mcp_dclk_internal = clk_div[6];
-`else
-   // Makes is easier to see in simulation
-   assign mcp_dclk_internal = clk_div[6];
-`endif
    // Only output the clock if needed
    assign mcp_dclk = (mcp_cs_n == 1'b0) ? mcp_dclk_internal : 1'b1;
 
