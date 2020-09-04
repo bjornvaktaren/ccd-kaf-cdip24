@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns/100ps
 
-module breadboard_tests_tb();
+module top();
    reg clk;
    reg  [7:0]  ft_buff;
    wire [7:0]  ft_bus;
@@ -41,7 +41,7 @@ module breadboard_tests_tb();
    reg 	     ft_clkout;
    assign ft_bus = ~ft_oe_n ? ft_buff : 8'hZZ;
 
-   breadboard_tests dut
+   top dut
      (.clk_in(clk),          // clock
       .ft_bus(ft_bus),       // ft232h data bus
       .ft_rxf_n(ft_rxf_n),   // ft232h read fifo
@@ -139,7 +139,7 @@ module breadboard_tests_tb();
       ft_txe_n  <= 0;
       ad_data   <= 8'h00;
 
-      $dumpfile("breadboard_tests_tb.vcd");
+      $dumpfile("top_tb.vcd");
       $dumpvars;
 
       #250 ft245_send(cmd_set_ccd_conf);

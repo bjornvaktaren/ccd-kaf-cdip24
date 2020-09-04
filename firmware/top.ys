@@ -1,0 +1,13 @@
+read_verilog -Imodule -Iinclude top.v
+show -format ps -prefix graphs/top
+
+# proc; opt
+# show -format ps -prefix graphs/top_proc
+
+# memory -nomap; opt
+# show -format ps -prefix graphs/top_memory
+
+# techmap; opt
+# show -format ps -prefix graphs/top_techmap
+
+synth_ice40 -top top -blif top.blif

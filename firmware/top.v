@@ -6,7 +6,7 @@
 `include "ccd_readout.v"
 `include "ad9826_config.v"
 
-module breadboard_tests
+module top
   (clk_in,        // clock
    ft_bus,        // ft232h data bus
    ft_rxf_n,      // ft232h read fifo (active low)
@@ -527,4 +527,4 @@ module breadboard_tests
    end
 
    
-endmodule // breadboard_tests
+endmodule // top
