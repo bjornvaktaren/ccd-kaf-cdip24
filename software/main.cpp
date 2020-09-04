@@ -60,13 +60,13 @@ int main(int argc, char* argv[])
       timeCCD.push_back(msec.count()/1000.0);
 
       if ( temperatureAmbient.size() > 2 &&
-   	   temperatureCCD.size()     > 2 &&
-   	   timeAmbient.size()        > 2 &&
-   	   timeCCD.size()            > 2 ) {
-   	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
-   	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
-   	 temperatureImg.draw();
-   	 temperatureImg.display(temperatureDisplay);
+	   temperatureCCD.size()     > 2 &&
+	   timeAmbient.size()        > 2 &&
+	   timeCCD.size()            > 2 ) {
+	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
+	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
+	 temperatureImg.draw();
+	 temperatureImg.display(temperatureDisplay);
       }
 
       // if ( shutterClosed ) {

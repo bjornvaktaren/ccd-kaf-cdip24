@@ -69,12 +69,16 @@ double Camera::getTemperature(const std::string &thermistor)
 
 bool Camera::openShutter()
 {
+   // const unsigned char cmd[1] = {fpga::command::open_shutter};
+   // return m_ft.write(cmd, 1);
    return m_ft.writeByte(fpga::command::open_shutter) == 1;
 }
 
 
 bool Camera::closeShutter()
 {
+   // const unsigned char cmd[1] = {fpga::command::close_shutter};
+   // return m_ft.write(cmd, 1);
    return m_ft.writeByte(fpga::command::close_shutter) == 1;
 }
 
