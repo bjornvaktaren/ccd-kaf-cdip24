@@ -4,18 +4,18 @@
 namespace fpga {
 
    namespace command {
-      static constexpr unsigned char none            = 0x00;
-      static constexpr unsigned char get_temperature = 0x01;
-      static constexpr unsigned char open_shutter    = 0x03;
-      static constexpr unsigned char close_shutter   = 0x04;
+      static constexpr unsigned char none            = 0b00000000;
+      static constexpr unsigned char get_temperature = 0b00000001;
+      static constexpr unsigned char open_shutter    = 0b00000100;
+      static constexpr unsigned char close_shutter   = 0b00001000;
        // turn on peltier cooling
-      static constexpr unsigned char peltier_on      = 0x06;
+      static constexpr unsigned char peltier_on      = 0b00010000;
        // turn off peltier cooling
-      static constexpr unsigned char peltier_off     = 0x07;
+      static constexpr unsigned char peltier_off     = 0b00100000;
       // set pwm value for peltier 1
-      static constexpr unsigned char peltier_1_set   = 0x08;
+      static constexpr unsigned char peltier_1_set   = 0b01000000;
       // set pwm value for peltier 2
-      static constexpr unsigned char peltier_2_set   = 0x09;
+      static constexpr unsigned char peltier_2_set   = 0b10000000;
    }
 
    namespace delay {

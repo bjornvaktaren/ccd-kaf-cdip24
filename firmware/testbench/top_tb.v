@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns/100ps
 
-module top();
+module top_tb();
    reg clk;
    reg  [7:0]  ft_buff;
    wire [7:0]  ft_bus;
@@ -28,7 +28,6 @@ module top();
    wire	ad_sdata;
    wire kaf_r;
    wire kaf_h1;
-   wire kaf_h2;
    wire kaf_v1;
    wire kaf_v2;
    wire kaf_amp;
@@ -68,7 +67,6 @@ module top();
       .ad_sdata(ad_sdata),    // AD9826 serial interface data i/o
       .kaf_r(kaf_r),          // CCD R clock
       .kaf_h1(kaf_h1),        // CCD H1 clock
-      .kaf_h2(kaf_h2),        // CCD H2 clock
       .kaf_v1(kaf_v1),        // CCD V1 clock
       .kaf_v2(kaf_v2),        // CCD V2 clock
       .kaf_amp(kaf_amp)       // CCD Amplifier supply on/off
@@ -152,9 +150,7 @@ module top();
       ft245_send(8'b00000010); // write to 001, "MUX Config" register
       // RGB order, red on, green off, blue off
       ft245_send(8'b11000000);
-
-      #5000 $finish;
-
+      
       #250 ft245_send(cmd_peltier_on);
       ft245_send(cmd_peltier_1_set);
       ft245_send(8'h0F);
@@ -189,6 +185,8 @@ module top();
       mcp_wait();
       mcp_wait();
 
+      #50 ft245_send(cmd_shutter_open);
+      
       #250 ft245_send(cmd_get_mcp);
       #50 ft_txe_n <= 0;
       mcp_dout <= 1;
@@ -204,4 +202,4 @@ module top();
       #50000 $finish;
    end
 
-endmodule // test_bench
+endmodule // top_tb

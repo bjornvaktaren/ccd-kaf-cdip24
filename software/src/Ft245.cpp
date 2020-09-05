@@ -23,14 +23,14 @@ int Ft245::init()
       return ftdi_status;
    }
    
-   ftdi_status = ftdi_set_bitmode(&m_ftdi, 0xFF, BITMODE_RESET); // Sync FT245
-   if ( ftdi_status != 0 ) {
-      std::cerr << "ERROR: Can't set bit mode. Got error\n"
-	       << ftdi_get_error_string(&m_ftdi) << '\n';
-      return ftdi_status;
-   }
+   // ftdi_status = ftdi_set_bitmode(&m_ftdi, 0xFF, BITMODE_RESET); // Sync FT245
+   // if ( ftdi_status != 0 ) {
+   //    std::cerr << "ERROR: Can't set bit mode. Got error\n"
+   // 	       << ftdi_get_error_string(&m_ftdi) << '\n';
+   //    return ftdi_status;
+   // }
    
-   ftdi_status = ftdi_set_bitmode(&m_ftdi, 0, BITMODE_SYNCFF); // Sync FT245
+   ftdi_status = ftdi_set_bitmode(&m_ftdi, 0xff, BITMODE_SYNCFF); // Sync FT245
    if ( ftdi_status != 0 ) {
       std::cerr << "ERROR: Can't set bit mode. Got error\n"
 	       << ftdi_get_error_string(&m_ftdi) << '\n';
@@ -85,7 +85,7 @@ int Ft245::close()
 
 int Ft245::writeByte(const unsigned char &byte)
 {
-   return this->write(&byte,1);
+   return this->write(&byte, 1);
    // // need to purge tx when writing for some etherial reason
    // if ( ftdi_usb_purge_tx_buffer(&m_ftdi) != 0) {
    //    std::cerr << "ERROR: Can't purge FTDI tx buffer: "
@@ -130,7 +130,6 @@ int Ft245::write(const unsigned char *buffer, const int nBytes)
    }
    int bytesWritten = 0;
    for ( int tries = 0; tries < 10 && bytesWritten != nBytes; ++tries) {
-      std::cout << "Retries: " << tries << '\n';
       bytesWritten += ftdi_write_data(
 	 &m_ftdi, &buffer[bytesWritten], nBytes - bytesWritten
 	 );

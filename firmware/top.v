@@ -35,7 +35,8 @@ module top
    kaf_h1,        // CCD H1 clock, H2 is simply not(H1)
    kaf_v1,        // CCD V1 clock
    kaf_v2,        // CCD V2 clock
-   kaf_amp        // CCD Amplifier supply on/off
+   kaf_amp,       // CCD Amplifier supply on/off
+   debug,         // debug port
    );
    
    input        clk_in;
@@ -67,6 +68,7 @@ module top
    output wire 	kaf_v1;
    output wire 	kaf_v2;
    output wire 	kaf_amp;
+   output wire [4:0] debug;
 
    // Gray coded states
    // reset state for 1 clock 
@@ -75,6 +77,7 @@ module top
    localparam state_idle              = 5'b00001; 
    // get command from FT245 interface
    localparam state_get_cmd           = 5'b00011;
+   // localparam state_get_cmd2          = 5'b01001;
    // evaluate the recieved command
    localparam state_eval_cmd          = 5'b00010;
    // Toggle MCP to sample
@@ -121,6 +124,7 @@ module top
    reg [23:0] 	clk_div = 0;
    // wire 	clk = clk_in; // 100 MHz
    wire 	clk = clk_div[0]; // 50 MHz
+   // wire 	clk = clk_div[1]; // 25 MHz
 
    always @(posedge clk_in) begin
       clk_div <= clk_div + 1;
@@ -296,6 +300,8 @@ module top
    reg [4:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
    reg [7:0]   rx_reg = 8'h00;
+
+   assign debug = state;
    
    // state logic
    always @(posedge clk) begin
@@ -307,23 +313,33 @@ module top
 	
    	state_idle:
 	  // wait for the rx fifo to have data
-	  if (rx_fifo_rempty == 1'b0) 
-	    state <= state_get_cmd;
+	  if (rx_fifo_rempty == 1'b0) begin
+	     state <= state_get_cmd;
+	     // rx_reg <= 8'h00;
+	  end
 	
 	state_get_cmd: begin
 	   // wait for the sync_ft245 module to have recieved data
 	   state <= state_eval_cmd;
+	   // state <= state_get_cmd2;
 	   rx_reg <= rx_fifo_rdata;
 	end
+	// state_get_cmd2: begin
+	//    // wait for the sync_ft245 module to have recieved data
+	//    state <= state_eval_cmd;
+	// end
 	
 
 	state_eval_cmd: begin
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
+	   // rx_reg <= 8'h00;
 	   if (rx_reg == cmd_get_mcp)
 	     state <= state_mcp_toggle;
 	   if (rx_reg == cmd_read_ccd)
-	     state <= state_toggle_ccd;
+	     state <= state_idle;
+	   // Gets stuck in this state even though I don't send cmd_read_ccd!
+	     // state <= state_toggle_ccd; 
 	   if (rx_reg == cmd_shutter_close)
 	     shutter_state <= shutter_state_closed;
 	   if (rx_reg == cmd_shutter_open)
