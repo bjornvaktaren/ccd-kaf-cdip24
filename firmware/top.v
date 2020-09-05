@@ -122,8 +122,8 @@ module top
    // Clock divider
    
    reg [23:0] 	clk_div = 0;
-   // wire 	clk = clk_in; // 100 MHz
-   wire 	clk = clk_div[0]; // 50 MHz
+   wire 	clk = clk_in; // 100 MHz
+   // wire 	clk = clk_div[0]; // 50 MHz
    // wire 	clk = clk_div[1]; // 25 MHz
 
    always @(posedge clk_in) begin
@@ -329,7 +329,6 @@ module top
 	//    state <= state_eval_cmd;
 	// end
 	
-
 	state_eval_cmd: begin
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;

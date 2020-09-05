@@ -69,14 +69,14 @@ int main(int argc, char* argv[])
 	 temperatureImg.display(temperatureDisplay);
       }
 
-      if ( shutterClosed ) {
-	 camera.openShutter();
-	 shutterClosed = false;
-      }
-      else {
-	 camera.closeShutter();
-	 shutterClosed = true;
-      }
+      // if ( shutterClosed ) {
+      // 	 camera.openShutter();
+      // 	 shutterClosed = false;
+      // }
+      // else {
+      // 	 camera.closeShutter();
+      // 	 shutterClosed = true;
+      // }
       
       // if ( coolingOn ) {
       // 	 camera.setCooling(false);
