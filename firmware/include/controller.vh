@@ -8,4 +8,3 @@ localparam cmd_peltier_on    = 8'b00100000; // turn on peltier cooling
 localparam cmd_peltier_off   = 8'b01000000; // turn off peltier cooling
 localparam cmd_peltier_1_set = 8'b10000000; // set pwm value for peltier 1
 localparam cmd_peltier_2_set = 8'b11000000; // set pwm value for peltier 2
-
