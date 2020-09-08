@@ -143,7 +143,7 @@ module top_tb();
       #250 ft245_send(cmd_set_ccd_conf);
       ft245_send(8'b00000000); // write to 000, "Configuration" register
       // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
-      // no power-down, unused bit, 2 byre output mode
+      // no power-down, unused bit, 2 byte output mode
       ft245_send(8'b11011000);
       
       ft245_send(cmd_set_ccd_conf);

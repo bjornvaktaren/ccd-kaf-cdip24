@@ -37,9 +37,6 @@ module ad9826_config
       );
    `else
    assign ad_sdata = drive_sdata ? ad_wdata : 1'bz;
-   `endif
-   
-   `ifndef SYNTHESIS
    assign ad_rdata = drive_sdata ? ad_wdata : ad_sdata;
    `endif
 
