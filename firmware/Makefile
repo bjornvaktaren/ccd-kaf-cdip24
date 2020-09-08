@@ -1,5 +1,5 @@
 TOP = top
-MODULES = $(addprefix module/, tx_mux.v ccd_readout.v pwm.v mcp3008_interface.v ft245.v fifo.v)
+MODULES = $(addprefix module/, mcp3008_interface.v tx_mux.v ccd_readout.v pwm.v ft245.v fifo.v)
 TESTBENCHES = $(wildcard testbench/*.v)
 PIN_DEF = ice40hx1k-evb.pcf
 DEVICE = hx1k
