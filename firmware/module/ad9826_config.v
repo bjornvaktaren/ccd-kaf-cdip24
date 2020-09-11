@@ -26,7 +26,7 @@ module ad9826_config
    reg [3:0] 	    bit_pointer = 0;
 
    // arachne-pnr cannot infer tristate, so need to intatiate explicitly
-   wire		    drive_sdata = !(ad_config_in[0] && bit_pointer > 6);
+   wire		    drive_sdata = !(ad_config_in[15] && bit_pointer > 6);
    `ifdef SYNTHESIS
    SB_IO #(.PIN_TYPE(6'b 1010_01), .PULLUP(1'b 0)) ad_sdata_tristate
      (

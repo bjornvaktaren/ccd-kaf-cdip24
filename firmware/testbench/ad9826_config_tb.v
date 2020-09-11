@@ -34,7 +34,7 @@ module ad9826_config_tb();
 
    reg [3:0] bit_count = 0;
    reg [2:0] addr_in;
-   reg [8:0] conf_mem [2:0];
+   reg [8:0] conf_mem [8:0];
    wire [8:0] mem000 = conf_mem[3'b000];
    wire [8:0] mem001 = conf_mem[3'b001];
    wire [8:0] mem010 = conf_mem[3'b010];
@@ -49,9 +49,9 @@ module ad9826_config_tb();
 	 if (bit_count == 0)
 	   read <= ad_sdata;
 	 else if ( bit_count > 0 && bit_count < 4 )
-	   addr_in[bit_count - 1] <= ad_sdata;
+	   addr_in[3 - bit_count] <= ad_sdata;
 	 else if ( !read && bit_count > 6 )
-	   conf_mem[addr_in][bit_count - 7] <= ad_sdata;
+	   conf_mem[addr_in][8 + 7 - bit_count] <= ad_sdata;
 	 bit_count <= bit_count + 1;
       end
    end // always @ (posedge ad_sclk)
