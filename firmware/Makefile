@@ -3,12 +3,14 @@ MODULES = $(addprefix module/, ad9826_config.v mcp3008_interface.v tx_mux.v ccd_
 TESTBENCHES = $(wildcard testbench/*.v)
 PIN_DEF = ice40hx1k-evb.pcf
 DEVICE = hx1k
+SIM_DIR=vcd
 
-%_tb: testbench/%_tb.v %.v
+$(SIM_DIR)/$(TOP)_tb: testbench/$(TOP)_tb.v $(TOP).v | $(SIM_DIR)
 	iverilog -Iinclude -Imodule -o $@ $^
 
-%_tb.vcd: %_tb 	$(MODULES)
+$(TOP)_tb.vcd: $(SIM_DIR)/$(TOP)_tb $(MODULES) | $(SIM_DIR)
 	vvp -N $< +vcd=$@
+	mv -v $@ vcd
 
 %.blif: %.v $(MODULES)
 	yosys $(TOP).ys
@@ -26,16 +28,20 @@ all: $(TOP).rpt $(TOP).bin
 
 sim: $(TOP)_tb.vcd
 
-module/%_tb: testbench/%_tb.v module/%.v
+$(SIM_DIR): 
+	mkdir -p $(SIM_DIR)
+
+$(SIM_DIR)/%_tb: testbench/%_tb.v module/%.v | $(SIM_DIR)
 	iverilog -Iinclude -Imodule -o $@ $^
 
-module/%_tb.vcd: module/%_tb
+%_tb.vcd: %_tb | $(SIM_DIR)
 	vvp -N $< +vcd=$@
+	mv -v $(notdir $@) $(SIM_DIR)
 
-sim_modules: $(MODULES:.v=_tb.vcd)
+sim_modules: $(addprefix $(SIM_DIR)/, $(notdir $(MODULES:.v=_tb.vcd)))
 
 clean:
-	rm -f *.blif *.asc *.bin *.rpt *_tb.vcd *_tb
+	rm -rf $(SIM_DIR) *.blif *.asc *.bin *.rpt
 
 .PHONY: all prog clean sim simclean sim_modules
 
