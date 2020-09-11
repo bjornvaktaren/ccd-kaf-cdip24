@@ -1,10 +1,11 @@
 `default_nettype none
 
-`include "mcp3008_interface.v"
-`include "ft245.v"
-`include "fifo.v"
-`include "ccd_readout.v"
 `include "ad9826_config.v"
+`include "ccd_readout.v"
+`include "fifo.v"
+`include "ft245.v"
+`include "mcp3008_interface.v"
+`include "tx_mux.v"
 
 module top
   (clk_in,        // clock
@@ -185,7 +186,7 @@ module top
    reg 	      tx_fifo_rrst_n;
    reg 	      tx_fifo_winc;
    reg 	      tx_fifo_wrst_n;
-   reg [7:0]  tx_fifo_wdata;
+   wire [7:0] tx_fifo_wdata;
    wire	      tx_fifo_wfull;
 
    fifo #(8, 12) tx_fifo
@@ -206,10 +207,12 @@ module top
 
    // MCP3008 ADC interface
 
-   reg 	      mcp_sample;
-   wire       mcp_busy;
-   wire [31:0] mcp_data;
-   wire       mcp_dclk_internal;
+   reg 	       mcp_sample;
+   wire        mcp_busy;
+   wire [15:0] mcp_data;
+   wire        mcp_dclk_internal;
+   wire        mcp_data_avail;
+   wire        mcp_data_accept;
    // 100 MHz / 2^(6+1) = 0.78 MHz
    assign mcp_dclk_internal = clk_div[6];
    // Only output the clock if needed
@@ -217,13 +220,15 @@ module top
 
    mcp3008_interface mcp3008
      (
-      .sample(mcp_sample),       // sample on posedge
-      .dclk(mcp_dclk_internal),  // mcp3008 data clock
-      .dout(mcp_dout),           // mcp3008 data out
-      .din(mcp_din),             // mcp3008 data in
-      .cs_n(mcp_cs_n),           // mcp3008 active low chip select
-      .busy(mcp_busy),           // this interface is busy
-      .dout_reg(mcp_data)        // 10 bit output
+      .sample(mcp_sample),           // sample on posedge
+      .dclk(mcp_dclk_internal),      // mcp3008 data clock
+      .dout(mcp_dout),               // mcp3008 data out
+      .din(mcp_din),                 // mcp3008 data in
+      .cs_n(mcp_cs_n),               // mcp3008 active low chip select
+      .busy(mcp_busy),               // this interface is busy
+      .dout_reg(mcp_data),           // 10 bit output
+      .dout_avail(mcp_data_avail),   // data is available if this is high
+      .dout_accept(mcp_data_accept)  // data has been accapted if this is high
       );
 
 
@@ -257,6 +262,9 @@ module top
    reg [15:0]  ad_config_in = 0;
    wire [15:0] ad_config_out;
    reg 	       ad_config_toggle;
+   wire        ad_config_data_avail;
+   wire        ad_config_data_recieved;
+   wire        ad_config_busy;
    
    ad9826_config ad9826_config
      (
@@ -266,9 +274,29 @@ module top
       .ad_sclk(ad_sclk),
       .ad_sdata(ad_sdata),
       .toggle(ad_config_toggle),
-      .counter(clk_div[7:0])
+      .counter(clk_div[7:0]),
+      .config_out_avail(ad_config_data_avail),
+      .config_out_recieved(ad_config_data_recieved),
+      .busy(ad_config_busy)
       );
 
+   
+   // TX formatter. Attached a 8-bit header, then writes the input two bytes
+   // to the tx fifo.
+   
+   tx_mux tx_mux
+     (
+      .clk(clk),
+      .req({mcp_data_avail, ad_config_data_avail, 1'b0, 1'b0}),
+      .in_0(mcp_data), // priority input
+      .in_1(ad_config_out), // priority input
+      // .in_2(), // priority input
+      // .in_3(), // priority input
+      .wfull(tx_fifo_wfull), // tx fifo is full, active high
+      .out(tx_fifo_wdata), // 8-bit output
+      .winc(tx_fifo_winc), // tx figo write increase, active high
+      .accept({mcp_data_accept, ad_config_data_recieved})
+      );
 
    
    // Shutter PWM

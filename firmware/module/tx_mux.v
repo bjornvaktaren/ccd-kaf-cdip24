@@ -1,3 +1,5 @@
+// 
+
 module tx_mux
   (
    input clk,
@@ -8,7 +10,7 @@ module tx_mux
    input [15:0] in_3,      // priority input
    input wfull,            // tx fifo is full, active high
    output reg [7:0] out,   // 8-bit output
-   output reg winc,        // tx figo write increase, active high
+   output reg winc,        // tx fifo write increase, active high
    output reg [3:0] accept // mux accepted data, active high, low when done
    );
 
