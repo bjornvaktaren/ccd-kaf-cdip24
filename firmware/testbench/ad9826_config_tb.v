@@ -4,6 +4,9 @@ module ad9826_config_tb();
    
    reg [15:0]  ad_config_in;
    wire [15:0] ad_config_out;
+   wire        config_out_avail;
+   reg 	       config_out_recieved;
+   wire        busy;
    wire        ad_sclk;
    wire        ad_sload;
    inout       ad_sdata;
@@ -12,13 +15,15 @@ module ad9826_config_tb();
 
    reg 	       read;
    reg 	       d_bit;
-   
-   assign ad_sdata = read ? d_bit : 1'bz;
+   assign ad_sdata = (read && bit_count > 6) ? d_bit : 1'bz;
 
    ad9826_config dut
      (
       .ad_config_in(ad_config_in),
       .ad_config_out(ad_config_out),
+      .config_out_avail(config_out_avail),
+      .config_out_recieved(config_out_recieved),
+      .busy(busy),
       .ad_sload(ad_sload),
       .ad_sclk(ad_sclk),
       .ad_sdata(ad_sdata),
@@ -58,21 +63,38 @@ module ad9826_config_tb();
 
    always @(negedge ad_sclk) begin
       if (read && bit_count > 6)
-	d_bit <= conf_mem[addr_in][bit_count - 7];
+	d_bit <= conf_mem[addr_in][8 + 7 - bit_count]; // msb first
    end
    
-   task timeout;
+   task wait_busy_low;
       begin
 	 
-	 fork : f // implement a wait until ad_sload goes high
+	 fork : f // implement a wait until busy goes high
 	    begin
-	       // timeout check
-	       #2000000 $display("%t : timeout", $time);
+	       // wait_busy check
+	       #2000000 $display("%t : wait_busy", $time);
 	       disable f;
 	    end
 	    begin
-	       @(posedge ad_sload);
+	       @(negedge busy);
 	       disable f;
+	    end
+	 join
+	    
+      end
+   endtask // mcp_wait
+   
+   task wait_avail;
+      begin
+	 
+	 fork : f2 // implement a wait until config_out_avail goes high
+	    begin
+	       #2000000 $display("%t : wait_avail", $time);
+	       disable f2;
+	    end
+	    begin
+	       @(posedge config_out_avail);
+	       disable f2;
 	    end
 	 join
 	    
@@ -83,9 +105,10 @@ module ad9826_config_tb();
       
       clk     <= 1'b0;
       counter <= 0;
+      config_out_recieved <= 1'b0;
 
       // write config to 000
-      ad_config_in <= 16'b00000000_11011000;
+      ad_config_in <= 16'b0000000_011011000;
       toggle <= 1'b0;
       read <= 1'b0;
       d_bit <= 1'b0;
@@ -95,22 +118,36 @@ module ad9826_config_tb();
       
       #10
       
-      toggle <= 1'b1;
-      timeout();
-      
-      // write config to 101
-      ad_config_in <= 16'b01010000_11011000;
-      timeout();
+      #1 toggle <= 1'b1;
+      #1 wait_busy_low();
+      #1 toggle <= 1'b0;
+
+      // write config to 001
+      #1 ad_config_in <= 16'b0001000_000011110;
+      #1 toggle <= 1'b1;
+      #1 wait_busy_low();
+      #1 toggle <= 1'b0;
       
       // read config from 000
-      ad_config_in <= 16'b10000000_11011000;
-      timeout();
+      #1 ad_config_in <= 16'b1000000_000000000;
+      #1 toggle <= 1'b1;
+      #1 wait_avail();
+      #1 toggle <= 1'b0;
+      #1 config_out_recieved <= 1'b1;
+      #1 wait_busy_low();
+      #1 config_out_recieved <= 1'b0;
+			       
       
-      // read config from 101
-      ad_config_in <= 16'b10000000_11011000;
-      timeout();
-	
-      $finish;
+      // read config from 001
+      #1 ad_config_in <= 16'b1001000_000000000;
+      #1 toggle <= 1'b1;
+      #1 wait_avail();
+      #1 toggle <= 1'b0;
+      #1 config_out_recieved <= 1'b1;
+      #1 wait_busy_low();
+      #1 config_out_recieved <= 1'b0;
+
+      #10000 $finish;
 
    end
    

@@ -1,12 +1,17 @@
 TOP = top
-MODULES = $(addprefix module/, ad9826_config.v mcp3008_interface.v tx_mux.v ccd_readout.v pwm.v ft245.v fifo.v)
-TESTBENCHES = $(wildcard testbench/*.v)
 PIN_DEF = ice40hx1k-evb.pcf
 DEVICE = hx1k
 SIM_DIR=vcd
+INC_DIR=include
+MOD_DIR=module
+
+MODULES = $(addprefix $(MOD_DIR)/, ad9826_config.v mcp3008_interface.v tx_mux.v ccd_readout.v pwm.v ft245.v fifo.v)
+TESTBENCHES = $(wildcard testbench/*.v)
+
+all: $(TOP).rpt $(TOP).bin
 
 $(SIM_DIR)/$(TOP)_tb: testbench/$(TOP)_tb.v $(TOP).v | $(SIM_DIR)
-	iverilog -Iinclude -Imodule -o $@ $^
+	iverilog -I$(INC_DIR) -I$(MOD_DIR) -o $@ $^
 
 $(TOP)_tb.vcd: $(SIM_DIR)/$(TOP)_tb $(MODULES) | $(SIM_DIR)
 	vvp -N $< +vcd=$@
@@ -24,15 +29,13 @@ $(TOP)_tb.vcd: $(SIM_DIR)/$(TOP)_tb $(MODULES) | $(SIM_DIR)
 %.rpt: %.asc
 	icetime -d $(DEVICE) -mtr $@ $<
 
-all: $(TOP).rpt $(TOP).bin
-
 sim: $(TOP)_tb.vcd
 
 $(SIM_DIR): 
 	mkdir -p $(SIM_DIR)
 
-$(SIM_DIR)/%_tb: testbench/%_tb.v module/%.v | $(SIM_DIR)
-	iverilog -Iinclude -Imodule -o $@ $^
+$(SIM_DIR)/%_tb: testbench/%_tb.v $(MOD_DIR)/%.v | $(SIM_DIR)
+	iverilog -I$(INC_DIR) -I$(MOD_DIR) -o $@ $^
 
 %_tb.vcd: %_tb | $(SIM_DIR)
 	vvp -N $< +vcd=$@
