@@ -1,4 +1,4 @@
-// 
+`default_nettype none
 
 module tx_mux
   (

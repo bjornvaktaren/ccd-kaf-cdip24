@@ -1,3 +1,5 @@
+`default_nettype none
+
 module ad9826_config
   (
    ad_config_in,

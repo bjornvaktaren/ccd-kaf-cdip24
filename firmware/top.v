@@ -6,6 +6,7 @@
 `include "ft245.v"
 `include "mcp3008_interface.v"
 `include "tx_mux.v"
+`include "sr_latch.v"
 
 module top
   (clk_in,        // clock
@@ -71,51 +72,6 @@ module top
    output wire 	kaf_amp;
    output wire [4:0] debug;
 
-   // Gray coded states
-   // reset state for 1 clock 
-   localparam state_reset             = 5'b00000; 
-   // 
-   localparam state_idle              = 5'b00001; 
-   // get command from FT245 interface
-   localparam state_get_cmd           = 5'b00011;
-   // localparam state_get_cmd2          = 5'b01001;
-   // evaluate the recieved command
-   localparam state_eval_cmd          = 5'b00010;
-   // Toggle MCP to sample
-   localparam state_mcp_toggle        = 5'b00110;
-   // Check that MCP is not busy
-   localparam state_mcp_busy_check    = 5'b00111;
-   // send mcp bytes to tx_fifo
-   localparam state_tx_write_mcp_b1   = 5'b00101;
-   localparam state_tx_write_mcp_b1_2 = 5'b00100;
-   localparam state_tx_write_mcp_b2   = 5'b01100;
-   localparam state_tx_write_mcp_b2_2 = 5'b01101;
-   localparam state_tx_write_mcp_b3   = 5'b01111;
-   localparam state_tx_write_mcp_b3_2 = 5'b01110;
-   localparam state_tx_write_mcp_b4   = 5'b01010;
-   localparam state_tx_write_mcp_b4_2 = 5'b01000;
-   // move rx fifo data to pwm duty cycle reg
-   localparam state_peltier_1_rx_1    = 5'b10000;
-   localparam state_peltier_1_rx_2    = 5'b10001;
-   localparam state_peltier_2_rx_1    = 5'b10011;
-   localparam state_peltier_2_rx_2    = 5'b10010;
-   // wait for handshake
-   localparam state_toggle_ccd        = 5'b11000;
-   // read out the ccd
-   localparam state_ccd_wait_busy     = 5'b11001;
-   // write config to ad9826
-   localparam state_adconf_rxb1_1     = 5'b11011;
-   localparam state_adconf_rxb1_2     = 5'b11010;
-   localparam state_adconf_rxb2_1     = 5'b11110;
-   localparam state_adconf_rxb2_2     = 5'b11111;
-   localparam state_adconf_toggle     = 5'b11101;
-   localparam state_adconf_wait_busy  = 5'b11100;
-
-   
-   // Shutter states
-   localparam shutter_state_open   = 1'b0; // open shutter
-   localparam shutter_state_closed = 1'b1; // close shutter
-
    // include header file with localparams needed across modules or for sim
    `include "controller.vh"
    `include "ccd_readout.vh"
@@ -131,6 +87,9 @@ module top
       clk_div <= clk_div + 1;
    end
 
+   // FPGA settings register
+   reg [7:0] fpga_reg [1:0];
+   
       
    // Synchronous FT245 Interface
    
@@ -184,7 +143,7 @@ module top
 
    // FIFO for sending data to FT245 interface
    reg 	      tx_fifo_rrst_n;
-   reg 	      tx_fifo_winc;
+   wire	      tx_fifo_winc;
    reg 	      tx_fifo_wrst_n;
    wire [7:0] tx_fifo_wdata;
    wire	      tx_fifo_wfull;
@@ -207,7 +166,8 @@ module top
 
    // MCP3008 ADC interface
 
-   reg 	       mcp_sample;
+   reg 	       mcp_toggle;
+   wire        mcp_toggle_latch;
    wire        mcp_busy;
    wire [15:0] mcp_data;
    wire        mcp_dclk_internal;
@@ -220,7 +180,7 @@ module top
 
    mcp3008_interface mcp3008
      (
-      .sample(mcp_sample),           // sample on posedge
+      .sample(mcp_toggle_latch),     // sample on posedge
       .dclk(mcp_dclk_internal),      // mcp3008 data clock
       .dout(mcp_dout),               // mcp3008 data out
       .din(mcp_din),                 // mcp3008 data in
@@ -230,12 +190,19 @@ module top
       .dout_avail(mcp_data_avail),   // data is available if this is high
       .dout_accept(mcp_data_accept)  // data has been accapted if this is high
       );
-
+   sr_latch sr_mcp
+     (
+      .set(mcp_toggle),
+      .rst(mcp_busy),
+      .q(mcp_toggle_latch)
+      );
+   
 
    // CCD clocks and AD9826 sampling
 
    reg [1:0]  ccd_readout_mode;
    reg 	      ccd_readout_toggle;
+   wire	      ccd_readout_toggle_latch;
    wire       ccd_readout_busy;
    
    ccd_readout ccd_readout
@@ -251,8 +218,14 @@ module top
       .kaf_amp(kaf_amp),
       .counter(clk_div[15:0]),
       .busy(ccd_readout_busy),
-      .toggle(ccd_readout_toggle),
+      .toggle(ccd_readout_toggle_latch),
       .mode(ccd_readout_mode)
+      );
+   sr_latch sr_ccd_readout
+     (
+      .set(ccd_readout_toggle),
+      .rst(ccd_readout_busy),
+      .q(ccd_readout_toggle_latch)
       );
 
    
@@ -261,7 +234,8 @@ module top
    // 1 r/w bit, 3 address bits, 3 zero bits, 9 config bits
    reg [15:0]  ad_config_in = 0;
    wire [15:0] ad_config_out;
-   reg 	       ad_config_toggle;
+   reg	       ad_config_toggle;
+   wire	       ad_config_toggle_latch;
    wire        ad_config_data_avail;
    wire        ad_config_data_recieved;
    wire        ad_config_busy;
@@ -273,21 +247,29 @@ module top
       .ad_sload(ad_sload),
       .ad_sclk(ad_sclk),
       .ad_sdata(ad_sdata),
-      .toggle(ad_config_toggle),
+      .toggle(ad_config_toggle_latch),
       .counter(clk_div[7:0]),
       .config_out_avail(ad_config_data_avail),
       .config_out_recieved(ad_config_data_recieved),
       .busy(ad_config_busy)
       );
+   sr_latch sr_adconf
+     (
+      .set(ad_config_toggle),
+      .rst(ad_config_busy),
+      .q(ad_config_toggle_latch)
+      );
 
    
    // TX formatter. Attached a 8-bit header, then writes the input two bytes
    // to the tx fifo.
-   
+
+   wire        dummy_accept_1;
+   wire        dummy_accept_2;
    tx_mux tx_mux
      (
       .clk(clk),
-      .req({mcp_data_avail, ad_config_data_avail, 1'b0, 1'b0}),
+      .req({1'b0, 1'b0, ad_config_data_avail, mcp_data_avail}),
       .in_0(mcp_data), // priority input
       .in_1(ad_config_out), // priority input
       // .in_2(), // priority input
@@ -295,7 +277,7 @@ module top
       .wfull(tx_fifo_wfull), // tx fifo is full, active high
       .out(tx_fifo_wdata), // 8-bit output
       .winc(tx_fifo_winc), // tx figo write increase, active high
-      .accept({mcp_data_accept, ad_config_data_recieved})
+      .accept({dummy_accept_1, dummy_accept_2, ad_config_data_recieved, mcp_data_accept})
       );
 
    
@@ -315,249 +297,167 @@ module top
 
    reg [7:0] peltier_1_duty_cycle = 8'h00;
    reg [7:0] peltier_2_duty_cycle = 8'h00;
-   reg 	     peltier_on = 1'b0;
 
-   assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle
-			    && peltier_on );
-   assign pwm_peltier_2 = ( clk_div[7:0] < peltier_2_duty_cycle
-			    && peltier_on );
+   assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle );
+   assign pwm_peltier_2 = ( clk_div[7:0] < peltier_2_duty_cycle );
    
 
    // State-machine
    
+   // Shutter states
+   localparam shutter_state_open   = 1'b0; // open shutter
+   localparam shutter_state_closed = 1'b1; // close shutter
+
+   // Main state machine
+   localparam state_reset           = 4'b0000;
+   localparam state_idle            = 4'b0001;
+   localparam state_get_cmd         = 4'b0011;
+   localparam state_eval_cmd        = 4'b0010;
+   localparam state_get_msb         = 4'b0110;
+   localparam state_get_lsb         = 4'b0111;
+   localparam state_toggle_mcp      = 4'b0101;
+   localparam state_toggle_adconf   = 4'b0100;
+   localparam state_toggle_read_ccd = 4'b1100;
+   localparam state_set_register    = 4'b1101;
+   
    reg [4:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
-   reg [7:0]   rx_reg = 8'h00;
+   reg [7:0]   rx_cmd = 8'h00;
+   reg [7:0]   rx_msb = 8'h00;
+   reg [7:0]   rx_lsb = 8'h00;
 
    assign debug = state;
    
+   
    // state logic
    always @(posedge clk) begin
+
+      state <= state_reset;
 
       case (state)
 
 	state_reset:
 	  state <= state_idle;
 	
-   	state_idle:
-	  // wait for the rx fifo to have data
-	  if (rx_fifo_rempty == 1'b0) begin
-	     state <= state_get_cmd;
-	     // rx_reg <= 8'h00;
-	  end
+	state_idle: begin
+	   state <= state_idle;
+	   // wait for the rx fifo to have data
+	   if (rx_fifo_rempty == 1'b0) begin
+	      state <= state_get_cmd;
+	   end
+	end
 	
 	state_get_cmd: begin
 	   // wait for the sync_ft245 module to have recieved data
-	   state <= state_eval_cmd;
-	   // state <= state_get_cmd2;
-	   rx_reg <= rx_fifo_rdata;
+	   state  <= state_eval_cmd;
+	   rx_cmd <= rx_fifo_rdata;
 	end
-	// state_get_cmd2: begin
-	//    // wait for the sync_ft245 module to have recieved data
-	//    state <= state_eval_cmd;
-	// end
 	
 	state_eval_cmd: begin
+	   
 	   // Take different actions. Go back to idle if the command is invalid
 	   state <= state_idle;
-	   // rx_reg <= 8'h00;
-	   if (rx_reg == cmd_get_mcp)
-	     state <= state_mcp_toggle;
-	   if (rx_reg == cmd_read_ccd)
-	     state <= state_idle;
-	   // Gets stuck in this state even though I don't send cmd_read_ccd!
-	     // state <= state_toggle_ccd; 
-	   if (rx_reg == cmd_shutter_close)
+	   
+	   if (rx_cmd == cmd_toggle_mcp)
+	     state <= state_toggle_mcp;
+	   
+	   if (rx_cmd == cmd_toggle_read_ccd)
+	     state <= state_toggle_read_ccd;
+	   
+	   if (rx_cmd == cmd_close_shutter)
 	     shutter_state <= shutter_state_closed;
-	   if (rx_reg == cmd_shutter_open)
+	   if (rx_cmd == cmd_open_shutter)
 	     shutter_state <= shutter_state_open;
-	   if (rx_reg == cmd_peltier_on)
-	     peltier_on <= 1'b1;
-	   if (rx_reg == cmd_peltier_off)
-	     peltier_on <= 1'b0;
-	   if (rx_reg == cmd_peltier_1_set)
-	       state <= state_peltier_1_rx_1;
-	   if (rx_reg == cmd_peltier_2_set)
-	       state <= state_peltier_2_rx_1;
-	   if (rx_reg == cmd_set_ccd_conf)
-	       state <= state_adconf_rxb1_1;
+	   
+	   if (rx_cmd == cmd_set_register || rx_cmd == cmd_rw_adconf)
+	     if (rx_fifo_rempty == 1'b0)
+	       state <= state_get_msb;
+	     else
+	       state <= state_eval_cmd;
+	   
 	end // case: state_eval_cmd
-
-	state_toggle_ccd:
-	  if (ccd_readout_busy == 1'b1)
-	    state <= state_ccd_wait_busy;
-	state_ccd_wait_busy:
-	  if (ccd_readout_busy == 1'b0)
-	    state <= state_idle;
-
-	state_mcp_toggle:
-	  if (mcp_busy == 1'b1)
-	    state <= state_mcp_busy_check;
-	state_mcp_busy_check:
-	  if (mcp_busy == 1'b0 && tx_fifo_wfull == 1'b0)
-	    state <= state_tx_write_mcp_b1;
 	
-	state_tx_write_mcp_b1: begin
-	   state  <= state_tx_write_mcp_b1_2;
-	   tx_fifo_wdata <= mcp_data[7:0];
+	state_get_msb: begin
+	   rx_msb <= rx_fifo_rdata;
+	   // wait for the rx fifo to have more data
+	   if (rx_fifo_rempty == 1'b0)
+	     state <= state_get_lsb;
+	   else
+	     state <= state_get_msb;
 	end
-	state_tx_write_mcp_b1_2:
-	    state <= state_tx_write_mcp_b2;
 	
-	state_tx_write_mcp_b2: begin
-	   state  <= state_tx_write_mcp_b2_2;
-	   tx_fifo_wdata <= mcp_data[15:8];
-	end
-	state_tx_write_mcp_b2_2:
-	    state <= state_tx_write_mcp_b3;
 	
-	state_tx_write_mcp_b3: begin
-	   state  <= state_tx_write_mcp_b3_2;
-	   tx_fifo_wdata <= mcp_data[23:16];
+	state_get_lsb: begin
+	   rx_lsb <= rx_fifo_rdata;
+	   if ( rx_cmd == cmd_set_register )
+	     state <= state_set_register;
+	   else if ( rx_cmd == cmd_rw_adconf )
+	     state <= state_toggle_adconf;
 	end
-	state_tx_write_mcp_b3_2:
-	    state <= state_tx_write_mcp_b4;
 	
-	state_tx_write_mcp_b4: begin
-	   state  <= state_tx_write_mcp_b4_2;
-	   tx_fifo_wdata <= mcp_data[31:24];
-	end
-	state_tx_write_mcp_b4_2:
-	    state <= state_idle;
+	state_toggle_mcp:
+	  state <= state_idle;
 	
-	state_peltier_1_rx_1: begin
-	   rx_reg <= rx_fifo_rdata;
-	   state  <= state_peltier_1_rx_2;
-	end
-	state_peltier_1_rx_2: begin
-	   peltier_1_duty_cycle <= rx_reg;
+	state_toggle_adconf:
+	  state <= state_idle;
+	
+	state_toggle_read_ccd:
+	  state <= state_idle;
+	
+	state_set_register: begin
+	   fpga_reg[rx_msb[1:0]] <= rx_lsb;
 	   state <= state_idle;
 	end
-	state_peltier_2_rx_1: begin
-	   rx_reg <= rx_fifo_rdata;
-	   state  <= state_peltier_2_rx_2;
-	end
-	state_peltier_2_rx_2: begin
-	   peltier_2_duty_cycle <= rx_reg;
-	   state <= state_idle;
-	end
-
-	// States to fetch 2 bits of AD9826 config data
-	state_adconf_rxb1_1: begin
-	   rx_reg <= rx_fifo_rdata;
-	   state <= state_adconf_rxb1_2;
-	end
-	state_adconf_rxb1_2: begin
-	   ad_config_in[15:8] <= rx_reg;
-	   state <= state_adconf_rxb2_1;
-	end
-	state_adconf_rxb2_1: begin
-	   rx_reg <= rx_fifo_rdata;
-	   state <= state_adconf_rxb2_2;
-	end
-	state_adconf_rxb2_2: begin
-	   ad_config_in[7:0] <= rx_reg;
-	   state <= state_adconf_toggle;
-	end
-	state_adconf_toggle:
-	  if (ad_sload == 1'b0)
-	    state <= state_adconf_wait_busy;
-	state_adconf_wait_busy:
-	  if (ad_sload == 1'b1)
-	    state <= state_idle;
-
-	
-   	default: state <= state_reset;
 	
       endcase // case (state)
       
    end // always @ (posedge clk)
    
-
    // state task logic
    always @* begin
 
+      ad_config_toggle   = 1'b0;
+      mcp_toggle         = 1'b0;
+      ccd_readout_toggle = 1'b0;
+      
       rx_fifo_rinc   = 1'b0;
       rx_fifo_rrst_n = 1'b1;
       rx_fifo_wrst_n = 1'b1;
       tx_fifo_rrst_n = 1'b1;
-      tx_fifo_winc   = 1'b0;
       tx_fifo_wrst_n = 1'b1;
 
-      mcp_sample     = 1'b0;
-
-      ccd_readout_toggle = 1'b0;
-      ccd_readout_mode   = ccd_mode_idle;
-      
-      ad_config_toggle = 1'b0;
-	
-      if(state == state_reset) begin
+      if ( state == state_reset ) begin
 	 tx_fifo_wrst_n = 1'b0;
 	 tx_fifo_rrst_n = 1'b0;
 	 rx_fifo_wrst_n = 1'b0;
 	 rx_fifo_rrst_n = 1'b0;
       end
-      if(state == state_idle) begin
+      if ( state == state_idle ) begin
       end
-      if(state == state_get_cmd) begin
+      if ( state == state_get_cmd ) begin
 	 rx_fifo_rinc   = 1'b1;
       end
-      if(state == state_eval_cmd) begin
+      if ( state == state_eval_cmd ) begin
       end
-      if(state == state_toggle_ccd) begin
-	 ccd_readout_toggle = 1'b1;
-	 ccd_readout_mode   = ccd_mode_readout_1x1;
+      if ( state == state_get_msb ) begin
+	 rx_fifo_rinc   = 1'b1;
       end
-      if(state == state_ccd_wait_busy) begin
-	 ccd_readout_mode   = ccd_mode_readout_1x1;
+      if ( state == state_get_lsb ) begin
+	 rx_fifo_rinc   = 1'b1;
       end
-      if(state == state_mcp_toggle) begin
-	 mcp_sample     = 1'b1;
+      if ( state == state_toggle_mcp ) begin
+	 mcp_toggle = 1'b1;
       end
-      if(state == state_mcp_busy_check) begin
+      if ( state == state_toggle_adconf ) begin
+	 ad_config_toggle = 1'b1;
       end
-      if(state == state_tx_write_mcp_b1) begin
+      if ( state == state_toggle_read_ccd ) begin
+	 // Disabled for now
+	 // ccd_readout_toggle = 1'b1;
       end
-      if(state == state_tx_write_mcp_b1_2) begin
-	 tx_fifo_winc  = 1'b1;
+      if ( state == state_set_register ) begin
       end
-      if(state == state_tx_write_mcp_b2) begin
-      end
-      if(state == state_tx_write_mcp_b2_2) begin
-	 tx_fifo_winc  = 1'b1;
-      end
-      if(state == state_tx_write_mcp_b3) begin
-      end
-      if(state == state_tx_write_mcp_b3_2) begin
-	 tx_fifo_winc  = 1'b1;
-      end
-      if(state == state_tx_write_mcp_b4) begin
-      end
-      if(state == state_tx_write_mcp_b4_2) begin
-	 tx_fifo_winc  = 1'b1;
-      end
-      // if(state == state_toggle_ccd) begin
-      // 	 ccd_toggle = 1'b1;
-      // end
-      // if(state == state_ccd_wait_busy) begin
-      // 	 ccd_toggle = 1'b1;
-      // end
       
-	if(state == state_adconf_rxb1_1) begin
-	   rx_fifo_rinc   = 1'b1;
-	end
-	if(state == state_adconf_rxb1_2) begin
-	end
-	if(state == state_adconf_rxb2_1) begin
-	   rx_fifo_rinc   = 1'b1;
-	end
-	if(state == state_adconf_rxb2_2) begin
-	end
-	if(state == state_adconf_toggle) begin
-	   ad_config_toggle = 1'b1;
-	end
-	if(state == state_adconf_wait_busy) begin
-	end
    end // always @*
 
 

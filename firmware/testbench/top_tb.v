@@ -85,25 +85,6 @@ module top_tb();
       clk_div <= clk_div + 1;
    end
 
-   
-   task mcp_wait;
-      begin
-	 
-	 fork : f // implement a wait until mcp_cs_n goes high
-	    begin
-	       // timeout check
-	       #2000000 $display("%t : mcp_wait timeout", $time);
-	       disable f;
-	    end
-	    begin
-	       @(posedge mcp_cs_n);
-	       disable f;
-	    end
-	 join
-	    
-      end
-   endtask // mcp_wait
-   
    task ft245_send;
       input [7:0] data_in;
       begin
@@ -140,64 +121,36 @@ module top_tb();
       $dumpfile("top_tb.vcd");
       $dumpvars;
 
-      #250 ft245_send(cmd_set_ccd_conf);
-      ft245_send(8'b00000000); // write to 000, "Configuration" register
-      // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
-      // no power-down, unused bit, 2 byte output mode
-      ft245_send(8'b11011000);
+      // #250 ft245_send(cmd_rw_adconf);
+      // ft245_send(8'b00000000); // write to 000, "Configuration" register
+      // // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
+      // // no power-down, unused bit, 2 byte output mode
+      // ft245_send(8'b11011000);
+      // ft245_send(8'b10000000); // read from 000, "Configuration" register
+      // ft245_send(8'b11111111);
       
-      ft245_send(cmd_set_ccd_conf);
-      ft245_send(8'b00000010); // write to 001, "MUX Config" register
-      // RGB order, red on, green off, blue off
-      ft245_send(8'b11000000);
+      // ft245_send(8'b01000000); // write to 100, "Red Offset" register
+      // ft245_send(8'b00000011);
+      // ft245_send(8'b11000000); // read from 010, "Red Offset" register
+      // ft245_send(8'b00000000);
       
-      #250 ft245_send(cmd_peltier_on);
-      ft245_send(cmd_peltier_1_set);
-      ft245_send(8'h0F);
-      ft245_send(cmd_peltier_2_set);
-      ft245_send(8'hF0);
+      // ft245_send(cmd_set_register);
+      // ft245_send(8'b00000001); // write to 01, TEC 2 PWM register
+      // ft245_send(8'b00110010);
+      // ft245_send(cmd_set_register);
+      // ft245_send(8'b00000000); // write to 00, TEC 1 PWM register
+      // ft245_send(8'b00111111);
       
-      ft245_send(cmd_get_mcp);
+      ft245_send(cmd_toggle_mcp);
       #50 ft_txe_n <= 0;
       mcp_dout <= 1;
-      // sampling two times
-      mcp_wait();
-      mcp_wait();
 
-      #250 ft245_send(cmd_get_mcp);
-      #50 ft_txe_n <= 0;
-      mcp_dout <= 1;
-      // sampling two times
-      mcp_wait();
-      mcp_wait();
-
-      #250 ft245_send(cmd_get_mcp);
-      #50 ft_txe_n <= 0;
-      mcp_dout <= 1;
-      // sampling two times
-      mcp_wait();
-      mcp_wait();
-
-      #250 ft245_send(cmd_get_mcp);
-      #50 ft_txe_n <= 0;
-      mcp_dout <= 1;
-      // sampling two times
-      mcp_wait();
-      mcp_wait();
-
-      #50 ft245_send(cmd_shutter_open);
+      // #50 ft245_send(cmd_open_shutter);
       
-      #250 ft245_send(cmd_get_mcp);
-      #50 ft_txe_n <= 0;
-      mcp_dout <= 1;
-      // sampling two times
-      mcp_wait();
-      mcp_wait();
+      // #50 ft245_send(cmd_close_shutter);
       
-      #50 ft245_send(cmd_shutter_close);
-      
-      #50 ft245_send(cmd_read_ccd);
-      #50 ft_txe_n <= 0;
+      // #50 ft245_send(cmd_reset);
+      // #50 ft_txe_n <= 0;
       
       #50000 $finish;
    end

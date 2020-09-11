@@ -1,3 +1,5 @@
+`default_nettype none
+
 // Interface for mcp3008 and mcp3004
 module mcp3008_interface
   (
@@ -112,27 +114,27 @@ module mcp3008_interface
       dout_avail = 1'b0;
 
       if ( state == state_idle ) begin
-	 busy <= 1'b0;
-	 cs_n <= 1'b1; // chip is deselected
+	 busy = 1'b0;
+	 cs_n = 1'b1; // chip is deselected
       end
       if ( state == state_send_start ) begin
-	 din <= 1'b1;
+	 din = 1'b1;
       end
       if ( state == state_send_single ) begin
-	 din <= 1'b1; // if 1, use single-ended measurement
+	 din = 1'b1; // if 1, use single-ended measurement
       end
       if ( state == state_send_channel_1 ) begin
-	 din <= channel_count[2];
+	 din = channel_count[2];
       end
       if ( state == state_send_channel_2 ) begin
-	 din <= channel_count[1];
+	 din = channel_count[1];
       end
       if ( state == state_send_channel_3 ) begin
-	 din <= channel_count[0];
+	 din = channel_count[0];
       end
       if ( state == state_wait_fifo ) begin
-	 dout_avail <= 1'b1;
-	 cs_n       <= 1'b1; // chip is deslected
+	 dout_avail = 1'b1;
+	 cs_n       = 1'b1; // chip is deslected
       end
    end
 
