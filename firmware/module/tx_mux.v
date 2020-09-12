@@ -43,16 +43,17 @@ module tx_mux
    end // always @ (posedge clk)
 
    
-   localparam state_idle      = 3'b000;
-   localparam state_hdr_setup = 3'b001;
-   localparam state_hdr_send  = 3'b011;
-   localparam state_msb_setup = 3'b010;
-   localparam state_msb_send  = 3'b110;
-   localparam state_lsb_setup = 3'b100;
-   localparam state_lsb_send  = 3'b101;
-   localparam state_finish    = 3'b111;
+   localparam state_idle      = 4'b0000;
+   localparam state_hdr_setup = 4'b0001;
+   localparam state_hdr_send  = 4'b0011;
+   localparam state_msb_setup = 4'b0010;
+   localparam state_msb_send  = 4'b0110;
+   localparam state_lsb_setup = 4'b0111;
+   localparam state_lsb_send  = 4'b0101;
+   localparam state_acc_wait  = 4'b0100;
+   localparam state_finish    = 4'b1100;
    
-   reg [2:0]   state = state_idle;
+   reg [3:0]   state = state_idle;
    
    // state logic
    always @(posedge clk) begin
@@ -87,10 +88,19 @@ module tx_mux
 	  else
 	    state <= state_lsb_setup;
 	state_lsb_send:
-	  state <= state_finish;
+	  state <= state_acc_wait;
+	
+	state_acc_wait:
+	  if ( req[sel] == 1'b1 )
+	    state <= state_finish;
+	  else
+	    state <= state_acc_wait;
 	
 	state_finish:
-	  state <= state_idle;
+	  if ( req[sel] == 1'b0 )
+	    state <= state_idle;
+	  else
+	    state <= state_finish;
 	
       endcase // case (state)
 
@@ -130,6 +140,9 @@ module tx_mux
       if ( state == state_lsb_send ) begin
 	 out         = in_sel[7:0];
 	 winc        = 1'b1;
+      	 accept[sel] = 1'b1;
+      end
+      if ( state == state_acc_wait ) begin
       	 accept[sel] = 1'b1;
       end
       if ( state == state_finish ) begin

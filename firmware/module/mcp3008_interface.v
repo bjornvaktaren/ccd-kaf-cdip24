@@ -95,8 +95,10 @@ module mcp3008_interface
 	state_wait_fifo:
 	  if ( dout_accept == 1'b1 ) begin
 	     state <= state_idle;
-	     if ( channel_count < number_of_channels - 1 )
-	       channel_count <= channel_count + 1;
+	     if ( channel_count < number_of_channels - 1 ) begin
+		state <= state_send_start;
+		channel_count <= channel_count + 1;
+	     end
 	     else
 	       channel_count <= 0;
 	  end
