@@ -126,6 +126,8 @@ module top_tb();
       // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
       // no power-down, unused bit, 2 byte output mode
       ft245_send(8'b11011000);
+
+      #250 ft245_send(cmd_rw_adconf);
       ft245_send(8'b10000000); // read from 000, "Configuration" register
       ft245_send(8'b11111111);
       
@@ -141,9 +143,9 @@ module top_tb();
       // ft245_send(8'b00000000); // write to 00, TEC 1 PWM register
       // ft245_send(8'b00111111);
       
-      ft245_send(cmd_toggle_mcp);
-      #50 ft_txe_n <= 0;
-      mcp_dout <= 1;
+      // ft245_send(cmd_toggle_mcp);
+      // #50 ft_txe_n <= 0;
+      // mcp_dout <= 1;
 
       // #50 ft245_send(cmd_open_shutter);
       

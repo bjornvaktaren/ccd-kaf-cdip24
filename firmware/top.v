@@ -319,9 +319,10 @@ module top
    localparam state_setup_lsb       = 4'b0101;
    localparam state_get_lsb         = 4'b0100;
    localparam state_toggle_mcp      = 4'b1100;
-   localparam state_toggle_adconf   = 4'b1101;
-   localparam state_toggle_read_ccd = 4'b1111;
-   localparam state_set_register    = 4'b1110;
+   localparam state_wait_adconf     = 4'b1101;
+   localparam state_toggle_adconf   = 4'b1111;
+   localparam state_toggle_read_ccd = 4'b1110;
+   localparam state_set_register    = 4'b1010;
 
    reg [4:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
@@ -408,11 +409,17 @@ module top
 	   if ( rx_cmd == cmd_set_register )
 	     state <= state_set_register;
 	   else if ( rx_cmd == cmd_rw_adconf )
-	     state <= state_toggle_adconf;
+	     state <= state_wait_adconf;
 	end
 	
 	state_toggle_mcp:
 	  state <= state_idle;
+	
+	state_wait_adconf:
+	  if ( ad_config_busy == 1'b0 )
+	    state <= state_toggle_adconf;
+	  else
+	    state <= state_wait_adconf;
 	
 	state_toggle_adconf:
 	  state <= state_idle;
@@ -467,6 +474,8 @@ module top
       end
       if ( state == state_toggle_mcp ) begin
 	 mcp_toggle = 1'b1;
+      end
+      if ( state == state_wait_adconf ) begin
       end
       if ( state == state_toggle_adconf ) begin
 	 ad_config_toggle = 1'b1;
