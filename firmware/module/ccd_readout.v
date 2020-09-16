@@ -67,7 +67,7 @@ module ccd_readout
       case (state)
 
    	state_idle:
-	  if (toggle == 1'b1) begin
+	  if (busy == 1'b1) begin
 	     if (mode == ccd_mode_idle)
 	       state <= state_idle;
 	     if (mode == ccd_mode_clean)

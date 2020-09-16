@@ -138,12 +138,12 @@ module top_tb();
       // ft245_send(8'b11000000); // read from 010, "Red Offset" register
       // ft245_send(8'b00000000);
       
-      #10000 ft245_send(cmd_set_register);
-      ft245_send(8'b00000001); // write to 01, TEC 2 PWM register
-      ft245_send(8'b00110010);
-      ft245_send(cmd_set_register);
-      ft245_send(8'b00000000); // write to 00, TEC 1 PWM register
-      ft245_send(8'b00111111);
+      // #250 ft245_send(cmd_set_register);
+      // ft245_send(8'b00000001); // write to 01, TEC 2 PWM register
+      // ft245_send(8'b00110010);
+      // ft245_send(cmd_set_register);
+      // ft245_send(8'b00000000); // write to 00, TEC 1 PWM register
+      // ft245_send(8'b00111111);
       
       // ft245_send(cmd_toggle_mcp);
       // #50 ft_txe_n <= 0;

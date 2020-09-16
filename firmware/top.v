@@ -489,8 +489,7 @@ module top
 	 ad_config_toggle = 1'b1;
       end
       if ( state == state_toggle_read_ccd ) begin
-	 // Disabled for now
-	 // ccd_readout_toggle = 1'b1;
+	 ccd_readout_toggle = 1'b1;
       end
       if ( state == state_set_register ) begin
       end
