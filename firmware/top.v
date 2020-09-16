@@ -89,6 +89,12 @@ module top
 
    // FPGA settings register
    reg [7:0] fpga_reg [1:0];
+   wire [7:0] peltier_1_duty_cycle = fpga_reg[0];
+   wire [7:0] peltier_2_duty_cycle = fpga_reg[1];
+   `ifndef SYNTHESIS
+   wire [7:0] fpga_reg0 = fpga_reg[0];
+   wire [7:0] fpga_reg1 = fpga_reg[1];
+   `endif
    
       
    // Synchronous FT245 Interface
@@ -295,9 +301,6 @@ module top
 
    // Peltier element control
 
-   reg [7:0] peltier_1_duty_cycle = 8'h00;
-   reg [7:0] peltier_2_duty_cycle = 8'h00;
-
    assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle );
    assign pwm_peltier_2 = ( clk_div[7:0] < peltier_2_duty_cycle );
    
@@ -339,8 +342,12 @@ module top
 
       case (state)
 
-	state_reset:
-	  state <= state_idle;
+	state_reset: begin
+	   state <= state_idle;
+	   fpga_reg[0] = 8'h00;
+	   fpga_reg[1] = 8'h00;
+	end
+	
 	
 	state_idle: begin
 	   state <= state_idle;
