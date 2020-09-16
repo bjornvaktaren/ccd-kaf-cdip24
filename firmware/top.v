@@ -231,9 +231,8 @@ module top
    
    // AD9826 configuration module
 
-   // 1 r/w bit, 3 address bits, 3 zero bits, 9 config bits
-   wire [15:0] ad_config_in;
-   assign ad_config_in = {rx_msb, rx_lsb};
+   // 1 r/w bit, 3 address bits, 3 don't-care bits, 9 config bits = 16 total
+   reg [15:0] ad_config_in = 16'h00;
    wire [15:0] ad_config_out;
    reg	       ad_config_toggle;
    wire	       ad_config_toggle_latch;
@@ -324,7 +323,7 @@ module top
    localparam state_toggle_read_ccd = 4'b1110;
    localparam state_set_register    = 4'b1010;
 
-   reg [4:0]   state = state_reset;
+   reg [3:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
    reg [7:0]   rx_cmd = 8'h00;
    reg [7:0]   rx_msb = 8'h00;
@@ -416,8 +415,10 @@ module top
 	  state <= state_idle;
 	
 	state_wait_adconf:
-	  if ( ad_config_busy == 1'b0 )
-	    state <= state_toggle_adconf;
+	  if ( ad_config_busy == 1'b0 && ad_config_toggle_latch == 1'b0) begin
+	     state <= state_toggle_adconf;
+	     ad_config_in <= {rx_msb, rx_lsb};
+	  end
 	  else
 	    state <= state_wait_adconf;
 	

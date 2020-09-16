@@ -131,10 +131,12 @@ module top_tb();
       ft245_send(8'b10000000); // read from 000, "Configuration" register
       ft245_send(8'b11111111);
       
-      // ft245_send(8'b01000000); // write to 100, "Red Offset" register
-      // ft245_send(8'b00000011);
-      // ft245_send(8'b11000000); // read from 010, "Red Offset" register
-      // ft245_send(8'b00000000);
+      #250 ft245_send(cmd_rw_adconf);
+      ft245_send(8'b01000000); // write to 100, "Red Offset" register
+      ft245_send(8'b00000011);
+      #250 ft245_send(cmd_rw_adconf);
+      ft245_send(8'b11000000); // read from 010, "Red Offset" register
+      ft245_send(8'b00000000);
       
       // ft245_send(cmd_set_register);
       // ft245_send(8'b00000001); // write to 01, TEC 2 PWM register
@@ -147,11 +149,11 @@ module top_tb();
       // #50 ft_txe_n <= 0;
       // mcp_dout <= 1;
 
+      // Test shutter open and closing
       // #50 ft245_send(cmd_open_shutter);
+      // #50000 ft245_send(cmd_close_shutter);
       
-      // #50 ft245_send(cmd_close_shutter);
-      
-      // #50 ft245_send(cmd_reset);
+      #50 ft245_send(cmd_toggle_read_ccd);
       // #50 ft_txe_n <= 0;
       
       #100000 $finish;
