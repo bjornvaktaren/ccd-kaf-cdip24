@@ -68,6 +68,8 @@ module ccd_readout
 
    	state_idle:
 	  if (busy == 1'b1) begin
+	     v_counter <= 0;
+    	     h_counter <= 0;
 	     if (mode == ccd_mode_idle)
 	       state <= state_idle;
 	     if (mode == ccd_mode_clean)
@@ -97,14 +99,13 @@ module ccd_readout
    	state_h8:
 	    state <= state_h9;
    	state_h9: begin
-	   if ( h_counter == h_regs ) begin
-	      if ( v_counter == v_regs )
-		state <= state_idle;
-	      else
-		state <= state_v0;
+	   state <= state_h0;
+	   if ( v_counter == v_regs - 1 ) begin
+	      state <= state_idle;
+	      busy <= 1'b0;
 	   end
-	   else
-	     state <= state_h0;
+	   else if ( h_counter == h_regs - 1 )
+	     state <= state_v0;
 	   h_counter <= h_counter + 1;
 	end
 

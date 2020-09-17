@@ -88,13 +88,11 @@ module top
    end
 
    // FPGA settings register
-   reg [7:0] fpga_reg [1:0];
+   reg [7:0] fpga_reg [2:0];
    wire [7:0] peltier_1_duty_cycle = fpga_reg[0];
    wire [7:0] peltier_2_duty_cycle = fpga_reg[1];
-   `ifndef SYNTHESIS
-   wire [7:0] fpga_reg0 = fpga_reg[0];
-   wire [7:0] fpga_reg1 = fpga_reg[1];
-   `endif
+   wire [7:0] fpga_reg2 = fpga_reg[2];
+   wire [1:0] ccd_readout_mode = fpga_reg2[1:0];
    
       
    // Synchronous FT245 Interface
@@ -206,7 +204,6 @@ module top
 
    // CCD clocks and AD9826 sampling
 
-   reg [1:0]  ccd_readout_mode;
    reg 	      ccd_readout_toggle;
    wire	      ccd_readout_toggle_latch;
    wire       ccd_readout_busy;
@@ -344,8 +341,9 @@ module top
 
 	state_reset: begin
 	   state <= state_idle;
-	   fpga_reg[0] = 8'h00;
-	   fpga_reg[1] = 8'h00;
+	   fpga_reg[0] <= 8'h00;
+	   fpga_reg[1] <= 8'h00;
+	   fpga_reg[2] <= 8'h00;
 	end
 	
 	
