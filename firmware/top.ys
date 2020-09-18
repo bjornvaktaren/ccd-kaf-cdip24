@@ -1,5 +1,5 @@
 read_verilog -Imodule -Iinclude top.v
-show -format ps -prefix graphs/top
+# show -format ps -prefix graphs/top
 
 # proc; opt
 # show -format ps -prefix graphs/top_proc
@@ -10,4 +10,5 @@ show -format ps -prefix graphs/top
 # techmap; opt
 # show -format ps -prefix graphs/top_techmap
 
-synth_ice40 -top top -blif top.blif
+synth_ice40 -top top -json top.json
+# synth_ice40 -top top -blif top.blif

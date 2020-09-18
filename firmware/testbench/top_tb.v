@@ -73,10 +73,10 @@ module top_tb();
       );
    
    always begin
-      #5 clk <= ! clk;
+      #5 clk <= ! clk; // Period = 10 ns => 1/10ns = 100 MHz
    end
    always begin
-      #6 ft_clkout <= ! ft_clkout;
+      #8.3333333333 ft_clkout <= ! ft_clkout; // 60 MHz
    end
 
    

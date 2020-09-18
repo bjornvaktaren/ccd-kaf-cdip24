@@ -30,13 +30,6 @@ int Ft245::init()
    //    return ftdi_status;
    // }
    
-   ftdi_status = ftdi_set_bitmode(&m_ftdi, 0xff, BITMODE_SYNCFF); // Sync FT245
-   if ( ftdi_status != 0 ) {
-      std::cerr << "ERROR: Can't set bit mode. Got error\n"
-	       << ftdi_get_error_string(&m_ftdi) << '\n';
-      return ftdi_status;
-   }
-   
    ftdi_status = ftdi_set_latency_timer(&m_ftdi, 16); // 16 worked on UM232H
    if ( ftdi_status != 0 ) {
       std::cerr << "ERROR: Can't set latency timer. Got error\n"
@@ -68,6 +61,13 @@ int Ft245::init()
    if ( type != CHANNEL_IS_FIFO ) {
       std::cerr << "ERROR: channel is not FIFO. Please program the EEPROM\n";
       return -1;
+   }
+   
+   ftdi_status = ftdi_set_bitmode(&m_ftdi, 0xff, BITMODE_SYNCFF); // Sync FT245
+   if ( ftdi_status != 0 ) {
+      std::cerr << "ERROR: Can't set bit mode. Got error\n"
+	       << ftdi_get_error_string(&m_ftdi) << '\n';
+      return ftdi_status;
    }
    
    return 0;
@@ -147,19 +147,24 @@ int Ft245::read(unsigned char *buffer, const int nBytes)
 {
    // need to purge rx when reading for some etherial reason
    // otherwise a lot of old crap it still there
-   // if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
-   //    std::cerr << "ERROR: Can't purge FTDI buffers: "
-   // 		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
-   // }
+   if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
+      std::cerr << "ERROR: Can't purge FTDI buffers: "
+		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
+   }
    
    int bytesRead = 0;
    for ( int tries = 0; tries < 10 && bytesRead != nBytes; ++tries) {
-      bytesRead += ftdi_read_data(&m_ftdi, buffer, nBytes - bytesRead);
-   }
-   if ( bytesRead != nBytes ) {
-      std::cerr << "ERROR: Ft245::read() failed with error "
-		<< ftdi_get_error_string(&m_ftdi)
-   		<< '\n';
+      int ret = ftdi_read_data(&m_ftdi, buffer, nBytes - bytesRead);
+      if ( ret < 0 ) {
+	 std::cerr << "ERROR in Ft245::read(): "
+		   << ftdi_get_error_string(&m_ftdi) << '\n';
+      }
+      else {
+	 std::cout << "INFO in Ft245::read(): ftdi_read_data returned "
+		   << ret << '\n';
+	 bytesRead += ret;
+      }
+      if ( ret == 0 ) break;
    }
    return bytesRead;
 }

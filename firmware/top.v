@@ -152,7 +152,7 @@ module top
    wire [7:0] tx_fifo_wdata;
    wire	      tx_fifo_wfull;
 
-   fifo #(8, 12) tx_fifo
+   fifo #(8, 10) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
@@ -207,6 +207,9 @@ module top
    reg 	      ccd_readout_toggle;
    wire	      ccd_readout_toggle_latch;
    wire       ccd_readout_busy;
+   wire	      ccd_readout_data_accept;
+   wire	      ccd_readout_data_avail;
+   wire [15:0] ccd_readout_data;
    
    ccd_readout ccd_readout
      (
@@ -214,6 +217,7 @@ module top
       .ad_cdsclk2(ad_cdsclk2),
       .ad_adclk(ad_adclk),
       .ad_oeb_n(ad_oeb_n),
+      .ad_data(ad_data),
       .kaf_r(kaf_r),
       .kaf_h1(kaf_h1),
       .kaf_v1(kaf_v1),
@@ -222,7 +226,10 @@ module top
       .counter(clk_div[15:0]),
       .busy(ccd_readout_busy),
       .toggle(ccd_readout_toggle_latch),
-      .mode(ccd_readout_mode)
+      .mode(ccd_readout_mode),
+      .data_out(ccd_readout_data),
+      .data_avail(ccd_readout_data_avail),
+      .data_accept(ccd_readout_data_accept)
       );
    sr_latch sr_ccd_readout
      (
@@ -272,15 +279,25 @@ module top
    tx_mux tx_mux
      (
       .clk(clk),
-      .req({1'b0, 1'b0, ad_config_data_avail, mcp_data_avail}),
-      .in_0(mcp_data), // priority input
-      .in_1(ad_config_out), // priority input
-      // .in_2(), // priority input
+      .req({
+	    1'b0, 
+	    ad_config_data_avail, 
+	    mcp_data_avail, 
+	    ccd_readout_data_avail
+	    }),
+      .in_0(ccd_readout_data), // priority 1 input
+      .in_1(mcp_data), // priority 2 input
+      .in_2(ad_config_out), // priority 3 input
       // .in_3(), // priority input
       .wfull(tx_fifo_wfull), // tx fifo is full, active high
       .out(tx_fifo_wdata), // 8-bit output
       .winc(tx_fifo_winc), // tx figo write increase, active high
-      .accept({dummy_accept_1, dummy_accept_2, ad_config_data_recieved, mcp_data_accept})
+      .accept({
+	       dummy_accept_1, 
+	       ad_config_data_recieved, 
+	       mcp_data_accept,
+	       ccd_readout_data_accept
+	       })
       );
 
    
