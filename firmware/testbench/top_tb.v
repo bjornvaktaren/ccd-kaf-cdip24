@@ -131,12 +131,14 @@ module top_tb();
       // ft245_send(8'b10000000); // read from 000, "Configuration" register
       // ft245_send(8'b11111111);
       
-      // #250 ft245_send(cmd_rw_adconf);
-      // ft245_send(8'b01000000); // write to 100, "Red Offset" register
-      // ft245_send(8'b00000011);
-      // #250 ft245_send(cmd_rw_adconf);
-      // ft245_send(8'b11000000); // read from 010, "Red Offset" register
-      // ft245_send(8'b00000000);
+      #250 ft245_send(cmd_rw_adconf);
+      ft245_send(8'b01000000); // write to 100, "Red Offset" register
+      ft245_send(8'b00000011);
+      ft_txe_n  <= 1;
+      #250 ft245_send(cmd_rw_adconf);
+      ft245_send(8'b11000000); // read from 010, "Red Offset" register
+      ft245_send(8'b00000000);
+      #4000 ft_txe_n  <= 0;
       
       // #250 ft245_send(cmd_set_register);
       // ft245_send(8'b00000001); // write to 01, TEC 2 PWM register

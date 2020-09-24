@@ -54,9 +54,40 @@ module ft245
      if (ft_oe_n == 1'b0)
        rx_wdata <= ft_bus;
    `endif
+
+   localparam state_idle  = 2'b00;
+   localparam state_write = 2'b01;
+   localparam state_read  = 2'b10;
    
-   always @(negedge ft_clkout) begin
+   reg [1:0] state;
+   
+   always @(posedge ft_clkout) begin
+      state <= state;
       
+      case (state)
+
+	state_idle:
+	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
+	    state <= state_write;
+	  if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 )
+	    state <= state_read;
+	
+	state_write:
+	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
+	    state <= state_write;
+	  else
+	    state <= state_idle;
+
+	state_read:
+	  if ( ft_rxf_n == 1'b1 || rx_wfull == 1'b1 )
+	    state <= state_idle;
+	
+      endcase
+	    
+   end // always @ (posedge ft_clkout)
+
+   always @* begin
+
       ft_rd_n   <= 1'b1;
       ft_wr_n   <= 1'b1;
       ft_siwu_n <= 1'b1;
@@ -65,21 +96,36 @@ module ft245
       tx_rinc   <= 1'b0;
       rx_winc   <= 1'b0;
 
-      // write to ft
-      if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 ) begin
-	 ft_wr_n <= 1'b0;
-	 tx_rinc <= 1'b1; // tell tx fifo to increase read pointer
-      end
-
-      // accept request to recieve from ft
-      if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 ) begin
-	 ft_oe_n <= 1'b0;
-      end
-      // next clock cycle, tell the ft to output the next byte
-      if ( ft_oe_n == 1'b0 && ft_rxf_n == 1'b0 && rx_wfull == 1'b0 ) begin
-	 ft_rd_n <= 1'b0;
-	 rx_winc <= 1'b1; // tell rx fifo to increase write pointer
-      end
+      if ( state == state_idle ) 
+      
    end
+   
+   
+   // always @(negedge ft_clkout) begin
+      
+   //    ft_rd_n   <= 1'b1;
+   //    ft_wr_n   <= 1'b1;
+   //    ft_siwu_n <= 1'b1;
+   //    ft_oe_n   <= 1'b1;
+
+   //    tx_rinc   <= 1'b0;
+   //    rx_winc   <= 1'b0;
+
+   //    // write to ft
+   //    if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 ) begin
+   // 	 ft_wr_n <= 1'b0;
+   // 	 tx_rinc <= 1'b1; // tell tx fifo to increase read pointer
+   //    end
+
+   //    // accept request to recieve from ft
+   //    if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 ) begin
+   // 	 ft_oe_n <= 1'b0;
+   //    end
+   //    // next clock cycle, tell the ft to output the next byte
+   //    if ( ft_oe_n == 1'b0 && ft_rxf_n == 1'b0 && rx_wfull == 1'b0 ) begin
+   // 	 ft_rd_n <= 1'b0;
+   // 	 rx_winc <= 1'b1; // tell rx fifo to increase write pointer
+   //    end
+   // end
 
 endmodule // ft245
