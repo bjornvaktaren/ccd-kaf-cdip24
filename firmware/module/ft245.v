@@ -55,11 +55,14 @@ module ft245
        rx_wdata <= ft_bus;
    `endif
 
-   localparam state_idle  = 2'b00;
-   localparam state_write = 2'b01;
-   localparam state_read  = 2'b10;
+   localparam state_idle        = 3'b000;
+   localparam state_read_wait_1 = 3'b001;
+   localparam state_read_wait_2 = 3'b010;
+   localparam state_read        = 3'b011;
+   localparam state_write_wait  = 3'b100;
+   localparam state_write       = 3'b110;
    
-   reg [1:0] state;
+   reg [2:0] state = state_idle;
    
    always @(posedge ft_clkout) begin
       state <= state;
@@ -68,9 +71,15 @@ module ft245
 
 	state_idle:
 	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
+	    state <= state_write_wait;
+	  else if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 )
+	    state <= state_read_wait_1;
+
+	state_write_wait:
+	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
 	    state <= state_write;
-	  if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 )
-	    state <= state_read;
+	  else
+	    state <= state_idle;
 	
 	state_write:
 	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
@@ -78,6 +87,11 @@ module ft245
 	  else
 	    state <= state_idle;
 
+	state_read_wait_1:
+	  state <= state_read_wait_2;
+	state_read_wait_2:
+	  state <= state_read;
+	
 	state_read:
 	  if ( ft_rxf_n == 1'b1 || rx_wfull == 1'b1 )
 	    state <= state_idle;
@@ -96,7 +110,20 @@ module ft245
       tx_rinc   <= 1'b0;
       rx_winc   <= 1'b0;
 
-      if ( state == state_idle ) 
+      if ( state == state_write ) begin
+	 ft_wr_n <= 1'b0;
+	 tx_rinc <= 1'b1; // tell tx fifo to increase read pointer
+      end
+      if ( state == state_read_wait_1 ) begin
+      end
+      if ( state == state_read_wait_2 ) begin
+	 ft_oe_n <= 1'b0;
+      end
+      if ( state == state_read ) begin
+	 ft_oe_n <= 1'b0;
+   	 ft_rd_n <= 1'b0;
+   	 rx_winc <= 1'b1; // tell rx fifo to increase write pointer
+      end
       
    end
    

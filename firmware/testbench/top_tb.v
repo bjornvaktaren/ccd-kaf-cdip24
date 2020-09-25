@@ -89,21 +89,21 @@ module top_tb();
       input [7:0] data_in;
       begin
 	 ft_buff <= data_in;
-	 #5 
-	 ft_rxf_n <= 0;
-	 
-	 fork : f // implement a wait until ft_oe_n goes low
+	 fork : f // synchronize with ft_clkout
 	    begin
 	       // timeout check
 	       #500 $display("%t : ft245_send timeout", $time);
 	       disable f;
 	    end
 	    begin
-	       @(negedge ft_rd_n);
+	       @(posedge ft_clkout);
 	       disable f;
 	    end
 	 join
+	 ft_rxf_n <= 0;
 	 
+
+	 #75
 	 ft_rxf_n <= 1;
 	    
       end
@@ -131,14 +131,14 @@ module top_tb();
       // ft245_send(8'b10000000); // read from 000, "Configuration" register
       // ft245_send(8'b11111111);
       
-      #250 ft245_send(cmd_rw_adconf);
-      ft245_send(8'b01000000); // write to 100, "Red Offset" register
-      ft245_send(8'b00000011);
-      ft_txe_n  <= 1;
-      #250 ft245_send(cmd_rw_adconf);
-      ft245_send(8'b11000000); // read from 010, "Red Offset" register
-      ft245_send(8'b00000000);
-      #4000 ft_txe_n  <= 0;
+      // #250 ft245_send(cmd_rw_adconf);
+      // ft245_send(8'b01000000); // write to 100, "Red Offset" register
+      // ft245_send(8'b00000011);
+      // ft_txe_n  <= 1;
+      // #250 ft245_send(cmd_rw_adconf);
+      // ft245_send(8'b11000000); // read from 010, "Red Offset" register
+      // ft245_send(8'b00000000);
+      // #4000 ft_txe_n  <= 0;
       
       // #250 ft245_send(cmd_set_register);
       // ft245_send(8'b00000001); // write to 01, TEC 2 PWM register
@@ -147,18 +147,20 @@ module top_tb();
       // ft245_send(8'b00000000); // write to 00, TEC 1 PWM register
       // ft245_send(8'b00111111);
       
-      // ft245_send(cmd_toggle_mcp);
+      #1 ft_txe_n  <= 1;
+      ft245_send(cmd_toggle_mcp);
       // #50 ft_txe_n <= 0;
-      // mcp_dout <= 1;
+      #1 mcp_dout <= 1;
+      #40000 ft_txe_n  <= 0;
 
       // Test shutter open and closing
       // #50 ft245_send(cmd_open_shutter);
       // #50000 ft245_send(cmd_close_shutter);
       
-      #250 ft245_send(cmd_set_register);
-      ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
-      ft245_send(8'b00000010); // read out with 1x1 binning
-      #50 ft245_send(cmd_toggle_read_ccd);
+      // #250 ft245_send(cmd_set_register);
+      // ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
+      // ft245_send(8'b00000010); // read out with 1x1 binning
+      // #50 ft245_send(cmd_toggle_read_ccd);
       // #50 ft_txe_n <= 0;
       
       #100000 $finish;
