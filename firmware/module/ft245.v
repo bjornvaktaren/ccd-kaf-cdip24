@@ -16,7 +16,8 @@ module ft245
    tx_rdata,
    rx_wdata,
    rx_wfull,
-   rx_winc
+   rx_winc,
+   state_out
    );
 
    inout      [7:0] ft_bus;
@@ -33,6 +34,7 @@ module ft245
    output reg [7:0] rx_wdata;
    input 	    rx_wfull;
    output reg 	    rx_winc;
+   output wire [3:0] state_out = state;
 
    
    // arachne-pnr cannot infer tristate, so need to intatiate explicitly
@@ -110,6 +112,8 @@ module ft245
       tx_rinc   <= 1'b0;
       rx_winc   <= 1'b0;
 
+      if ( state == state_write_wait ) begin
+      end
       if ( state == state_write ) begin
 	 ft_wr_n <= 1'b0;
 	 tx_rinc <= 1'b1; // tell tx fifo to increase read pointer

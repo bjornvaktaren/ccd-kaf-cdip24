@@ -14,8 +14,8 @@ module tx_mux
    output reg [3:0] accept // mux accepted data, active high, low when done
    );
 
-   reg [1:0]  sel;
-   reg [15:0] in_sel;
+   reg [1:0]  sel = 0;
+   reg [15:0] in_sel = 0;
 
    // serialized mux
    always @(posedge clk) begin
@@ -117,6 +117,7 @@ module tx_mux
       end
       if ( state == state_hdr_setup ) begin
 	 out         = sel;
+	 // winc        = 1'b1;
       	 accept[sel] = 1'b1;
       end
       if ( state == state_hdr_send ) begin
@@ -126,6 +127,7 @@ module tx_mux
       end
       if ( state == state_msb_setup ) begin
 	 out         = in_sel[15:8];
+	 // winc        = 1'b1;
       	 accept[sel] = 1'b1;
       end
       if ( state == state_msb_send ) begin
@@ -135,6 +137,7 @@ module tx_mux
       end
       if ( state == state_lsb_setup ) begin
 	 out         = in_sel[7:0];
+	 // winc        = 1'b1;
       	 accept[sel] = 1'b1;
       end
       if ( state == state_lsb_send ) begin

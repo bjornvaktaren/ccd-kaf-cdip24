@@ -103,6 +103,7 @@ module top
    wire [7:0] rx_fifo_wdata;
    wire rx_fifo_wfull;
    wire rx_fifo_winc;
+   wire [3:0] ft_state_out;
 
    ft245 ft245 
      (
@@ -119,7 +120,8 @@ module top
       .tx_rdata(tx_fifo_rdata),
       .rx_wdata(rx_fifo_wdata),
       .rx_wfull(rx_fifo_wfull),
-      .rx_winc(rx_fifo_winc)
+      .rx_winc(rx_fifo_winc),
+      .state_out(ft_state_out)
       );
 
    
@@ -291,7 +293,7 @@ module top
       // .in_3(), // priority input
       .wfull(tx_fifo_wfull), // tx fifo is full, active high
       .out(tx_fifo_wdata), // 8-bit output
-      .winc(tx_fifo_winc), // tx figo write increase, active high
+      .winc(tx_fifo_winc), // tx fifo write increase, active high
       .accept({
 	       dummy_accept_1, 
 	       ad_config_data_recieved, 
@@ -346,7 +348,7 @@ module top
    reg [7:0]   rx_msb = 8'h00;
    reg [7:0]   rx_lsb = 8'h00;
 
-   assign debug = state;
+   assign debug = {tx_fifo_rempty, ft_wr_n, ft_txe_n, tx_fifo_winc};
    
    
    // state logic
