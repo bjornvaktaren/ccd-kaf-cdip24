@@ -19,12 +19,30 @@ void Camera::disconnect()
 }
 
 
+// void Camera::test()
+// {
+//    unsigned char writeBuffer[6];
+//    writeBuffer[0] = fpga::command::rw_adconf;
+//    writeBuffer[1] = fpga::ad9826_cmd::read_config;
+//    writeBuffer[2] = 0b00000000; // need to send a dummy byte
+//    m_ft.write(writeBuffer, 3);
+
+//    unsigned char readBuffer[3] = {0};
+//    m_ft.read(readBuffer, 3);
+   
+//    for ( int i = 0; i < 3; ++i ) {
+//       std::cout << ' ' << std::bitset<8>(readBuffer[i]);
+//    }
+//    std::cout << '\n';
+// }
+
+
 bool Camera::sampleTemperatures()
 {
    m_ft.writeByte(fpga::command::toggle_mcp);
    // the FTDI latency timer is dominating the delay, so below delay is not
    // needed
-   usleep(fpga::delay::sample_mcp);
+   // usleep(fpga::delay::sample_mcp);
 
    const size_t nBytes = 9;
    unsigned char buffer[nBytes] = {0};

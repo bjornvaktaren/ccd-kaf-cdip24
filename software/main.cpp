@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
       auto msec
    	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
 
+      // camera.test();
       camera.sampleTemperatures();
       
       // temperatureAmbient.push_back(camera.getTemperature("ambient"));

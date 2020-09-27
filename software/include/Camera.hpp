@@ -28,6 +28,7 @@ public:
    bool closeShutter();
    bool setCooling(const bool on=true);
    bool setPeltierPWM(const int peltier, const unsigned char pwmVal);
+   void test();
    
 private:
    
