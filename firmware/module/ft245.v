@@ -36,7 +36,7 @@ module ft245
 
    
    // arachne-pnr cannot infer tristate, so need to intatiate explicitly
-   wire   drive_buf = ft_rd_n && ~ft_wr_n;
+   wire   drive_buf = ft_oe_n;
    `ifdef SYNTHESIS
    SB_IO #(.PIN_TYPE(6'b 1010_01), .PULLUP(1'b 0)) ft_databus [7:0] 
      (

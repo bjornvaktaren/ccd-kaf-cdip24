@@ -43,6 +43,7 @@ bool Camera::sampleTemperatures()
    // the FTDI latency timer is dominating the delay, so below delay is not
    // needed
    // usleep(fpga::delay::sample_mcp);
+   // usleep(1000000);
 
    const size_t nBytes = 9;
    unsigned char buffer[nBytes] = {0};
