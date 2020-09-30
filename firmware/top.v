@@ -120,8 +120,8 @@ module top
       .tx_rdata(tx_fifo_rdata),
       .rx_wdata(rx_fifo_wdata),
       .rx_wfull(rx_fifo_wfull),
-      .rx_winc(rx_fifo_winc),
-      .state_out(ft_state_out)
+      .rx_winc(rx_fifo_winc)// ,
+      // .state_out(ft_state_out)
       );
 
    
@@ -182,11 +182,12 @@ module top
    // 100 MHz / 2^(6+1) = 0.78 MHz
    assign mcp_dclk_internal = clk_div[6];
    // Only output the clock if needed
-   assign mcp_dclk = (mcp_cs_n == 1'b0) ? mcp_dclk_internal : 1'b1;
+   assign mcp_dclk = (mcp_busy == 1'b1) ? mcp_dclk_internal : 1'b1;
 
    mcp3008_interface mcp3008
      (
-      .sample(mcp_toggle_latch),     // sample on posedge
+      .clk(clk),                     // system clock
+      .sample(mcp_toggle),     // sample on posedge
       .dclk(mcp_dclk_internal),      // mcp3008 data clock
       .dout(mcp_dout),               // mcp3008 data out
       .din(mcp_din),                 // mcp3008 data in
@@ -196,12 +197,14 @@ module top
       .dout_avail(mcp_data_avail),   // data is available if this is high
       .dout_accept(mcp_data_accept)  // data has been accapted if this is high
       );
-   sr_latch sr_mcp
-     (
-      .set(mcp_toggle),
-      .rst(mcp_busy),
-      .q(mcp_toggle_latch)
-      );
+   // sr_latch sr_mcp
+   //   (
+   //    .set(mcp_toggle),
+   //    .rst(mcp_busy),
+   //    .q(mcp_toggle_latch)
+   //    );
+   assign debug = {mcp_toggle, mcp_cs_n, mcp_data_avail, mcp_data_accept};
+   
    
 
    // CCD clocks and AD9826 sampling
@@ -336,11 +339,12 @@ module top
    localparam state_get_msb         = 4'b0111;
    localparam state_setup_lsb       = 4'b0101;
    localparam state_get_lsb         = 4'b0100;
-   localparam state_toggle_mcp      = 4'b1100;
-   localparam state_wait_adconf     = 4'b1101;
-   localparam state_toggle_adconf   = 4'b1111;
-   localparam state_toggle_read_ccd = 4'b1110;
-   localparam state_set_register    = 4'b1010;
+   localparam state_toggle_mcp_1    = 4'b1100;
+   localparam state_toggle_mcp_2    = 4'b1101;
+   localparam state_wait_adconf     = 4'b1111;
+   localparam state_toggle_adconf   = 4'b1110;
+   localparam state_toggle_read_ccd = 4'b1010;
+   localparam state_set_register    = 4'b1011;
 
    reg [3:0]   state = state_reset;
    reg 	       shutter_state = shutter_state_closed;
@@ -348,8 +352,6 @@ module top
    reg [7:0]   rx_msb = 8'h00;
    reg [7:0]   rx_lsb = 8'h00;
 
-   assign debug = {tx_fifo_rempty, ft_wr_n, ft_txe_n, tx_fifo_winc};
-   
    
    // state logic
    always @(posedge clk) begin
@@ -386,7 +388,7 @@ module top
 	   state <= state_idle;
 	   
 	   if (rx_cmd == cmd_toggle_mcp)
-	     state <= state_toggle_mcp;
+	     state <= state_toggle_mcp_1;
 	   
 	   if (rx_cmd == cmd_toggle_read_ccd)
 	     state <= state_toggle_read_ccd;
@@ -435,7 +437,9 @@ module top
 	     state <= state_wait_adconf;
 	end
 	
-	state_toggle_mcp:
+	state_toggle_mcp_1:
+	  state <= state_toggle_mcp_2;
+	state_toggle_mcp_2:
 	  state <= state_idle;
 	
 	state_wait_adconf:
@@ -497,7 +501,10 @@ module top
       end
       if ( state == state_get_lsb ) begin
       end
-      if ( state == state_toggle_mcp ) begin
+      if ( state == state_toggle_mcp_1 ) begin
+	 mcp_toggle = 1'b1;
+      end
+      if ( state == state_toggle_mcp_2 ) begin
 	 mcp_toggle = 1'b1;
       end
       if ( state == state_wait_adconf ) begin

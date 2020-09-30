@@ -3,6 +3,7 @@
 // Interface for mcp3008 and mcp3004
 module mcp3008_interface
   (
+   clk,         // system clock
    sample,      // sample on posedge
    dclk,        // mcp3008 data clock
    dout,        // mcp3008 data out
@@ -14,6 +15,7 @@ module mcp3008_interface
    dout_accept  // data has been accapted if this is high
    );
 
+   input             clk;
    input             dout;
    input             sample;
    input             dclk;
@@ -48,6 +50,18 @@ module mcp3008_interface
    localparam state_read_b0        = 5'b11001;
    localparam state_wait_fifo      = 5'b11011;
 
+   reg 	      sample_int = 1'b0;
+   always @(posedge clk) begin
+      if ( state == state_idle ) begin
+	 if ( sample_int == 1'b0 && sample == 1'b1 )
+	   sample_int <= 1'b1;
+      end
+      else
+	sample_int <= 1'b0;
+   end
+   
+	 
+
    // Set up on negative edge   
    always @(negedge dclk) begin
       
@@ -56,7 +70,7 @@ module mcp3008_interface
       case (state)
 
 	state_idle:
-	  if (sample)
+	  if (sample_int)
 	    state <= state_send_start;
 	state_send_start: 
 	  state <= state_send_single;
@@ -111,13 +125,15 @@ module mcp3008_interface
 
    always @* begin
       din  = 1'b0;
-      cs_n = 1'b0; // default is to select chip
+      cs_n = 1'b1; // default is to select chip
       busy = 1'b1; // default is busy
       dout_avail = 1'b0;
 
+      if ( state != state_idle )
+	 cs_n = 1'b0; // chip is selected
+   
       if ( state == state_idle ) begin
 	 busy = 1'b0;
-	 cs_n = 1'b1; // chip is deselected
       end
       if ( state == state_send_start ) begin
 	 din = 1'b1;
@@ -136,7 +152,8 @@ module mcp3008_interface
       end
       if ( state == state_wait_fifo ) begin
 	 dout_avail = 1'b1;
-	 cs_n       = 1'b1; // chip is deslected
+	 busy       = 1'b0;
+	 cs_n       = 1'b1; // chip is deselected
       end
    end
 
