@@ -3,6 +3,7 @@
 #include <bitset>
 #include <vector>
 #include <chrono>
+#include <thread>
 
 #include "Camera.hpp"
 #include "CImgPlot.hpp"
@@ -93,7 +94,7 @@ int main(int argc, char* argv[])
       // if ( i == 7 ) i = 0;
       // else ++i;
       
-      usleep(500000);
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
    }
    
    // camera.setCooling(true);

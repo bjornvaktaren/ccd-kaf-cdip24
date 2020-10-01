@@ -6,6 +6,7 @@
 #include <cmath>
 #include <bitset>
 #include <map>
+#include <stdint.h>
 
 #include "Ft245.hpp"
 #include "Fpga.hpp"
@@ -32,14 +33,19 @@ public:
    
 private:
    
+   fpga::DataPacket decodePacket(
+      unsigned char byte1,
+      unsigned char byte2,
+      unsigned char byte3
+      );
+   
    enum class Verbosity {debug,warnings,info};
    Verbosity m_verbosity = Verbosity::info;
    Ft245 m_ft;
    std::map<std::string,Thermistor> m_thermistors =
    {{"ambient", Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)},
     {"ccd",     Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)}};
-
-
+   
 };
 
 #endif

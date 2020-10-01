@@ -160,11 +160,11 @@ int Ft245::read(unsigned char *buffer, const int nBytes)
 	 std::cerr << "ERROR in Ft245::read(): "
 		   << ftdi_get_error_string(&m_ftdi) << '\n';
       }
-      else {
-	 std::cout << "INFO in Ft245::read(): ftdi_read_data returned "
-		   << ret << '\n';
-	 bytesRead += ret;
-      }
+      // else {
+      // 	 std::cout << "INFO in Ft245::read(): ftdi_read_data returned "
+      // 		   << ret << '\n';
+      // 	 bytesRead += ret;
+      // }
       // if ( ret == 0 ) break;
    }
    return bytesRead;

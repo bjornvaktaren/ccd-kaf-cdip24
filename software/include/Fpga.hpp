@@ -37,6 +37,19 @@ namespace fpga {
       static constexpr unsigned char offset_msb       = 0b00000001;
    }
 
+   namespace data_topic {
+      // Each message is sent with a 8-bit header
+      static constexpr unsigned char mcp    = 0b00000001;
+      static constexpr unsigned char adconf = 0b00000010;
+      static constexpr unsigned char pixel  = 0b00000011;
+   }
+   
+   enum class DataTopic {unknown, mcp, adconf, pixel};
+   struct DataPacket {
+      DataTopic topic = DataTopic::unknown;
+      uint16_t data = 0;
+   };
+
    namespace delay {
       static constexpr int sample_mcp = 120; // microseconds
    }

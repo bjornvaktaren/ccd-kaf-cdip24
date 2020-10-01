@@ -10,6 +10,9 @@ void Camera::connect()
    if ( status != 0 ) {
       throw std::runtime_error("Unable to connect to camera");
    }
+   if ( ! m_ft.writeByte(fpga::command::reset) ) {
+      throw std::runtime_error("Unable to reset camera");
+   }      
 }
 
 
@@ -36,14 +39,37 @@ void Camera::disconnect()
 //    std::cout << '\n';
 // }
 
+fpga::DataPacket Camera::decodePacket(
+   unsigned char byte1,
+   unsigned char byte2,
+   unsigned char byte3
+   )
+{
+   fpga::DataPacket dataPacket;
+   if ( byte1 == fpga::data_topic::mcp ) {
+      dataPacket.topic = fpga::DataTopic::mcp;
+      std::cout << "mcp\n";
+   }
+   else if ( byte1 == fpga::data_topic::adconf ) {
+      dataPacket.topic = fpga::DataTopic::adconf;
+      std::cout << "adconf\n";
+   }
+   else if ( byte1 == fpga::data_topic::pixel ) {
+      dataPacket.topic = fpga::DataTopic::pixel;
+      std::cout << "pixel\n";
+   }
+   dataPacket.data =
+      ( static_cast<uint16_t>(byte2) << 8 ) | static_cast<uint16_t>(byte3);
+   std::cout << std::bitset<16>(dataPacket.data) << '\n';
+   return dataPacket;
+}
+
 
 bool Camera::sampleTemperatures()
 {
    m_ft.writeByte(fpga::command::toggle_mcp);
    // the FTDI latency timer is dominating the delay, so below delay is not
    // needed
-   // usleep(fpga::delay::sample_mcp);
-   // usleep(1000000);
 
    const size_t nBytes = 9;
    unsigned char buffer[nBytes] = {0};
@@ -74,6 +100,9 @@ bool Camera::sampleTemperatures()
 	     // << ' ' << m_thermistors.at("ambient").getMeasuredVoltage()
 	     // << ' ' << m_thermistors.at("ccd").getCelsius()
 	     // << ' ' << m_thermistors.at("ambient").getCelsius()
+   this->decodePacket(buffer[0], buffer[1], buffer[2]);
+   this->decodePacket(buffer[3], buffer[4], buffer[5]);
+   this->decodePacket(buffer[6], buffer[7], buffer[8]);
 
    return readBytes == nBytes;
 }
