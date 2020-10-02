@@ -250,29 +250,25 @@ module top
    reg [15:0] ad_config_in = 16'h00;
    wire [15:0] ad_config_out;
    reg	       ad_config_toggle;
-   wire	       ad_config_toggle_latch;
    wire        ad_config_data_avail;
    wire        ad_config_data_recieved;
    wire        ad_config_busy;
+   // 100 MHz / 2^(3+1) = 6.25 MHz (Maximum is 10 MHz)
+   wire        ad_clk = clk_div[3];
    
    ad9826_config ad9826_config
      (
+      .clk(clk),
       .ad_config_in(ad_config_in),
       .ad_config_out(ad_config_out),
       .ad_sload(ad_sload),
       .ad_sclk(ad_sclk),
       .ad_sdata(ad_sdata),
-      .toggle(ad_config_toggle_latch),
-      .counter(clk_div[7:0]),
+      .ad_clk(ad_clk),
+      .toggle(ad_config_toggle),
       .config_out_avail(ad_config_data_avail),
       .config_out_recieved(ad_config_data_recieved),
       .busy(ad_config_busy)
-      );
-   sr_latch sr_adconf
-     (
-      .set(ad_config_toggle),
-      .rst(ad_config_busy),
-      .q(ad_config_toggle_latch)
       );
 
    
@@ -342,15 +338,16 @@ module top
    localparam state_toggle_mcp_1    = 4'b1100;
    localparam state_toggle_mcp_2    = 4'b1101;
    localparam state_wait_adconf     = 4'b1111;
-   localparam state_toggle_adconf   = 4'b1110;
-   localparam state_toggle_read_ccd = 4'b1010;
-   localparam state_set_register    = 4'b1011;
+   localparam state_toggle_adconf_1 = 4'b1110;
+   localparam state_toggle_adconf_2 = 4'b1010;
+   localparam state_toggle_read_ccd = 4'b1011;
+   localparam state_set_register    = 4'b1001;
 
-   reg [3:0]   state = state_reset;
-   reg 	       shutter_state = shutter_state_closed;
-   reg [7:0]   rx_cmd = 8'h00;
-   reg [7:0]   rx_msb = 8'h00;
-   reg [7:0]   rx_lsb = 8'h00;
+   reg [3:0] state = state_reset;
+   reg 	     shutter_state = shutter_state_closed;
+   reg [7:0] rx_cmd = 8'h00;
+   reg [7:0] rx_msb = 8'h00;
+   reg [7:0] rx_lsb = 8'h00;
 
    
    // state logic
@@ -443,14 +440,16 @@ module top
 	  state <= state_idle;
 	
 	state_wait_adconf:
-	  if ( ad_config_busy == 1'b0 && ad_config_toggle_latch == 1'b0) begin
-	     state <= state_toggle_adconf;
+	  if ( ad_config_busy == 1'b0) begin
+	     state <= state_toggle_adconf_1;
 	     ad_config_in <= {rx_msb, rx_lsb};
 	  end
 	  else
 	    state <= state_wait_adconf;
 	
-	state_toggle_adconf:
+	state_toggle_adconf_1:
+	  state <= state_toggle_adconf_2;
+	state_toggle_adconf_2:
 	  state <= state_idle;
 	
 	state_toggle_read_ccd:
@@ -509,7 +508,10 @@ module top
       end
       if ( state == state_wait_adconf ) begin
       end
-      if ( state == state_toggle_adconf ) begin
+      if ( state == state_toggle_adconf_1 ) begin
+	 ad_config_toggle = 1'b1;
+      end
+      if ( state == state_toggle_adconf_2 ) begin
 	 ad_config_toggle = 1'b1;
       end
       if ( state == state_toggle_read_ccd ) begin

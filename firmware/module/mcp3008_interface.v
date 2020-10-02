@@ -4,7 +4,7 @@
 module mcp3008_interface
   (
    clk,         // system clock
-   sample,      // sample on posedge
+   sample,      // sample on high if not busy
    dclk,        // mcp3008 data clock
    dout,        // mcp3008 data out
    din,         // mcp3008 data in
@@ -26,7 +26,7 @@ module mcp3008_interface
    output reg 	     dout_avail;
    input 	     dout_accept;
 
-   localparam number_of_channels = 3;
+   localparam number_of_channels = 3; // Sample channels 000, 001, and 010.
    reg [2:0]  channel_count = 0;
 
    reg [4:0]  state;

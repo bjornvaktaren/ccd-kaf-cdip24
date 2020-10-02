@@ -2,33 +2,33 @@
 
 module ad9826_config
   (
+   clk,                 // system clock
    ad_config_in,
    ad_config_out,
    config_out_avail,    // data is available if this is high
    config_out_recieved, // data has been accepted if this is high
    busy,                // module is busy
-   ad_sload,
+   ad_sload,            // AD gated clock out
    ad_sclk,
    ad_sdata,
-   toggle,
-   counter
+   ad_clk,              // AD clock in
+   toggle
    );
 
+   input             clk;
    // 1 r/w bit, 3 address bits, 3 zero bits, 9 config bits
    input [15:0]	     ad_config_in;
    output reg [15:0] ad_config_out;
    output reg 	     config_out_avail;
    input 	     config_out_recieved;
    output reg 	     busy;
-   output wire 	     ad_sclk;
-   output reg 	     ad_sload;  // Also works as not busy signal
+   output wire 	     ad_sclk;   // gated clock out
+   output reg 	     ad_sload;
    inout 	     ad_sdata;
+   input 	     ad_clk;    // clock in for ad9826
    input 	     toggle;
-   input [7:0] 	     counter;
    
-   // 100 MHz / 2^(3+1) = 6.25 MHz (Maximum is 10 MHz)
-   wire 	    clk = counter[3];
-   assign 	ad_sclk = ( ad_sload == 1'b0 ) ? clk : 1'b0;
+   assign 	ad_sclk = ( ad_sload == 1'b0 ) ? ad_clk : 1'b0;
    reg		    io_out;
    wire		    io_in;
    reg		    oe;
@@ -76,16 +76,26 @@ module ad9826_config
    localparam state_wd2       = 5'b10100;
    localparam state_wd1       = 5'b10101;
    localparam state_wd0       = 5'b10111;
+   
+   reg toggle_int = 1'b0;
+   always @(posedge clk) begin
+      if ( state == state_idle ) begin
+	 if ( toggle_int == 1'b0 && toggle == 1'b1 )
+	   toggle_int <= 1'b1;
+      end
+      else
+	toggle_int <= 1'b0;
+   end
 
    // Set up on negative edge   
-   always @(negedge clk) begin
+   always @(negedge ad_clk) begin
 
       state <= state_idle;
       
       case (state)
 
 	state_idle:
-	   if ( toggle )
+	   if ( toggle_int )
 	     state <= state_rw;
 
 	// Read/Write bit and address bits
@@ -162,11 +172,11 @@ module ad9826_config
       ad_sload = 1'b0;
       io_out = 1'b0;
       oe = 1'b0;
-      busy = 1'b1;
+      busy = 1'b1 || toggle_int;
       
       if ( state == state_idle ) begin
 	 ad_sload = 1'b1;
-	 busy     = 1'b0;
+	 busy     = 1'b0 || toggle_int;
       end
       
       if ( state == state_rw ) begin
@@ -236,7 +246,7 @@ module ad9826_config
       
    end // always @ *
 
-   always @(posedge clk) begin
+   always @(posedge ad_clk) begin
 
       case (state)
 	
