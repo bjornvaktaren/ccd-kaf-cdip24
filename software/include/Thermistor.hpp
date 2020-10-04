@@ -30,7 +30,7 @@ public:
    ~Thermistor(){};
 
    double getCelsius();
-   void setMeasurement(const int m) {
+   template <typename T> void setMeasurement(const T m) {
       m_U = static_cast<double>(m)/m_ADCRes*m_V0;
    };
    double getMeasuredVoltage() { return m_U; };

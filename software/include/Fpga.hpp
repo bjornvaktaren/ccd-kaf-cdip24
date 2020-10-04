@@ -1,6 +1,8 @@
 #ifndef FPGA_HPP
 #define FPGA_HPP
 
+#include <stdint.h>
+
 namespace fpga {
    
    namespace command {
@@ -19,6 +21,13 @@ namespace fpga {
       static constexpr unsigned char tec1_duty        = 0;
       static constexpr unsigned char tec2_duty        = 1;
       static constexpr unsigned char ccd_readout_mode = 2;
+   }
+
+	// Supported read-out modes
+   namespace ccd_readout_mode {
+      static constexpr unsigned char flush  = 0b00000001;
+      static constexpr unsigned char bin1x1 = 0b00000010;
+      static constexpr unsigned char bin2x2 = 0b00000011;
    }
    
    // Named commands to read/write from/to the AD9826 configuration register 
@@ -50,16 +59,13 @@ namespace fpga {
       uint16_t data = 0;
    };
 
-   namespace delay {
-      static constexpr int sample_mcp = 120; // microseconds
-   }
-
    namespace thermistor_id {
       // Identifier for the thermistor, sent from the FPGA.
       // The 2 least significant bits are not used.
-      static constexpr unsigned char ambient   = 0b11000100;
-      static constexpr unsigned char ccd       = 0b11010100;
-      static constexpr unsigned char idBitMask = 0b11111100;
+      static constexpr uint16_t ambient   = 0b1100010000000000; // double-check
+      static constexpr uint16_t ccd       = 0b1101010000000000; // double-check
+      static constexpr uint16_t tec       = 0b1101110000000000; // double-check
+      static constexpr uint16_t bitmask   = 0b1111110000000000;
    }
 }
 
