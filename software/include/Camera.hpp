@@ -30,6 +30,17 @@ public:
    bool setCooling(const bool on=true);
    bool setPeltierPWM(const int peltier, const unsigned char pwmVal);
    bool setCCDReadoutMode(const unsigned char mode);
+
+	// Image size in number of pixels
+	int getWidth() { return 2184; };
+	int getHeight() { return 1472; };
+
+	// Pixel size in micrometer
+	double getPixelWidth() { return 6.8; };
+	double getPixelHeight() { return 6.8; };
+
+	// ADC channels
+	int getADCResolution() { return 16; };
 	
    void test();
    
