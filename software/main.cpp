@@ -26,8 +26,10 @@ int main(int argc, char* argv[])
    const unsigned int temperatureImgSizeY = 400;
    std::vector<float> temperatureAmbient;
    std::vector<float> temperatureCCD;
+   std::vector<float> temperatureTEC;
    std::vector<float> timeAmbient;
    std::vector<float> timeCCD;
+   std::vector<float> timeTEC;
    CImgPlot temperatureImg(temperatureImgSizeX, temperatureImgSizeY);
    temperatureImg.setTitle("Time (s)","Temperature (C)");
    temperatureImg.setXRange(30.0, true);
@@ -52,17 +54,23 @@ int main(int argc, char* argv[])
 
       timeAmbient.push_back(msec.count()/1000.0);
       timeCCD.push_back(msec.count()/1000.0);
-		double ambTemp = camera.getTemperature(fpga::thermistor_id::ambient);
-		double ccdTemp = camera.getTemperature(fpga::thermistor_id::ccd);
+      timeTEC.push_back(msec.count()/1000.0);
+      double ambTemp = camera.getTemperature(fpga::thermistor_id::ambient);
+      double ccdTemp = camera.getTemperature(fpga::thermistor_id::ccd);
+      double tecTemp = camera.getTemperature(fpga::thermistor_id::tec);
       temperatureAmbient.push_back(ambTemp);
       temperatureCCD.push_back(ccdTemp);
+      temperatureTEC.push_back(tecTemp);
 
       if ( temperatureAmbient.size() > 2 &&
       	   temperatureCCD.size()     > 2 &&
       	   timeAmbient.size()        > 2 &&
-      	   timeCCD.size()            > 2 ) {
+      	   timeCCD.size()            > 2 &&
+      	   timeTEC.size()            > 2 
+	 ) {
       	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
       	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
+      	 temperatureImg.line(3, timeTEC, temperatureTEC, "l");
       	 temperatureImg.draw();
       	 temperatureImg.display(temperatureDisplay);
       }

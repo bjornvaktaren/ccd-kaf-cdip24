@@ -48,27 +48,27 @@ fpga::DataPacket Camera::decodePacket(
    fpga::DataPacket dataPacket;
    if ( byte1 == fpga::data_topic::mcp ) {
       dataPacket.topic = fpga::DataTopic::mcp;
-      std::cout << "mcp\n";
+      // std::cout << "mcp\n";
    }
    else if ( byte1 == fpga::data_topic::adconf ) {
       dataPacket.topic = fpga::DataTopic::adconf;
-      std::cout << "adconf\n";
+      // std::cout << "adconf\n";
    }
    else if ( byte1 == fpga::data_topic::pixel ) {
       dataPacket.topic = fpga::DataTopic::pixel;
-      std::cout << "pixel\n";
+      // std::cout << "pixel\n";
    }
    dataPacket.data =
       ( static_cast<uint16_t>(byte2) << 8 ) | static_cast<uint16_t>(byte3);
-   std::cout << std::bitset<16>(dataPacket.data) << '\n';
+   // std::cout << std::bitset<16>(dataPacket.data) << '\n';
    return dataPacket;
 }
 
 
 void Camera::decodeTemperatures(const fpga::DataPacket packet)
 {
-	m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
-		.setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
+   m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
+      .setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
 }
 
 
@@ -77,23 +77,23 @@ bool Camera::sampleTemperatures()
    m_ft.writeByte(fpga::command::toggle_mcp);
    // The FTDI latency timer is dominating the delay, so delay is not needed.
 
-	// Read back the result
+   // Read back the result
    const size_t nBytes = 9;
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
 
-   std::cout << "INFO: Received ";
-   for ( int i = 0; i < nBytes; ++i ) {
-      std::cout << ' ' << std::bitset<8>(buffer[i]);
+   // std::cout << "INFO: Received ";
+   // for ( int i = 0; i < nBytes; ++i ) {
+   //    std::cout << ' ' << std::bitset<8>(buffer[i]);
+   // }
+   // std::cout << '\n';
+
+   // Decode the recieved packets to temperature values
+   for ( int i = 0; i < 3; ++i ) {
+      auto pkt = this->decodePacket(buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
+      this->decodeTemperatures(pkt);
    }
-   std::cout << '\n';
-
-	// Decode the recieved packets to temperature values
-	for ( int i = 0; i < 3; ++i ) {
-		auto pkt = this->decodePacket(buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
-		this->decodeTemperatures(pkt);
-	}
-
+   
    return readBytes == nBytes;
 }
 
