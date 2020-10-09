@@ -16,7 +16,8 @@ module ft245
    tx_rdata,
    rx_wdata,
    rx_wfull,
-   rx_winc
+   rx_winc,
+   busy
    // state_out
    );
 
@@ -34,6 +35,7 @@ module ft245
    output reg [7:0] rx_wdata;
    input 	    rx_wfull;
    output reg 	    rx_winc;
+   output reg 	    busy;
  //   output wire [3:0] state_out;
  // = state;
 
@@ -62,16 +64,17 @@ module ft245
    always @(negedge ft_clkout)
      tx_rdata_int <= tx_rdata;
 
-   localparam state_idle          = 3'b000;
-   localparam state_read_wait_1   = 3'b001;
-   localparam state_read_wait_2   = 3'b010;
-   localparam state_read          = 3'b011;
-   localparam state_write_setup_1 = 3'b100;
-   localparam state_write_setup_2 = 3'b110;
-   localparam state_write         = 3'b111;
-   localparam state_write_finish  = 3'b101;
+   localparam state_idle          = 4'b0000; // transition to 0001 or 1000
+   localparam state_read_wait_1   = 4'b0001; //
+   localparam state_read_wait_2   = 4'b0011; //
+   localparam state_read          = 4'b0010; //
+   localparam state_read_finish   = 4'b0110; // transition to 0000
+   localparam state_write_setup_1 = 4'b1000; //
+   localparam state_write_setup_2 = 4'b1010; //
+   localparam state_write         = 4'b1011; //
+   localparam state_write_finish  = 4'b1001; // transition to 0000
    
-   reg [2:0] state = state_idle;
+   reg [3:0] state = state_idle;
    
    always @(posedge ft_clkout) begin
       state <= state;
@@ -111,7 +114,13 @@ module ft245
 	  state <= state_read;
 	
 	state_read:
-	  if ( ft_rxf_n == 1'b1 || rx_wfull == 1'b1 )
+	  state <= state_read_finish;
+	
+	state_read_finish:
+	//   if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 )
+	//     state <= state_read;
+	//   else
+	  // if ( ft_rxf_n == 1'b1 || rx_wfull == 1'b1 )
 	    state <= state_idle;
 	
       endcase // case (state)
@@ -128,29 +137,42 @@ module ft245
 
       tx_rinc   = 1'b0;
       rx_winc   = 1'b0;
+      busy      = 1'b0;
 
       if ( state == state_write_setup_1 ) begin
 	 tx_rinc = 1'b1; // tell tx fifo to increase read pointer
+	 busy    = 1'b1;
       end
       if ( state == state_write_setup_2 ) begin
 	 tx_rinc = 1'b1; // tell tx fifo to increase read pointer
+	 busy    = 1'b1;
       end
       if ( state == state_write ) begin
 	 ft_wr_n = 1'b0;
 	 tx_rinc = 1'b1; // tell tx fifo to increase read pointer
+	 busy    = 1'b1;
       end
       if ( state == state_write_finish ) begin
 	 ft_wr_n = 1'b0;
+	 busy    = 1'b1;
       end
       if ( state == state_read_wait_1 ) begin
+	 busy    = 1'b1;
       end
       if ( state == state_read_wait_2 ) begin
 	 ft_oe_n = 1'b0;
+	 busy    = 1'b1;
       end
       if ( state == state_read ) begin
 	 ft_oe_n = 1'b0;
    	 ft_rd_n = 1'b0;
+	 busy    = 1'b1;
    	 rx_winc = 1'b1; // tell rx fifo to increase write pointer
+      end
+      if ( state == state_read_finish ) begin
+	 // ft_oe_n = 1'b0;
+   	 // ft_rd_n = 1'b0;
+	 busy    = 1'b1;
       end
       
    end

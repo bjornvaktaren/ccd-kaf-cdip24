@@ -21,14 +21,13 @@ module ad9826_config
    output reg [15:0] ad_config_out;
    output reg 	     config_out_avail;
    input 	     config_out_recieved;
-   output reg 	     busy;
+   output wire 	     busy;
    output wire 	     ad_sclk;   // gated clock out
    output reg 	     ad_sload;
    inout 	     ad_sdata;
    input 	     ad_clk;    // clock in for ad9826
    input 	     toggle;
    
-   assign 	ad_sclk = ( ad_sload == 1'b0 ) ? ad_clk : 1'b0;
    reg		    io_out;
    wire		    io_in;
    reg		    oe;
@@ -48,7 +47,6 @@ module ad9826_config
    assign io_in = oe ? 1'bz : ad_sdata;
    `endif // !`ifdef SYNTHESIS
 
-   reg [4:0] state;
    localparam state_idle      = 5'b00000;
    localparam state_rw        = 5'b00001;
    localparam state_a2        = 5'b00011;
@@ -76,6 +74,8 @@ module ad9826_config
    localparam state_wd2       = 5'b10100;
    localparam state_wd1       = 5'b10101;
    localparam state_wd0       = 5'b10111;
+   
+   reg [4:0] state = state_idle;
    
    reg toggle_int = 1'b0;
    always @(posedge clk) begin
@@ -165,6 +165,9 @@ module ad9826_config
       endcase // case (state)
    end // always @ (negedge clk)
 
+   assign ad_sclk = ( state != state_idle ) ? ad_clk : 1'b0;
+   assign busy = ( state != state_idle || toggle_int == 1'b1 ) ? 1'b1 : 1'b0;
+   
    // State-dependent output
    always @* begin
       
@@ -172,17 +175,16 @@ module ad9826_config
       ad_sload = 1'b0;
       io_out = 1'b0;
       oe = 1'b0;
-      busy = 1'b1 || toggle_int;
       
       if ( state == state_idle ) begin
 	 ad_sload = 1'b1;
-	 busy     = 1'b0 || toggle_int;
       end
       
       if ( state == state_rw ) begin
 	 io_out = ad_config_in[15];
 	 oe = 1'b1;
       end
+      
       if ( state == state_a2 ) begin
 	 io_out = ad_config_in[14];
 	 oe = 1'b1;
@@ -195,12 +197,16 @@ module ad9826_config
 	 io_out = ad_config_in[12];
 	 oe = 1'b1;
       end
-      if ( state == state_dc1 ) 
-	io_out = ad_config_in[11];
-      if ( state == state_dc2 )
-	io_out = ad_config_in[10];
-      if ( state == state_dc3 )
-	io_out = ad_config_in[9];
+      
+      if ( state == state_dc1 ) begin
+	 io_out = ad_config_in[11];
+      end
+      if ( state == state_dc2 ) begin
+	 io_out = ad_config_in[10];
+      end
+      if ( state == state_dc3 ) begin
+	 io_out = ad_config_in[9];
+      end
       
       if ( state == state_wd8 ) begin
 	 io_out = ad_config_in[8];

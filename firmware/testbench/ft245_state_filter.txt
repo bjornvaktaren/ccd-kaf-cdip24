@@ -1,0 +1,10 @@
+# ft245 module state filter for GTKWave
+0 idle
+1 read_wait_1
+3 read_wait_2
+2 read
+6 read_finish
+8 write_setup_1
+A write_setup_2
+B write
+9 write_finish

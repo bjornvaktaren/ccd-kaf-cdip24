@@ -2,6 +2,7 @@ TOP=top
 PIN_DEF=ice40hx1k-evb.pcf
 DEVICE=hx1k
 TARGET_FREQ_MHz=100
+PRE_PACK_FILE=nextpnr_clock_constraints.py
 PACKAGE=vq100
 SIM_DIR=vcd
 INC_DIR=include
@@ -23,7 +24,7 @@ $(TOP)_tb.vcd: $(SIM_DIR)/$(TOP)_tb $(MODULES) | $(SIM_DIR)
 	yosys $(TOP).ys
 
 %.asc: %.json
-	nextpnr-ice40 --package $(PACKAGE) --$(DEVICE) --json $^ --pcf $(PIN_DEF) --asc $@ --freq $(TARGET_FREQ_MHz) --timing-allow-fail
+	nextpnr-ice40 --package $(PACKAGE) --$(DEVICE) --json $^ --pcf $(PIN_DEF) --asc $@ --freq $(TARGET_FREQ_MHz) --timing-allow-fail --pre-pack $(PRE_PACK_FILE)
 
 %.bin: %.asc
 	icepack $< $@

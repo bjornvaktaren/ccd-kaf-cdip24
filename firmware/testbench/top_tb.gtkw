@@ -1,0 +1,88 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Fri Oct  9 11:32:37 2020
+[*]
+[dumpfile] "/home/mikael/Documents/ccd-kaf-cdip24/firmware/vcd/top_tb.vcd"
+[dumpfile_mtime] "Fri Oct  9 11:28:59 2020"
+[dumpfile_size] 948212
+[savefile] "/home/mikael/Documents/ccd-kaf-cdip24/firmware/testbench/top_tb.gtkw"
+[timestart] 0
+[size] 1116 1039
+[pos] -1 -1
+*-20.000000 333000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top_tb.
+[treeopen] top_tb.dut.
+[treeopen] top_tb.dut.rx_fifo.
+[sst_width] 209
+[signals_width] 237
+[sst_expanded] 1
+[sst_vpaned_height] 304
+@22
+top_tb.dut.ft_bus[7:0]
+@28
+top_tb.dut.ft_clkout
+top_tb.dut.ft_oe_n
+top_tb.dut.ft_rd_n
+top_tb.dut.ft_rxf_n
+top_tb.dut.ft_siwu_n
+top_tb.dut.ft_txe_n
+top_tb.dut.ft_wr_n
+@2022
+^1 /home/mikael/Documents/ccd-kaf-cdip24/firmware/testbench/top_state_filter.txt
+top_tb.dut.state[3:0]
+@22
+top_tb.dut.rx_fifo_rdata[7:0]
+top_tb.dut.rx_cmd[7:0]
+top_tb.dut.rx_lsb[7:0]
+top_tb.dut.rx_msb[7:0]
+@28
+top_tb.dut.rx_fifo_rempty
+top_tb.dut.rx_fifo_rinc
+top_tb.dut.rx_fifo_rrst_n
+@22
+top_tb.dut.rx_fifo_wdata[7:0]
+@28
+top_tb.dut.rx_fifo_wfull
+top_tb.dut.rx_fifo_winc
+@22
+top_tb.dut.rx_fifo.rptr[8:0]
+@28
+top_tb.dut.rx_fifo_wrst_n
+top_tb.dut.ft245.busy
+@2022
+^2 /home/mikael/Documents/ccd-kaf-cdip24/firmware/testbench/ft245_state_filter.txt
+top_tb.dut.ft245.state[3:0]
+@22
+top_tb.dut.rx_fifo.fifomem.mem_x00[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x01[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x02[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x03[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x04[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x05[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x06[7:0]
+top_tb.dut.rx_fifo.fifomem.mem_x07[7:0]
+@28
+top_tb.dut.ad9826_config.ad_clk
+@22
+top_tb.dut.ad9826_config.ad_config_in[15:0]
+top_tb.dut.ad9826_config.ad_config_out[15:0]
+@28
+top_tb.dut.ad9826_config.ad_sclk
+top_tb.dut.ad9826_config.ad_sdata
+top_tb.dut.ad9826_config.ad_sload
+top_tb.dut.ad9826_config.busy
+top_tb.dut.ad9826_config.clk
+top_tb.dut.ad9826_config.config_out_avail
+top_tb.dut.ad9826_config.config_out_recieved
+top_tb.dut.ad9826_config.io_in
+top_tb.dut.ad9826_config.io_out
+top_tb.dut.ad9826_config.oe
+top_tb.dut.ad9826_config.rw
+@2029
+^3 /home/mikael/Documents/ccd-kaf-cdip24/firmware/testbench/ad9826_config_state_filter.txt
+top_tb.dut.ad9826_config.state[4:0]
+@28
+top_tb.dut.ad9826_config.toggle
+top_tb.dut.ad9826_config.toggle_int
+[pattern_trace] 1
+[pattern_trace] 0

@@ -104,6 +104,7 @@ module top
    wire rx_fifo_wfull;
    wire rx_fifo_winc;
    wire [3:0] ft_state_out;
+   wire       ft_busy;
 
    ft245 ft245 
      (
@@ -120,8 +121,8 @@ module top
       .tx_rdata(tx_fifo_rdata),
       .rx_wdata(rx_fifo_wdata),
       .rx_wfull(rx_fifo_wfull),
-      .rx_winc(rx_fifo_winc)// ,
-      // .state_out(ft_state_out)
+      .rx_winc(rx_fifo_winc),
+      .busy(ft_busy)
       );
 
    
@@ -197,14 +198,6 @@ module top
       .dout_avail(mcp_data_avail),   // data is available if this is high
       .dout_accept(mcp_data_accept)  // data has been accapted if this is high
       );
-   // sr_latch sr_mcp
-   //   (
-   //    .set(mcp_toggle),
-   //    .rst(mcp_busy),
-   //    .q(mcp_toggle_latch)
-   //    );
-   assign debug = {mcp_toggle, mcp_cs_n, mcp_data_avail, mcp_data_accept};
-   
    
 
    // CCD clocks and AD9826 sampling
@@ -333,15 +326,16 @@ module top
    localparam state_eval_cmd        = 4'b0010;
    localparam state_setup_msb       = 4'b0110;
    localparam state_get_msb         = 4'b0111;
-   localparam state_setup_lsb       = 4'b0101;
-   localparam state_get_lsb         = 4'b0100;
-   localparam state_toggle_mcp_1    = 4'b1100;
-   localparam state_toggle_mcp_2    = 4'b1101;
-   localparam state_wait_adconf     = 4'b1111;
-   localparam state_toggle_adconf_1 = 4'b1110;
-   localparam state_toggle_adconf_2 = 4'b1010;
-   localparam state_toggle_read_ccd = 4'b1011;
-   localparam state_set_register    = 4'b1001;
+   localparam state_wait_lsb        = 4'b0101;
+   localparam state_setup_lsb       = 4'b0100;
+   localparam state_get_lsb         = 4'b1100;
+   localparam state_toggle_mcp_1    = 4'b1101;
+   localparam state_toggle_mcp_2    = 4'b1111;
+   localparam state_wait_adconf     = 4'b1110;
+   localparam state_toggle_adconf_1 = 4'b1010;
+   localparam state_toggle_adconf_2 = 4'b1011;
+   localparam state_toggle_read_ccd = 4'b1001;
+   localparam state_set_register    = 4'b1000;
 
    reg [3:0] state = state_reset;
    reg 	     shutter_state = shutter_state_closed;
@@ -368,7 +362,7 @@ module top
 	state_idle: begin
 	   state <= state_idle;
 	   // wait for the rx fifo to have data
-	   if (rx_fifo_rempty == 1'b0) begin
+	   if (rx_fifo_rempty == 1'b0 && ft_busy == 1'b0) begin
 	      state <= state_get_cmd;
 	   end
 	end
@@ -396,7 +390,9 @@ module top
 	     shutter_state <= shutter_state_open;
 	   
 	   if (rx_cmd == cmd_set_register || rx_cmd == cmd_rw_adconf)
-	     if (rx_fifo_rempty == 1'b0)
+	     // wait for the rx fifo to have more data and make sure that the
+	     // ft245 interface is not busy fetching data.
+	     if (rx_fifo_rempty == 1'b0 && ft_busy == 1'b0)
 	       state <= state_setup_msb;
 	     else
 	       state <= state_eval_cmd;
@@ -416,7 +412,16 @@ module top
 	
 	state_get_msb: begin
 	   rx_msb <= rx_fifo_rdata;
-	   state  <= state_setup_lsb;
+	   state  <= state_wait_lsb;
+	end
+
+	state_wait_lsb: begin
+	   // wait for the rx fifo to have more data and make sure that the
+	   // ft245 interface is not busy fetching data.
+	   if (rx_fifo_rempty == 1'b0 && ft_busy == 1'b0)
+	     state <= state_setup_lsb;
+	   else
+	     state <= state_wait_lsb;
 	end
 	
 	state_setup_lsb: begin
@@ -531,5 +536,7 @@ module top
       end
    end
 
+   
+   assign debug = {ad_config_busy, ad_config_toggle, ad_sclk, ad_sload};
    
 endmodule // top

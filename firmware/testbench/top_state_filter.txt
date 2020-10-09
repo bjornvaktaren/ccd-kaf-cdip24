@@ -1,0 +1,17 @@
+# Top state signal filter for GTKWave
+0 reset          
+1 idle           
+3 get_cmd        
+2 eval_cmd       
+6 setup_msb      
+7 get_msb        
+5 wait_lsb       
+4 setup_lsb      
+C get_lsb        
+D toggle_mcp_1   
+F toggle_mcp_2   
+E wait_adconf    
+A toggle_adconf_1
+B toggle_adconf_2
+9 toggle_read_ccd
+8 set_register   
