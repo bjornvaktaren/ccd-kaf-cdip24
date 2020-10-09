@@ -11,6 +11,7 @@
 #include "Ft245.hpp"
 #include "Fpga.hpp"
 #include "Thermistor.hpp"
+#include "Verbosity.hpp"
 
 class Camera
 {
@@ -23,6 +24,7 @@ public:
    void connect();
    void disconnect();
 
+   bool getAD9826Config();
    bool sampleTemperatures();
    double getTemperature(const uint16_t thermistor);
    bool openShutter();
@@ -30,17 +32,18 @@ public:
    bool setCooling(const bool on=true);
    bool setPeltierPWM(const int peltier, const unsigned char pwmVal);
    bool setCCDReadoutMode(const unsigned char mode);
+   void setVerbosity(Verbosity v) { m_verbosity = v; };
 
-	// Image size in number of pixels
-	int getWidth() { return 2184; };
-	int getHeight() { return 1472; };
-
-	// Pixel size in micrometer
-	double getPixelWidth() { return 6.8; };
-	double getPixelHeight() { return 6.8; };
-
-	// ADC channels
-	int getADCResolution() { return 16; };
+   // Image size in number of pixels
+   int getWidth() { return 2184; };
+   int getHeight() { return 1472; };
+   
+   // Pixel size in micrometer
+   double getPixelWidth() { return 6.8; };
+   double getPixelHeight() { return 6.8; };
+   
+   // ADC channels
+   int getADCResolution() { return 16; };
 	
    void test();
    
@@ -52,19 +55,10 @@ private:
       const unsigned char byte3
       );
    void decodeTemperatures(const fpga::DataPacket);
-
-   enum class Verbosity {debug,warnings,info};
-   Verbosity m_verbosity = Verbosity::info;
+   
+   Verbosity m_verbosity;
    Ft245 m_ft;
-   std::map<uint16_t, Thermistor> m_thermistors =
-   {
-		{fpga::thermistor_id::ambient,
-		 Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)},
-		{fpga::thermistor_id::ccd,
-		 Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)},
-		{fpga::thermistor_id::tec,
-		 Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0)}
-	};
+   std::map<uint16_t, Thermistor> m_thermistors;
    
 };
 

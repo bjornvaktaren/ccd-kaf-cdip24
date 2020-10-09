@@ -8,10 +8,82 @@
 #include "Camera.hpp"
 #include "CImgPlot.hpp"
 
+bool checkArg(int argc, char* argv[], int &argi, const char* longOpt,
+	      const char* shortOpt, int nargs)
+{
+   if ( strcmp(argv[argi], longOpt) == 0 ||
+	strcmp(argv[argi], shortOpt) == 0 ) {
+      if ( argc == argi+nargs ) {
+ 	 std::cerr << "ERROR: " << argv[argi] << " takes exactly " << nargs
+		   << " argument(s)\n";
+	 exit(EXIT_FAILURE);
+      }
+      return true;
+   }
+   return false;
+}
+
+bool checkArg(int argc, char* argv[], int &argi, const char* longOpt,
+	      int nargs)
+{
+   if ( strcmp(argv[argi], longOpt) == 0 ) {
+      if ( argc == argi+nargs ) {
+ 	 std::cerr << "ERROR: " << argv[argi] << " takes exactly " << nargs
+		   << " argument(s)\n";
+	 exit(EXIT_FAILURE);
+      }
+      return true;
+   }
+   return false;
+}
+
+
 int main(int argc, char* argv[])
 {
+   Verbosity v = Verbosity::info;
+   // Read command line arguments
+   for ( int i = 1; i < argc; i++ ) {
+      // if ( checkArg(argc, argv, i, "--help", "-h", 0) ) {
+      // 	 help(argv[0]);
+      // 	 exit(EXIT_SUCCESS);
+      // }
+      if ( checkArg(argc, argv, i, "--debug", 0) ) {
+	 v = Verbosity::debug;
+      }
+      // else if ( checkArg(argc, argv, i, "--reset", 0) ) {
+      // 	 resetCamera = true;
+      // }
+      // else if ( checkArg(argc, argv, i, "--log", 0) ) {
+      // 	 logging = true;
+      // }
+      // else if ( checkArg(argc, argv, i, "--cool", 1) ) {
+      // 	 targetTemperature = atoi(argv[i+1]);
+      // 	 activateCooling = true;
+      // 	 ++i;
+      // }
+      // else if ( checkArg(argc, argv, i, "--output", "-o", 1) ) {
+      // 	 imageFileName = std::string(argv[i+1]);
+      // 	 ++i;
+      // }
+      // else if ( checkArg(argc, argv, i, "--monitor", 0) ) {
+      // 	 monitor = true;
+      // }
+      // else if ( checkArg(argc, argv, i, "--capture", 1) ) {
+      // 	 integrationTime
+      // 	    = std::chrono::milliseconds(
+      // 	       static_cast<unsigned long>(1e3*strtod(argv[i+1], NULL)));
+      // 	 capture = true;
+      // 	 ++i;
+      // }
+      else {
+	 std::cerr << "ERROR: Unrecognized option: " << argv[i] << '\n';
+	 exit(EXIT_FAILURE);
+      }  
+   }
+
    
    Camera camera;
+   camera.setVerbosity(v);
 
    try {
       camera.connect();
@@ -41,6 +113,7 @@ int main(int argc, char* argv[])
    std::string input;
    bool exit = false;
    bool shutterClosed = true;
+   camera.getAD9826Config();
 	
    int i = 0;
    while ( !temperatureDisplay.is_closed() ) {
@@ -90,7 +163,8 @@ int main(int argc, char* argv[])
       // if ( i == 7 ) i = 0;
       // else ++i;
       
-      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      // std::this_thread::sleep_for(std::chrono::microseconds(100));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
    }
    
    camera.disconnect();
