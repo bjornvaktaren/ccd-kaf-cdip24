@@ -3,6 +3,7 @@
 Camera::Camera() :
    m_verbosity { Verbosity::info },
    m_ft { },
+   m_ad { },
    m_thermistors {
       { fpga::thermistor_id::ambient,
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) },
@@ -22,7 +23,20 @@ void Camera::connect()
    }
    if ( ! m_ft.writeByte(fpga::command::reset) ) {
       throw std::runtime_error("Unable to reset camera");
-   }      
+   }
+
+   // Configure the AD9826
+   const size_t nBytes = 3;
+   const unsigned char writeBuffer[nBytes] = {
+      fpga::command::rw_adconf,
+      fpga::ad9826::cmd::write_config,
+      0b11011000, //4 V input, internal Vref, 1 Ch mode, CDS, 4V clamp
+   };
+   m_ft.write(writeBuffer, nBytes);
+   // Read back the result, same number of bytes. Discard with the result.
+   unsigned char buffer[nBytes] = {0};
+   int readBytes = m_ft.read(buffer, nBytes);
+
 }
 
 
@@ -32,22 +46,56 @@ void Camera::disconnect()
 }
 
 
-// void Camera::test()
-// {
-//    unsigned char writeBuffer[6];
-//    writeBuffer[0] = fpga::command::rw_adconf;
-//    writeBuffer[1] = fpga::ad9826_cmd::read_config;
-//    writeBuffer[2] = 0b00000000; // need to send a dummy byte
-//    m_ft.write(writeBuffer, 3);
-
-//    unsigned char readBuffer[3] = {0};
-//    m_ft.read(readBuffer, 3);
+bool Camera::setGain(const unsigned char gain)
+{
+   if ( gain > 63 ) {
+      std::cout << "Gain can't be larger than 63. Ignoring.\n";
+      return false;
+   }
    
-//    for ( int i = 0; i < 3; ++i ) {
-//       std::cout << ' ' << std::bitset<8>(readBuffer[i]);
-//    }
-//    std::cout << '\n';
-// }
+   // Configure the AD9826
+   const size_t nBytes = 3;
+   const unsigned char writeBuffer[nBytes] = {
+      fpga::command::rw_adconf,
+      fpga::ad9826::cmd::write_gain,
+      gain,
+   };
+   bool ok = m_ft.write(writeBuffer, nBytes);
+   // Read back the result, same number of bytes. Discard with the result.
+   unsigned char buffer[nBytes] = {0};
+   int readBytes = m_ft.read(buffer, nBytes);
+
+   return ok;
+}
+
+
+bool Camera::setOffset(const unsigned char offset, const bool negative)
+{
+   if ( offset > 63 ) {
+      std::cout << "Offset can't be larger than 63. Ignoring.\n";
+      return false;
+   }
+
+   // If negative, the LSB of the command is set to 1.
+   unsigned char write_cmd = fpga::ad9826::cmd::write_offset;
+   if ( negative ) write_cmd |= 0b00000001;
+   std::cout << std::bitset<8>(write_cmd) << '\n';
+   
+   // Configure the AD9826
+   const size_t nBytes = 3;
+   const unsigned char writeBuffer[nBytes] = {
+      fpga::command::rw_adconf,
+      write_cmd,
+      offset,
+   };
+   bool ok = m_ft.write(writeBuffer, nBytes);
+   // Read back the result, same number of bytes. Discard with the result.
+   unsigned char buffer[nBytes] = {0};
+   int readBytes = m_ft.read(buffer, nBytes);
+
+   return ok;
+}
+
 
 fpga::DataPacket Camera::decodePacket(
    const unsigned char byte1,
@@ -91,22 +139,59 @@ void Camera::decodeTemperatures(const fpga::DataPacket packet)
 }
 
 
+void Camera::decodeAD9826ConfigPacket(const fpga::DataPacket packet)
+{
+   
+   const uint16_t address = packet.data & fpga::ad9826::reg::addr_mask;
+   const uint16_t data = packet.data & fpga::ad9826::reg::data_mask;
+   const std::bitset<16> bits(data);
+   
+   if ( address == fpga::ad9826::reg::config ) {
+      m_ad.inputRange   = bits.test(7) ? "4V" : "2V";
+      m_ad.internalVRef = bits.test(6);
+      m_ad.threeChMode  = bits.test(5);
+      m_ad.cdsMode      = bits.test(4);
+      m_ad.inputClamp   = bits.test(3) ? "4V" : "3V";
+      m_ad.powerDown    = bits.test(2);
+   }
+   else if ( address == fpga::ad9826::reg::muxconfig ) {
+      m_ad.muxOrder    = bits.test(7) ? "RGB" : "BGR";
+      m_ad.redSelect   = bits.test(6);
+      m_ad.greenSelect = bits.test(5);
+      m_ad.blueSelect  = bits.test(4);
+   }
+   else if ( address == fpga::ad9826::reg::gain ) {
+      m_ad.gainInteger = data;
+      m_ad.gainVolt    = 6.0/(1.0 + 5.0*(63 - static_cast<double>(data))/63.0);
+   }
+   else if ( address == fpga::ad9826::reg::offset ) {
+      m_ad.offsetInteger   = data;
+      m_ad.offsetMilliVolt = 1.17647058823529411765
+	 * static_cast<double>(data & 0x00FF); // Just the 8 LSBs
+      if ( bits.test(8) ) m_ad.offsetMilliVolt = -1.0 * m_ad.offsetMilliVolt;
+   }
+   else if ( m_verbosity == Verbosity::debug ) {
+      std::cout << "Unknown AD9826 register\n";
+   }
+}
+
+
 bool Camera::getAD9826Config()
 {
    //
    const size_t nBytes = 12;
    const unsigned char writeBuffer[nBytes] = {
       fpga::command::rw_adconf,
-      fpga::ad9826_cmd::read_config,
+      fpga::ad9826::cmd::read_config,
       0x00,
       fpga::command::rw_adconf,
-      fpga::ad9826_cmd::read_mux_config,
+      fpga::ad9826::cmd::read_mux_config,
       0x00,
       fpga::command::rw_adconf,
-      fpga::ad9826_cmd::read_gain,
+      fpga::ad9826::cmd::read_gain,
       0x00,
       fpga::command::rw_adconf,
-      fpga::ad9826_cmd::read_offset,
+      fpga::ad9826::cmd::read_offset,
       0x00
    };
    m_ft.write(writeBuffer, nBytes);
@@ -114,10 +199,15 @@ bool Camera::getAD9826Config()
    // Read back the result, same number of bytes
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
-   auto pktConfig = this->decodePacket(buffer[0], buffer[1], buffer[2]);
-   auto pktMux    = this->decodePacket(buffer[3], buffer[4], buffer[5]);
-   auto pktGain   = this->decodePacket(buffer[6], buffer[7], buffer[8]);
-   auto pktOffset = this->decodePacket(buffer[9], buffer[10], buffer[11]);
+
+   // Decode the recieved data
+   for ( int i = 0; i < 4; ++i ) {
+      auto pkt = this->decodePacket(buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
+      this->decodeAD9826ConfigPacket(pkt);
+   }
+
+   m_ad.print();
+   
    return true;
 }
 

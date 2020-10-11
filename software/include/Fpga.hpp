@@ -31,19 +31,27 @@ namespace fpga {
    }
    
    // Named commands to read/write from/to the AD9826 configuration register 
-   namespace ad9826_cmd {
-      static constexpr unsigned char write_config     = 0b00000000;
-      static constexpr unsigned char read_config      = 0b10000000;
-      static constexpr unsigned char write_mux_config = 0b00010000;
-      static constexpr unsigned char read_mux_config  = 0b10010000;
-      // Red PGA gain register. We are not using the others.
-      static constexpr unsigned char write_gain       = 0b00100000;
-      static constexpr unsigned char read_gain        = 0b10100000;
-      // Red offset register. We are not using the others.
-      static constexpr unsigned char write_offet      = 0b01010000;
-      static constexpr unsigned char read_offset      = 0b11010000;
-      // The last bit is actually the most significant bit for the offset value
-      static constexpr unsigned char offset_msb       = 0b00000001;
+   namespace ad9826 {
+      namespace cmd {
+	 static constexpr unsigned char write_config     = 0b00000000;
+	 static constexpr unsigned char read_config      = 0b10000000;
+	 static constexpr unsigned char write_mux_config = 0b00010000;
+	 static constexpr unsigned char read_mux_config  = 0b10010000;
+	 // Red PGA gain register. We are not using the others.
+	 static constexpr unsigned char write_gain       = 0b00100000;
+	 static constexpr unsigned char read_gain        = 0b10100000;
+	 // Red offset register. We are not using the others.
+	 static constexpr unsigned char write_offset     = 0b01010000;
+	 static constexpr unsigned char read_offset      = 0b11010000;
+      }
+      namespace reg {
+	 static constexpr uint16_t data_mask = 0b0000000011111111;
+	 static constexpr uint16_t addr_mask = 0b0111000000000000;
+	 static constexpr uint16_t config    = 0b0000000000000000;
+	 static constexpr uint16_t muxconfig = 0b0001000000000000;
+	 static constexpr uint16_t gain      = 0b0010000000000000;
+	 static constexpr uint16_t offset    = 0b0101000000000000;
+      }
    }
 
    namespace data_topic {
@@ -62,9 +70,9 @@ namespace fpga {
    namespace thermistor_id {
       // Identifier for the thermistor, sent from the FPGA.
       // The 2 least significant bits are not used.
-      static constexpr uint16_t ambient   = 0b1000000000000000; // double-check
-      static constexpr uint16_t ccd       = 0b1001000000000000; // double-check
-      static constexpr uint16_t tec       = 0b1010000000000000; // double-check
+      static constexpr uint16_t ambient   = 0b1000000000000000;
+      static constexpr uint16_t ccd       = 0b1001000000000000;
+      static constexpr uint16_t tec       = 0b1010000000000000;
       static constexpr uint16_t bitmask   = 0b1111110000000000;
    }
 }

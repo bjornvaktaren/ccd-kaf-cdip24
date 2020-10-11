@@ -122,7 +122,7 @@ int Ft245::readByte(unsigned char &byte)
 }
 
 
-int Ft245::write(const unsigned char *buffer, const int nBytes)
+bool Ft245::write(const unsigned char *buffer, const int nBytes)
 {
    // // need to purge tx when writing for some etherial reason
    // if ( ftdi_usb_purge_tx_buffer(&m_ftdi) != 0) {

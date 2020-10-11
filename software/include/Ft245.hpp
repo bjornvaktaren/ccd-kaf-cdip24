@@ -24,7 +24,7 @@ public:
 
    int writeByte(const unsigned char &byte);
    int readByte(unsigned char &byte);
-   int write(const unsigned char *buffer, const int nBytes);
+   bool write(const unsigned char *buffer, const int nBytes);
    int read(unsigned char *buffer, const int nBytes);
    
 private:

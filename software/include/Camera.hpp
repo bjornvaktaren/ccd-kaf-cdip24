@@ -12,6 +12,7 @@
 #include "Fpga.hpp"
 #include "Thermistor.hpp"
 #include "Verbosity.hpp"
+#include "AD9826.hpp"
 
 class Camera
 {
@@ -24,6 +25,8 @@ public:
    void connect();
    void disconnect();
 
+   bool setGain(const unsigned char gain);
+   bool setOffset(const unsigned char offset, const bool negative = false);
    bool getAD9826Config();
    bool sampleTemperatures();
    double getTemperature(const uint16_t thermistor);
@@ -55,9 +58,11 @@ private:
       const unsigned char byte3
       );
    void decodeTemperatures(const fpga::DataPacket);
+   void decodeAD9826ConfigPacket(const fpga::DataPacket packet);
    
    Verbosity m_verbosity;
    Ft245 m_ft;
+   AD9826 m_ad;
    std::map<uint16_t, Thermistor> m_thermistors;
    
 };
