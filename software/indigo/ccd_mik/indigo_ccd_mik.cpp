@@ -90,10 +90,13 @@ typedef struct {
 } mik_private_data;
 
 
-// -------------------------------------------------------------------------------- INDIGO CCD device implementation
+// INDIGO CCD device implementation
 
-
-static indigo_result ccd_enumerate_properties(indigo_device *device, indigo_client *client, indigo_property *property);
+static indigo_result ccd_enumerate_properties(
+	indigo_device *device,
+	indigo_client *client,
+	indigo_property *property
+	);
 
 static indigo_result ccd_mik_attach(indigo_device *device) {
 	assert(device != NULL);
@@ -175,7 +178,7 @@ static void ccd_connect_callback(indigo_device *device) {
 		CCD_COOLER_ON_ITEM ->sw.value = false;
 		CCD_COOLER_OFF_ITEM->sw.value = true;
 	}
-	CCD_COOLER_POWER_PROPERTY->hidden = false;
+	CCD_COOLER_POWER_PROPERTY->hidden = true;
 				
 	indigo_ccd_change_property(device, NULL, CONNECTION_PROPERTY);
 }
@@ -227,7 +230,12 @@ indigo_result indigo_ccd_mik(
 	return INDIGO_OK;
 }
 
-static indigo_result ccd_change_property(indigo_device *device, indigo_client *client, indigo_property *property) {
+static indigo_result ccd_change_property(
+	indigo_device *device,
+	indigo_client *client,
+	indigo_property *property
+	)
+{
 	assert(device != NULL);
 	assert(DEVICE_CONTEXT != NULL);
 	assert(property != NULL);
@@ -250,7 +258,7 @@ static indigo_result ccd_change_property(indigo_device *device, indigo_client *c
 		indigo_property_copy_values(CCD_EXPOSURE_PROPERTY, property, false);
 		//cam.StartExposure() may take up to 10 secinds to return, so it should be aync
 		// indigo_set_timer(device, 0, ccd_exposure_callback, NULL);
-		cam.startExposure();
+		cam.startExposure(); // Should be quick
 		return INDIGO_OK;
 	}
 	// CCD_ABORT_EXPOSURE
@@ -263,13 +271,7 @@ static indigo_result ccd_change_property(indigo_device *device, indigo_client *c
 		
 		if ( CCD_EXPOSURE_PROPERTY->state == INDIGO_BUSY_STATE ) {
 			try {
-				bool canAbort = true;
-				// bool canAbort;
-				// cam.get_CanAbortExposure(&canAbort);
-				if ( canAbort ) {
-					indigo_cancel_timer(device, &PRIVATE_DATA->exposure_timer);
-					// cam.AbortExposure();
-				}
+				cam.stopExposure();
 			}
 			catch ( std::runtime_error err ) {
 				std::string text = err.what();
@@ -287,7 +289,7 @@ static indigo_result ccd_change_property(indigo_device *device, indigo_client *c
 		
 		if ( !IS_CONNECTED ) return INDIGO_OK;
 		try {
-			// cam.put_CoolerOn(CCD_COOLER_ON_ITEM->sw.value);
+			CCD_COOLER_ON_ITEM->sw.value = cam.getCoolerOn();
 			CCD_COOLER_PROPERTY->state = INDIGO_OK_STATE;
 			indigo_update_property(device, CCD_COOLER_PROPERTY, NULL);
 		}
@@ -303,13 +305,7 @@ static indigo_result ccd_change_property(indigo_device *device, indigo_client *c
 		indigo_property_copy_values(CCD_TEMPERATURE_PROPERTY, property, false);
 		if ( !IS_CONNECTED ) return INDIGO_OK;
 		try {
-			if ( CCD_COOLER_OFF_ITEM->sw.value ) {
-				// cam.put_CoolerOn(true);
-				CCD_COOLER_PROPERTY->state = INDIGO_OK_STATE;
-				indigo_set_switch(CCD_COOLER_PROPERTY, CCD_COOLER_ON_ITEM, true);
-				indigo_update_property(device, CCD_COOLER_PROPERTY, NULL);
-			}
-			// cam.put_SetCCDTemperature(CCD_TEMPERATURE_ITEM->number.value);
+			cam.setCCDTargetTemperature(CCD_TEMPERATURE_ITEM->number.value);
 			CCD_TEMPERATURE_PROPERTY->state = INDIGO_BUSY_STATE;
 			indigo_update_property(
 				device, CCD_TEMPERATURE_PROPERTY, "Target Temperature = %.2f",
@@ -330,17 +326,19 @@ static indigo_result ccd_change_property(indigo_device *device, indigo_client *c
 		
 		if ( !IS_CONNECTED ) return INDIGO_OK;
 		try {
-			int gain = (int)CCD_GAIN_ITEM->number.value;
-			cam.put_CameraGain((QSICamera::CameraGain)gain);
+			unsigned char gain = static_cast<unsigned char>(
+				CCD_GAIN_ITEM->number.value);
+			cam.setGain(gain);
 			CCD_GAIN_PROPERTY->state = INDIGO_OK_STATE;
 			indigo_update_property(device, CCD_GAIN_PROPERTY, "Gain = %d", gain);
-		} catch (std::runtime_error err) {
+		}
+		catch (std::runtime_error err) {
 			std::string text = err.what();
 			CCD_GAIN_PROPERTY->state = INDIGO_ALERT_STATE;
 			indigo_update_property(device, CCD_GAIN_PROPERTY, text.c_str());
 		}
 		return INDIGO_OK;
-	} else if (indigo_property_match(QSI_READOUT_SPEED_PROPERTY, property)) {
+	}
 	return indigo_ccd_change_property(device, client, property);
 }
 

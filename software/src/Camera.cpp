@@ -11,7 +11,8 @@ Camera::Camera() :
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) },
       { fpga::thermistor_id::tec,
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
-   }
+   },
+	m_ccdTargetTemperature { 20.0 }
 {
 }
 
@@ -94,6 +95,19 @@ bool Camera::setOffset(const unsigned char offset, const bool negative)
    int readBytes = m_ft.read(buffer, nBytes);
 
    return ok;
+}
+
+
+void Camera::startExposure()
+{
+	// this->flushSensor(); // need to implement
+	this->openShutter();
+}
+
+
+void Camera::stopExposure()
+{
+	this->closeShutter();
 }
 
 
