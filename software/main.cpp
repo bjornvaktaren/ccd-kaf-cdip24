@@ -41,6 +41,7 @@ bool checkArg(int argc, char* argv[], int &argi, const char* longOpt,
 int main(int argc, char* argv[])
 {
    Verbosity v = Verbosity::info;
+	bool plot = false;
    // Read command line arguments
    for ( int i = 1; i < argc; i++ ) {
       // if ( checkArg(argc, argv, i, "--help", "-h", 0) ) {
@@ -48,7 +49,7 @@ int main(int argc, char* argv[])
       // 	 exit(EXIT_SUCCESS);
       // }
       if ( checkArg(argc, argv, i, "--debug", 0) ) {
-	 v = Verbosity::debug;
+			v = Verbosity::debug;
       }
       // else if ( checkArg(argc, argv, i, "--reset", 0) ) {
       // 	 resetCamera = true;
@@ -65,9 +66,9 @@ int main(int argc, char* argv[])
       // 	 imageFileName = std::string(argv[i+1]);
       // 	 ++i;
       // }
-      // else if ( checkArg(argc, argv, i, "--monitor", 0) ) {
-      // 	 monitor = true;
-      // }
+      else if ( checkArg(argc, argv, i, "--plot", 0) ) {
+      	 plot = true;
+      }
       // else if ( checkArg(argc, argv, i, "--capture", 1) ) {
       // 	 integrationTime
       // 	    = std::chrono::milliseconds(
@@ -123,56 +124,56 @@ int main(int argc, char* argv[])
    
    camera.getAD9826Config();
    // int i = 0;
-   // while ( !temperatureDisplay.is_closed() ) {
-   //    std::chrono::system_clock::time_point now
-   // 	 = std::chrono::system_clock::now();
-   //    auto msec
-   // 	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
+   while ( plot && !temperatureDisplay.is_closed() ) {
+      std::chrono::system_clock::time_point now
+   	 = std::chrono::system_clock::now();
+      auto msec
+   	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
 
-   //    // camera.test();
-   //    camera.sampleTemperatures();
+      // camera.test();
+      camera.sampleTemperatures();
 
-   //    timeAmbient.push_back(msec.count()/1000.0);
-   //    timeCCD.push_back(msec.count()/1000.0);
-   //    timeTEC.push_back(msec.count()/1000.0);
-   //    double ambTemp = camera.getTemperature(fpga::thermistor_id::ambient);
-   //    double ccdTemp = camera.getTemperature(fpga::thermistor_id::ccd);
-   //    double tecTemp = camera.getTemperature(fpga::thermistor_id::tec);
-   //    temperatureAmbient.push_back(ambTemp);
-   //    temperatureCCD.push_back(ccdTemp);
-   //    temperatureTEC.push_back(tecTemp);
+      timeAmbient.push_back(msec.count()/1000.0);
+      timeCCD.push_back(msec.count()/1000.0);
+      timeTEC.push_back(msec.count()/1000.0);
+      double ambTemp = camera.getTemperature(fpga::thermistor_id::ambient);
+      double ccdTemp = camera.getTemperature(fpga::thermistor_id::ccd);
+      double tecTemp = camera.getTemperature(fpga::thermistor_id::tec);
+      temperatureAmbient.push_back(ambTemp);
+      temperatureCCD.push_back(ccdTemp);
+      temperatureTEC.push_back(tecTemp);
 
-   //    if ( temperatureAmbient.size() > 2 &&
-   //    	   temperatureCCD.size()     > 2 &&
-   //    	   timeAmbient.size()        > 2 &&
-   //    	   timeCCD.size()            > 2 &&
-   //    	   timeTEC.size()            > 2 
-   // 	 ) {
-   //    	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
-   //    	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
-   //    	 temperatureImg.line(3, timeTEC, temperatureTEC, "l");
-   //    	 temperatureImg.draw();
-   //    	 temperatureImg.display(temperatureDisplay);
-   //    }
+      if ( temperatureAmbient.size() > 2 &&
+      	   temperatureCCD.size()     > 2 &&
+      	   timeAmbient.size()        > 2 &&
+      	   timeCCD.size()            > 2 &&
+      	   timeTEC.size()            > 2 
+   	 ) {
+      	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
+      	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
+      	 temperatureImg.line(3, timeTEC, temperatureTEC, "l");
+      	 temperatureImg.draw();
+      	 temperatureImg.display(temperatureDisplay);
+      }
 
-   //    // if ( shutterClosed ) {
-   //    // 	 camera.openShutter();
-   //    // 	 shutterClosed = false;
-   //    // }
-   //    // else {
-   //    // 	 camera.closeShutter();
-   //    // 	 shutterClosed = true;
-   //    // }
+      // if ( shutterClosed ) {
+      // 	 camera.openShutter();
+      // 	 shutterClosed = false;
+      // }
+      // else {
+      // 	 camera.closeShutter();
+      // 	 shutterClosed = true;
+      // }
       
-   //    // unsigned char duty = 1 << i;
-   //    // std::cout << static_cast<int>(duty) << '\n';
-   //    // camera.setPeltierPWM(1, duty);
-   //    // if ( i == 7 ) i = 0;
-   //    // else ++i;
+      // unsigned char duty = 1 << i;
+      // std::cout << static_cast<int>(duty) << '\n';
+      // camera.setPeltierPWM(1, duty);
+      // if ( i == 7 ) i = 0;
+      // else ++i;
       
-   //    // std::this_thread::sleep_for(std::chrono::microseconds(100));
-   //    std::this_thread::sleep_for(std::chrono::seconds(1));
-   // }
+      // std::this_thread::sleep_for(std::chrono::microseconds(100));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+   }
    
    camera.disconnect();
 

@@ -21,6 +21,7 @@ add_library(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Thermistor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CImgPlot.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorWheel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/PID.cpp
   )
 set_property(
   TARGET ccd_kaf_cdip24
@@ -48,6 +49,9 @@ target_link_libraries(
 add_executable(ccd_kaf_cdip24_main main.cpp)
 target_link_libraries(ccd_kaf_cdip24_main ccd_kaf_cdip24)
 
+# Test executables
+add_executable(test_pid ${CMAKE_CURRENT_SOURCE_DIR}/tests/pid.cpp)
+target_link_libraries(test_pid ccd_kaf_cdip24)
 
 # Debian package
 set(CPACK_GENERATOR DEB)
