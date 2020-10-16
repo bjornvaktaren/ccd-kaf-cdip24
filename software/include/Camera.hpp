@@ -13,6 +13,7 @@
 #include "Thermistor.hpp"
 #include "Verbosity.hpp"
 #include "AD9826.hpp"
+#include "PID.hpp"
 
 class Camera
 {
@@ -73,6 +74,7 @@ private:
    AD9826 m_ad;
    std::map<uint16_t, Thermistor> m_thermistors;
 	double m_ccdTargetTemperature;
+	// PID m_pid;
    
 };
 

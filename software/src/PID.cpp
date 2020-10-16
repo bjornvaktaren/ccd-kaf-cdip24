@@ -16,22 +16,13 @@ PID::PID(
 	m_init      {false},
 	m_prevTime  {},
 	m_setPoint  {0.0},
-	m_integral  {0.0}
+	m_integral  {0.0},
+	m_prevError {0.0},
+	m_verbosity {Verbosity::error}
 {
 	if (m_min > m_max) {
 		throw std::runtime_error("min must be lower than max");
 	}
-}
-
-
-void PID::init(
-	const double setPoint,
-	const std::chrono::steady_clock::time_point processTime
-	)
-{
-	m_setPoint = setPoint;
-	m_prevTime = processTime;
-	m_init = true;
 }
 
 
@@ -40,12 +31,9 @@ double PID::calculate(
 	const double processValue
 	)
 {
-	if ( ! m_init ) throw std::runtime_error("PID not initialized");
-
 	// Calculate time difference in seconds
 	double dt = std::chrono::duration_cast<std::chrono::duration<double>>
 		(processTime - m_prevTime).count();
-	if ( dt < 0.0 ) throw std::runtime_error("PID called with negative time");
 	
 	// Calculate error
 	double error = std::abs(m_setPoint - processValue);
@@ -53,13 +41,25 @@ double PID::calculate(
 	// Proportional term
 	double p = m_kp * error;
 	
-	// Integral term
-	m_integral += error * dt;
-	double i = m_ki * m_integral;
-
-	// Derivative term
-	double derivative = (error - m_prevError) / dt;
-	double d = m_kd * derivative;
+	// Integral and derivative term
+	// If it is the first time calling calcluate, set d and i to 0.
+	double d = 0.0;
+	double i = 0.0;
+	
+	if ( m_init ) {
+		
+		// integral
+		m_integral += error * dt;
+		i = m_ki * m_integral;
+		
+		// derivative
+		double derivative = (error - m_prevError) / dt;
+		d = m_kd * derivative;
+		
+	}
+	else {
+		m_init = true;
+	}
 
 	// Calculate total output
 	double output = p + i + d;
@@ -71,14 +71,18 @@ double PID::calculate(
 	else if ( output < m_min ) {
 		output = m_min;
 	}
-	
-	std::cout << "p = " << p
-				 << ", i = " << i
-				 << ", d = " << d
-				 << ", error = " << error
-				 << ", dt = " << dt
-				 << ", output = " << output
-				 << '\n';
+
+	if ( m_verbosity == Verbosity::debug ) {
+		std::cout << "pv = " << processValue
+					 << ", set = " << m_setPoint
+					 << ", p = " << p
+					 << ", i = " << i
+					 << ", d = " << d
+					 << ", error = " << error
+					 << ", dt = " << dt
+					 << ", output = " << output
+					 << '\n';
+	}
 
 	// Save current calues as previous values
 	m_prevError = error;

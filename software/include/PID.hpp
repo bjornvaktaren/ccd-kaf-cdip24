@@ -4,23 +4,23 @@
 #include <chrono>
 #include <stdexcept>
 
+#include "Verbosity.hpp"
+
 class PID
 {
 
 public:
 	PID(
-		const double min,
-		const double max,
-		const double Kp,
-		const double Ki,
-		const double Kd
+		const double min, // Output minimum limit
+		const double max, // Output maximum limit
+		const double Kp,  // Proportional term
+		const double Ki,  // Integral term
+		const double Kd   // Derivative term
 		);
 	~PID(){};
 
-	void init(
-		const double setPoint,
-		const std::chrono::steady_clock::time_point processTime
-		);
+	void setTarget(const double setPoint) { m_setPoint = setPoint; };
+	void setVerbosity(const Verbosity v) { m_verbosity = v; };
 	
 	double calculate(
 		const std::chrono::steady_clock::time_point processTime,
@@ -39,6 +39,7 @@ private:
 	double m_setPoint;
 	double m_integral;
 	double m_prevError;
+	Verbosity m_verbosity;
 
 };
 
