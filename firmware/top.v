@@ -314,24 +314,25 @@ module top
    localparam shutter_state_closed = 1'b1; // close shutter
 
    // Main state machine
-   localparam state_reset           = 4'b0000;
-   localparam state_idle            = 4'b0001;
-   localparam state_get_cmd         = 4'b0011;
-   localparam state_eval_cmd        = 4'b0010;
-   localparam state_setup_msb       = 4'b0110;
-   localparam state_get_msb         = 4'b0111;
-   localparam state_wait_lsb        = 4'b0101;
-   localparam state_setup_lsb       = 4'b0100;
-   localparam state_get_lsb         = 4'b1100;
-   localparam state_toggle_mcp_1    = 4'b1101;
-   localparam state_toggle_mcp_2    = 4'b1111;
-   localparam state_wait_adconf     = 4'b1110;
-   localparam state_toggle_adconf_1 = 4'b1010;
-   localparam state_toggle_adconf_2 = 4'b1011;
-   localparam state_toggle_read_ccd = 4'b1001;
-   localparam state_set_register    = 4'b1000;
+   localparam state_reset             = 5'b00000;
+   localparam state_idle              = 5'b00001;
+   localparam state_get_cmd           = 5'b00011;
+   localparam state_eval_cmd          = 5'b00010;
+   localparam state_setup_msb         = 5'b00110;
+   localparam state_get_msb           = 5'b00111;
+   localparam state_wait_lsb          = 5'b00101;
+   localparam state_setup_lsb         = 5'b00100;
+   localparam state_get_lsb           = 5'b01100;
+   localparam state_toggle_mcp_1      = 5'b01101;
+   localparam state_toggle_mcp_2      = 5'b01111;
+   localparam state_wait_adconf       = 5'b01110;
+   localparam state_toggle_adconf_1   = 5'b01010;
+   localparam state_toggle_adconf_2   = 5'b01011;
+   localparam state_toggle_read_ccd_1 = 5'b01001;
+   localparam state_toggle_read_ccd_2 = 5'b01000;
+   localparam state_set_register      = 5'b11000;
 
-   reg [3:0] state = state_reset;
+   reg [4:0] state = state_reset;
    reg 	     shutter_state = shutter_state_closed;
    reg [7:0] rx_cmd = 8'h00;
    reg [7:0] rx_msb = 8'h00;
@@ -376,7 +377,7 @@ module top
 	     state <= state_toggle_mcp_1;
 	   
 	   if (rx_cmd == cmd_toggle_read_ccd)
-	     state <= state_toggle_read_ccd;
+	     state <= state_toggle_read_ccd_1;
 	   
 	   if (rx_cmd == cmd_close_shutter)
 	     shutter_state <= shutter_state_closed;
@@ -451,7 +452,9 @@ module top
 	state_toggle_adconf_2:
 	  state <= state_idle;
 	
-	state_toggle_read_ccd:
+	state_toggle_read_ccd_1:
+	  state <= state_toggle_read_ccd_2;
+	state_toggle_read_ccd_2:
 	  state <= state_idle;
 	
 	state_set_register: begin
@@ -513,7 +516,10 @@ module top
       if ( state == state_toggle_adconf_2 ) begin
 	 ad_config_toggle = 1'b1;
       end
-      if ( state == state_toggle_read_ccd ) begin
+      if ( state == state_toggle_read_ccd_1 ) begin
+	 ccd_readout_toggle = 1'b1;
+      end
+      if ( state == state_toggle_read_ccd_2 ) begin
 	 ccd_readout_toggle = 1'b1;
       end
       if ( state == state_set_register ) begin
