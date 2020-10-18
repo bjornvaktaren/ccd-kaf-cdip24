@@ -2,6 +2,7 @@
 
 Camera::Camera() :
    m_verbosity { Verbosity::info },
+	m_coolerOn  { false },
    m_ft { },
    m_ad { },
    m_thermistors {
@@ -12,7 +13,8 @@ Camera::Camera() :
       { fpga::thermistor_id::tec,
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
    },
-	m_ccdTargetTemperature { 20.0 }
+	m_ccdTargetTemperature { 20.0 },
+	m_pid {0.0, 127.0, 1.0, 0.1, 0.0} // PID regulator: min, max, kp, ki, kd
 {
 }
 
@@ -148,8 +150,14 @@ fpga::DataPacket Camera::decodePacket(
 
 void Camera::decodeTemperatures(const fpga::DataPacket packet)
 {
-   m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
-      .setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
+	try {
+		m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
+			.setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
+	}
+	catch ( const std::out_of_range& oor ) {
+		std::cerr << "ERROR: Unable to decode thermistor ID. Exception: "
+					 << oor.what() << '\n';
+	}
 }
 
 
@@ -231,6 +239,9 @@ bool Camera::sampleTemperatures()
    m_ft.writeByte(fpga::command::toggle_mcp);
    // The FTDI latency timer is dominating the delay, so delay is not needed.
 
+   // Store timepoint to be used to update PID regulator
+   auto now = std::chrono::steady_clock::now();
+
    // Read back the result
    const size_t nBytes = 9;
    unsigned char buffer[nBytes] = {0};
@@ -258,7 +269,18 @@ bool Camera::sampleTemperatures()
 		   << " Expected topic 'mcp', got topic '" << topic << "'\n";
       }
    }
-   
+
+   // Update PID regulator if cooling is on
+   if ( m_coolerOn ) {
+      unsigned char pwm = static_cast<unsigned char>(
+	 m_pid.calculate(
+	    now, this->m_thermistors.at(fpga::thermistor_id::ccd).getCelsius()
+	    )
+	 );
+      this->setPeltierPWM(1, pwm);
+      this->setPeltierPWM(2, pwm);
+   }
+
    return readBytes == nBytes;
 }
 
@@ -297,7 +319,8 @@ bool Camera::setPeltierPWM(const int peltier, const unsigned char pwmVal)
       return false;
    }
    writeBuffer[2] = pwmVal;
-   
+
+   // Just write: we are not expecting anything back from the FPGA.
    return m_ft.write(writeBuffer, 3);
 }
 
@@ -310,4 +333,22 @@ bool Camera::setCCDReadoutMode(const unsigned char mode)
    writeBuffer[2] = mode;
 	
    return m_ft.write(writeBuffer, 3);
+}
+
+
+void Camera::setVerbosity(Verbosity v)
+{
+	m_verbosity = v;
+	m_pid.setVerbosity(v);
+}
+
+
+void Camera::setCoolerOn(const bool on)
+{
+   // Turn off cooling by setting the PWM outputs to 0
+   if ( !on ) {
+      this->setPeltierPWM(1, 0);
+      this->setPeltierPWM(2, 0);
+   }
+   m_coolerOn = on;
 }
