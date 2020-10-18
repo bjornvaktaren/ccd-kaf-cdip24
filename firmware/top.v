@@ -188,7 +188,7 @@ module top
    mcp3008_interface mcp3008
      (
       .clk(clk),                     // system clock
-      .sample(mcp_toggle),     // sample on posedge
+      .sample(mcp_toggle),           // sample on posedge
       .dclk(mcp_dclk_internal),      // mcp3008 data clock
       .dout(mcp_dout),               // mcp3008 data out
       .din(mcp_din),                 // mcp3008 data in
@@ -203,14 +203,14 @@ module top
    // CCD clocks and AD9826 sampling
 
    reg 	      ccd_readout_toggle;
-   wire	      ccd_readout_toggle_latch;
    wire       ccd_readout_busy;
    wire	      ccd_readout_data_accept;
-   wire	      ccd_readout_data_avail;
+   wire       ccd_readout_data_avail;
    wire [15:0] ccd_readout_data;
    
    ccd_readout ccd_readout
      (
+      .clk(clk),
       .ad_cdsclk1(ad_cdsclk1),
       .ad_cdsclk2(ad_cdsclk2),
       .ad_adclk(ad_adclk),
@@ -221,19 +221,13 @@ module top
       .kaf_v1(kaf_v1),
       .kaf_v2(kaf_v2),
       .kaf_amp(kaf_amp),
-      .counter(clk_div[15:0]),
+      .module_clk(clk_div[1]),
       .busy(ccd_readout_busy),
-      .toggle(ccd_readout_toggle_latch),
+      .toggle(ccd_readout_toggle),
       .mode(ccd_readout_mode),
       .data_out(ccd_readout_data),
       .data_avail(ccd_readout_data_avail),
       .data_accept(ccd_readout_data_accept)
-      );
-   sr_latch sr_ccd_readout
-     (
-      .set(ccd_readout_toggle),
-      .rst(ccd_readout_busy),
-      .q(ccd_readout_toggle_latch)
       );
 
    

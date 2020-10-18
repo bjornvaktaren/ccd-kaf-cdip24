@@ -121,15 +121,15 @@ module top_tb();
       $dumpfile("top_tb.vcd");
       $dumpvars;
 
-      #250 ft245_send(cmd_rw_adconf);
-      ft245_send(8'b00000000); // write to 000, "Configuration" register
-      // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
-      // no power-down, unused bit, 2 byte output mode
-      ft245_send(8'b11011000);
+      // #250 ft245_send(cmd_rw_adconf);
+      // ft245_send(8'b00000000); // write to 000, "Configuration" register
+      // // 4V input range, Internal Vref, 3CH mode off, CDS on, 4V input clamp,
+      // // no power-down, unused bit, 2 byte output mode
+      // ft245_send(8'b11011000);
 
-      #250 ft245_send(cmd_rw_adconf);
-      ft245_send(8'b10000000); // read from 000, "Configuration" register
-      ft245_send(8'b11111111);
+      // #250 ft245_send(cmd_rw_adconf);
+      // ft245_send(8'b10000000); // read from 000, "Configuration" register
+      // ft245_send(8'b11111111);
       
       // #250 ft245_send(cmd_rw_adconf);
       // ft245_send(8'b01000000); // write to 100, "Red Offset" register
@@ -157,11 +157,12 @@ module top_tb();
       // #50 ft245_send(cmd_open_shutter);
       // #50000 ft245_send(cmd_close_shutter);
       
-      // #250 ft245_send(cmd_set_register);
-      // ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
+      #250 ft245_send(cmd_set_register);
+      ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
+      ft245_send(8'b00000001); // flush sensor, i.e. no ADC conversion
       // ft245_send(8'b00000010); // read out with 1x1 binning
-      // #50 ft245_send(cmd_toggle_read_ccd);
-      // #50 ft_txe_n <= 0;
+      #50 ft245_send(cmd_toggle_read_ccd);
+      #50 ft_txe_n <= 0;
       
       #100000 $finish;
    end
