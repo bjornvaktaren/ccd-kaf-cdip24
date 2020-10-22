@@ -71,9 +71,9 @@ module ccd_readout
    reg		     adclk;
    reg 		     oeb_n;
    reg [3:0] 	     state = state_idle;
-   reg [11:0] 	     v_counter = 0;
-   reg [11:0] 	     h_counter = 0;
-   reg [7:0] 	     v_delay_counter = 0;
+   reg [11:0] 	     v_counter;
+   reg [11:0] 	     h_counter;
+   reg [7:0] 	     v_delay_counter;
 
    // Output to AD9826 is gated on the readout mode.
    assign ad_cdsclk1 = ( mode != ccd_mode_clean ) ? cdsclk1 : 1'b0;
@@ -216,25 +216,21 @@ module ccd_readout
 	 adclk  = 1;
 	 kaf_r  = 1;
 	 kaf_h1 = 1;
-	 if ( h_counter > 0 ) 
-	   data_avail = 1;
+	 data_avail = 1;
       end
       if ( state == state_h1 ) begin
 	 adclk  = 1;
 	 kaf_h1 = 1;
-	 if ( h_counter > 0 ) 
-	   data_avail = 1;
+	 data_avail = 1;
       end
       if ( state == state_h2 ) begin
 	 cdsclk1 = 1;
 	 kaf_h1  = 1;
-	 if ( h_counter > 0 ) 
-	   data_avail = 1;
+	 data_avail = 1;
       end
       if ( state == state_h3 ) begin
 	 kaf_h1 = 1;
-	 if ( h_counter > 0 ) 
-	   data_avail = 1;
+	 data_avail = 1;
       end
       if ( state == state_h4 ) begin
 	 kaf_h1 = 1;
