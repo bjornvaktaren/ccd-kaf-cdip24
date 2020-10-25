@@ -45,8 +45,8 @@ module ccd_readout
    // First four 16-bit values from the ADC are undefined, as well as the
    // h_regs - 4 last ADC values.
 `ifdef SYNTHESIS
-   localparam v_regs = 1472;  // number of vertical pixels in the ccd
-   localparam h_regs = 2184;  // number of horizontal pixels in the ccd
+   localparam v_regs = 1510;  // number of vertical pixels in the ccd
+   localparam h_regs = 2267;  // number of horizontal pixels in the ccd
 `else
    localparam v_regs = 5;  // number of vertical pixels in the testbench ccd
    localparam h_regs = 4;  // number of horizontal pixels in the testbench ccd
@@ -71,7 +71,7 @@ module ccd_readout
    reg		     adclk;
    reg 		     oeb_n;
    reg [3:0] 	     state = state_idle;
-   reg [11:0] 	     v_counter;
+   reg [10:0] 	     v_counter;
    reg [11:0] 	     h_counter;
    reg [7:0] 	     v_delay_counter;
 
