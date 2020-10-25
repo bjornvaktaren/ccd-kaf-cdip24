@@ -863,18 +863,6 @@ F 4 "25V, X7R" H 5500 7000 50  0001 C CNN "Type"
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:C C59
-U 1 1 5F090D69
-P 4500 6150
-F 0 "C59" H 4615 6196 50  0000 L CNN
-F 1 "5.6p" H 4615 6105 50  0000 L CNN
-F 2 "Capacitors_SMD:C_1206_HandSoldering" H 4538 6000 50  0001 C CNN
-F 3 "~" H 4500 6150 50  0001 C CNN
-F 4 "25V, X7R" H 4500 6150 50  0001 C CNN "Type"
-	1    4500 6150
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:C C63
 U 1 1 5F091A9C
 P 4700 5750
@@ -1350,5 +1338,17 @@ F 2 "TO_SOT_Packages_SMD:SOT-23" H 1700 4750 50  0001 C CNN
 F 3 "~" H 1500 4650 50  0001 C CNN
 	1    1500 4650
 	0    1    -1   0   
+$EndComp
+$Comp
+L Device:C C59
+U 1 1 5F090D69
+P 4500 6150
+F 0 "C59" H 4615 6196 50  0000 L CNN
+F 1 "populate? No. (5.6p)" H 4615 6105 50  0000 L CNN
+F 2 "Capacitors_SMD:C_1206_HandSoldering" H 4538 6000 50  0001 C CNN
+F 3 "~" H 4500 6150 50  0001 C CNN
+F 4 "25V, X7R" H 4500 6150 50  0001 C CNN "Type"
+	1    4500 6150
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC

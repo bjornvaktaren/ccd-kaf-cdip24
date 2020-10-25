@@ -213,17 +213,6 @@ Connection ~ 3350 1750
 Wire Wire Line
 	3000 1350 3000 1850
 Connection ~ 3000 1850
-$Comp
-L Device:C C4
-U 1 1 5E79EEFB
-P 2650 1200
-F 0 "C4" H 2535 1154 50  0000 R CNN
-F 1 "0" H 2535 1245 50  0000 R CNN
-F 2 "Capacitors_SMD:C_0603_HandSoldering" H 2688 1050 50  0001 C CNN
-F 3 "~" H 2650 1200 50  0001 C CNN
-	1    2650 1200
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	3000 1000 2650 1000
 Wire Wire Line
@@ -1907,4 +1896,15 @@ F 3 "" H 2950 2900 50  0001 C CNN
 $EndComp
 Wire Bus Line
 	1150 6500 1150 7300
+$Comp
+L Device:C C4
+U 1 1 5E79EEFB
+P 2650 1200
+F 0 "C4" H 2535 1154 50  0000 R CNN
+F 1 "0" H 2535 1245 50  0000 R CNN
+F 2 "Capacitors_SMD:C_0603_HandSoldering" H 2688 1050 50  0001 C CNN
+F 3 "~" H 2650 1200 50  0001 C CNN
+	1    2650 1200
+	-1   0    0    1   
+$EndComp
 $EndSCHEMATC
