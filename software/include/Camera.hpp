@@ -1,12 +1,15 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include <iostream>
-#include <stdexcept>
-#include <cmath>
 #include <bitset>
+#include <cmath>
+#include <iostream>
 #include <map>
+#include <stdexcept>
 #include <stdint.h>
+#include <vector>
+#include <thread>
+#include <chrono>
 
 #include "Ft245.hpp"
 #include "Fpga.hpp"
@@ -30,6 +33,7 @@ public:
    bool setOffset(const unsigned char offset, const bool negative = false);
    void startExposure();
    void stopExposure();
+   void flushSensor();
    bool getAD9826Config();
    bool sampleTemperatures();
    double getTemperature(const uint16_t thermistor);
@@ -43,10 +47,12 @@ public:
 
    bool getCoolerOn() { return m_coolerOn; };
    void setCoolerOn(const bool on=true);
+   
+   std::vector<uint16_t> getImageData() { return m_imageData; };
 
    // Image size in number of pixels
-   int getWidth() { return 2184; };
-   int getHeight() { return 1472; };
+   constexpr int getWidth() const { return 2267; };
+   constexpr int getHeight() const { return 1510; };
    
    // Pixel size in micrometer
    double getPixelWidth() { return 6.8; };
@@ -83,6 +89,7 @@ private:
    std::map<uint16_t, Thermistor> m_thermistors;
    double m_ccdTargetTemperature;
    PID m_pid;
+   std::vector<uint16_t> m_imageData;
    
 };
 

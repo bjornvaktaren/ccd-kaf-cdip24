@@ -2,7 +2,7 @@
 
 Camera::Camera() :
    m_verbosity { Verbosity::info },
-	m_coolerOn  { false },
+   m_coolerOn  { false },
    m_ft { },
    m_ad { },
    m_thermistors {
@@ -13,9 +13,11 @@ Camera::Camera() :
       { fpga::thermistor_id::tec,
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
    },
-	m_ccdTargetTemperature { 20.0 },
-	m_pid {0.0, 127.0, 1.0, 0.1, 0.0} // PID regulator: min, max, kp, ki, kd
+   m_ccdTargetTemperature { 20.0 },
+   m_pid {0.0, 127.0, 1.0, 0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
+   m_imageData {}
 {
+   m_imageData.resize(this->getHeight() * this->getWidth(), 0);
 }
 
 void Camera::connect()
@@ -92,7 +94,7 @@ bool Camera::setOffset(const unsigned char offset, const bool negative)
       offset,
    };
    bool ok = m_ft.write(writeBuffer, nBytes);
-   // Read back the result, same number of bytes. Discard with the result.
+   // Read back the result, same number of bytes. Discard the result.
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
 
@@ -102,14 +104,57 @@ bool Camera::setOffset(const unsigned char offset, const bool negative)
 
 void Camera::startExposure()
 {
-	// this->flushSensor(); // need to implement
-	this->openShutter();
+   this->flushSensor();
+   std::this_thread::sleep_for(std::chrono::seconds(5));
+   this->openShutter();
 }
 
 
 void Camera::stopExposure()
 {
-	this->closeShutter();
+   this->closeShutter();
+   const size_t nBytesWrite = 4;
+   const unsigned char writeBuffer[nBytesWrite] = {
+      fpga::command::set_register,
+      fpga::reg_addr::ccd_readout_mode,
+      fpga::ccd_readout_mode::bin1x1,
+      fpga::command::toggle_read_ccd
+   };
+   bool ok = m_ft.write(writeBuffer, nBytesWrite);
+   
+   // Get the image data
+   size_t bytesRead = 0;
+   const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
+   while ( bytesRead < bytesToRead ) {
+      size_t bytesLeft = bytesToRead - bytesRead;
+      size_t chunk = bytesLeft < 510 ? bytesLeft : 510;
+      std::cout << "Trying to read " << chunk << " bytes\n";
+      unsigned char buffer[chunk] = {0};
+      bytesRead += m_ft.read(buffer, chunk);
+      std::cout << "Read " << bytesRead << " bytes\n";
+      for ( size_t i = 0; i < chunk/3; ++i ) {
+	 auto pkt = this->decodePacket(
+	    buffer[3*i], buffer[3*i+1], buffer[3*i+2]
+	    );
+	 m_imageData[i] = pkt.data;
+      }
+   }
+   
+}
+
+
+void Camera::flushSensor()
+{
+   // Configure 
+   const size_t nBytes = 4;
+   const unsigned char writeBuffer[nBytes] = {
+      fpga::command::set_register,
+      fpga::reg_addr::ccd_readout_mode,
+      fpga::ccd_readout_mode::flush,
+      fpga::command::toggle_read_ccd
+   };
+   bool ok = m_ft.write(writeBuffer, nBytes);
+   
 }
 
 
@@ -150,14 +195,14 @@ fpga::DataPacket Camera::decodePacket(
 
 void Camera::decodeTemperatures(const fpga::DataPacket packet)
 {
-	try {
-		m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
-			.setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
-	}
-	catch ( const std::out_of_range& oor ) {
-		std::cerr << "ERROR: Unable to decode thermistor ID. Exception: "
-					 << oor.what() << '\n';
-	}
+   try {
+      m_thermistors.at(packet.data & fpga::thermistor_id::bitmask)
+	 .setMeasurement(packet.data & ~fpga::thermistor_id::bitmask);
+   }
+   catch ( const std::out_of_range& oor ) {
+      std::cerr << "ERROR: Unable to decode thermistor ID. Exception: "
+		<< oor.what() << '\n';
+   }
 }
 
 
