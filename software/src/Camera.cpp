@@ -104,14 +104,17 @@ bool Camera::setOffset(const unsigned char offset, const bool negative)
 
 void Camera::startExposure()
 {
+   std::cout << "Flushing\n";
    this->flushSensor();
    std::this_thread::sleep_for(std::chrono::seconds(5));
+   std::cout << "Open shutter\n";
    this->openShutter();
 }
 
 
 void Camera::stopExposure()
 {
+   std::cout << "Close shutter\n";
    this->closeShutter();
    const size_t nBytesWrite = 4;
    const unsigned char writeBuffer[nBytesWrite] = {
@@ -120,18 +123,23 @@ void Camera::stopExposure()
       fpga::ccd_readout_mode::bin1x1,
       fpga::command::toggle_read_ccd
    };
+   std::cout << "Initiating Readout\n";
    bool ok = m_ft.write(writeBuffer, nBytesWrite);
    
    // Get the image data
+   const size_t chunksize = 3;
    size_t bytesRead = 0;
    const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
    while ( bytesRead < bytesToRead ) {
       size_t bytesLeft = bytesToRead - bytesRead;
-      size_t chunk = bytesLeft < 510 ? bytesLeft : 510;
-      std::cout << "Trying to read " << chunk << " bytes\n";
+      size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
+      // std::cout << "Trying to read " << chunk << " bytes\n";
       unsigned char buffer[chunk] = {0};
       bytesRead += m_ft.read(buffer, chunk);
-      std::cout << "Read " << bytesRead << " bytes\n";
+      if ( bytesRead > 0 ) {
+	 std::cout << "Read " << bytesRead << " bytes out of " << bytesToRead
+		   << '\n';
+      }
       for ( size_t i = 0; i < chunk/3; ++i ) {
 	 auto pkt = this->decodePacket(
 	    buffer[3*i], buffer[3*i+1], buffer[3*i+2]
