@@ -62,7 +62,7 @@ module ccd_readout
    input [1:0] 	     mode; // idle, clean, readout, readout 2x2 binning
    input [7:0] 	     ad_data;
    output reg [15:0] data_out;
-   output reg 	     data_avail;
+   output wire 	     data_avail;
    input 	     data_accept;
 
    // Internal registers and signals
@@ -70,6 +70,7 @@ module ccd_readout
    reg 		     cdsclk2;
    reg		     adclk;
    reg 		     oeb_n;
+   reg               data_avail_int;
    reg [3:0] 	     state = state_idle;
    reg [10:0] 	     v_counter;
    reg [11:0] 	     h_counter;
@@ -80,6 +81,7 @@ module ccd_readout
    assign ad_cdsclk2 = ( mode != ccd_mode_clean ) ? cdsclk2 : 1'b0;
    assign ad_adclk   = ( mode != ccd_mode_clean ) ? adclk   : 1'b1;
    assign ad_oeb_n   = ( mode != ccd_mode_clean ) ? oeb_n   : 1'b1;
+   assign data_avail = ( mode != ccd_mode_clean ) ? data_avail_int : 1'b1;
 
    // Readout toggling 
    reg toggle_int = 1'b0;
@@ -101,6 +103,7 @@ module ccd_readout
 	  if ( toggle_int == 1'b1 ) begin
 	     v_counter <= 0;
     	     h_counter <= 0;
+	     v_delay_counter <= 0;
 	     data_out <= 16'h0000;
 	     if (mode == ccd_mode_idle)
 	       state <= state_idle;
@@ -206,7 +209,7 @@ module ccd_readout
       kaf_v1     = 0;
       kaf_v2     = 0;
       kaf_amp    = 0;
-      data_avail = 0;
+      data_avail_int = 0;
       
       if ( state == state_idle ) begin
 	 adclk = 1;
@@ -216,21 +219,21 @@ module ccd_readout
 	 adclk  = 1;
 	 kaf_r  = 1;
 	 kaf_h1 = 1;
-	 data_avail = 1;
+	 data_avail_int = 1;
       end
       if ( state == state_h1 ) begin
 	 adclk  = 1;
 	 kaf_h1 = 1;
-	 data_avail = 1;
+	 data_avail_int = 1;
       end
       if ( state == state_h2 ) begin
 	 cdsclk1 = 1;
 	 kaf_h1  = 1;
-	 data_avail = 1;
+	 data_avail_int = 1;
       end
       if ( state == state_h3 ) begin
 	 kaf_h1 = 1;
-	 data_avail = 1;
+	 data_avail_int = 1;
       end
       if ( state == state_h4 ) begin
 	 kaf_h1 = 1;
@@ -254,30 +257,25 @@ module ccd_readout
       if ( state == state_v0 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
-	 data_avail = 1;
       end
       if ( state == state_v1 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
 	 kaf_v2     = 1;
-	 data_avail = 1;
       end
       if ( state == state_v2 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
 	 kaf_v1     = 1;
-	 data_avail = 1;
       end
       if ( state == state_v3 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
 	 kaf_v2     = 1;
-	 data_avail = 1;
       end
       if ( state == state_v4 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
-	 data_avail = 1;
       end
       
    end // always @*

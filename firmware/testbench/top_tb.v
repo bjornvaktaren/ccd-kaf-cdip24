@@ -159,9 +159,14 @@ module top_tb();
       
       #250 ft245_send(cmd_set_register);
       ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
-      ft245_send(8'b00000001); // flush sensor, i.e. no ADC conversion
+      ft245_send(8'b00000000); // flush sensor, i.e. no ADC conversion
       // ft245_send(8'b00000010); // read out with 1x1 binning
-      #50 ft245_send(cmd_toggle_read_ccd);
+      ft245_send(cmd_toggle_read_ccd);
+      ft245_send(cmd_set_register);
+      ft245_send(8'b00000010); // write to 10, ccd_readout_mode register
+      ft245_send(8'b00000010); // 1x1 binning
+      // ft245_send(8'b00000010); // read out with 1x1 binning
+      ft245_send(cmd_toggle_read_ccd);
       #50 ft_txe_n <= 0;
       
       #100000 $finish;

@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
       	    (now - start);
 	 std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
-      std::cout << "\nReading out\n";
+
       camera.stopExposure();
       std::vector<uint16_t> imageData = camera.getImageData();
       cimg_library::CImg<uint16_t> image(

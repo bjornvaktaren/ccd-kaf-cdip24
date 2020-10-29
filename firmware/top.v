@@ -134,7 +134,7 @@ module top
    wire rx_fifo_rempty;
    wire [7:0] rx_fifo_rdata;
    
-   fifo #(8, 8) rx_fifo
+   fifo #(8, 4) rx_fifo
      (
       .rclk(clk),
       .rdata(rx_fifo_rdata),
@@ -155,7 +155,7 @@ module top
    wire [7:0] tx_fifo_wdata;
    wire	      tx_fifo_wfull;
 
-   fifo #(8, 10) tx_fifo
+   fifo #(8, 12) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
