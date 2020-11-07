@@ -59,7 +59,7 @@ module ccd_readout
    input             module_clk;
    output wire 	     busy;
    input 	     toggle;
-   input [1:0] 	     mode; // idle, clean, readout, readout 2x2 binning
+   input [1:0] 	     mode; // clean, readout, readout 2x2 binning
    input [7:0] 	     ad_data;
    output reg [15:0] data_out;
    output wire 	     data_avail;
@@ -81,7 +81,7 @@ module ccd_readout
    assign ad_cdsclk2 = ( mode != ccd_mode_clean ) ? cdsclk2 : 1'b0;
    assign ad_adclk   = ( mode != ccd_mode_clean ) ? adclk   : 1'b1;
    assign ad_oeb_n   = ( mode != ccd_mode_clean ) ? oeb_n   : 1'b1;
-   assign data_avail = ( mode != ccd_mode_clean ) ? data_avail_int : 1'b1;
+   assign data_avail = ( mode != ccd_mode_clean ) ? data_avail_int : 1'b0;
 
    // Readout toggling 
    reg toggle_int = 1'b0;
@@ -105,8 +105,6 @@ module ccd_readout
     	     h_counter <= 0;
 	     v_delay_counter <= 0;
 	     data_out <= 16'h0000;
-	     if (mode == ccd_mode_idle)
-	       state <= state_idle;
 	     if (mode == ccd_mode_clean)
 	       state <= state_h0;
 	     if (mode == ccd_mode_readout_1x1)
@@ -116,28 +114,28 @@ module ccd_readout
 	  end
 
    	state_h0:
-	   state <= state_h1;
+	  state <= state_h1;
    	state_h1:
-	    state <= state_h2;
+	  state <= state_h2;
    	state_h2:
-	    state <= state_h3;
+	  state <= state_h3;
    	state_h3:
-	   if ( data_accept == 1'b1 || 
-		h_counter == 0 || 
-		mode == ccd_mode_clean )
-	     state <= state_h4;
+	  if ( data_accept == 1'b1 || 
+	       h_counter == 0 || 
+	       mode == ccd_mode_clean )
+	    state <= state_h4;
    	state_h4: begin
 	   state <= state_h5;
 	   data_out[7:0] <= ad_data;
 	end
    	state_h5:
-	    state <= state_h6;
+	  state <= state_h6;
    	state_h6:
-	    state <= state_h7;
+	  state <= state_h7;
    	state_h7:
-	    state <= state_h8;
+	  state <= state_h8;
    	state_h8:
-	    state <= state_h9;
+	  state <= state_h9;
    	state_h9: begin
 	   state <= state_h0;
 	   data_out[15:8] <= ad_data;
@@ -152,9 +150,9 @@ module ccd_readout
 	   end
 	   h_counter <= h_counter + 1;
 	end
-
+	
    	state_v0:
-	    state <= state_v1;
+	  state <= state_v1;
    	state_v1:
 	  if ( v_delay_counter == v_delay ) begin
 	     v_delay_counter <= 0;
@@ -276,6 +274,7 @@ module ccd_readout
       if ( state == state_v4 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
+	 data_avail_int = 1;
       end
       
    end // always @*

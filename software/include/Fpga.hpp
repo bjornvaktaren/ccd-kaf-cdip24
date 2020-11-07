@@ -25,9 +25,9 @@ namespace fpga {
 
 	// Supported read-out modes
    namespace ccd_readout_mode {
-      static constexpr unsigned char flush  = 0b00000001;
-      static constexpr unsigned char bin1x1 = 0b00000010;
-      static constexpr unsigned char bin2x2 = 0b00000011;
+      static constexpr unsigned char flush  = 0b00000000;
+      static constexpr unsigned char bin1x1 = 0b00000001;
+      static constexpr unsigned char bin2x2 = 0b00000010;
    }
    
    // Named commands to read/write from/to the AD9826 configuration register 

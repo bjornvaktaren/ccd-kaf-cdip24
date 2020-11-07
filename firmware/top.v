@@ -6,7 +6,6 @@
 `include "ft245.v"
 `include "mcp3008_interface.v"
 `include "tx_mux.v"
-`include "sr_latch.v"
 
 module top
   (clk_in,        // clock

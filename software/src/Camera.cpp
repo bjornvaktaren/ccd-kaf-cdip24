@@ -127,7 +127,7 @@ void Camera::stopExposure()
    bool ok = m_ft.write(writeBuffer, nBytesWrite);
    
    // Get the image data
-   const size_t chunksize = 3;
+   const size_t chunksize = 4096;
    size_t bytesRead = 0;
    const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
    while ( bytesRead < bytesToRead ) {
@@ -135,11 +135,13 @@ void Camera::stopExposure()
       size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
       // std::cout << "Trying to read " << chunk << " bytes\n";
       unsigned char buffer[chunk] = {0};
-      bytesRead += m_ft.read(buffer, chunk);
-      if ( bytesRead > 0 ) {
-	 std::cout << "Read " << bytesRead << " bytes out of " << bytesToRead
-		   << '\n';
-      }
+      bytesRead += chunk;
+      m_ft.read(buffer, chunk);
+      // if ( bytesRead > 0 ) {
+      // 	 std::cout << "Read " << bytesRead << " bytes out of " << bytesToRead
+      // 		   << '\n';
+      // }
+      // Should just read it to a vector and process it later
       for ( size_t i = 0; i < chunk/3; ++i ) {
 	 auto pkt = this->decodePacket(
 	    buffer[3*i], buffer[3*i+1], buffer[3*i+2]
@@ -274,6 +276,7 @@ bool Camera::getAD9826Config()
    // Read back the result, same number of bytes
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
+   std::cout << "readBytes = " << readBytes;
 
    // Decode the recieved data
    for ( int i = 0; i < 4; ++i ) {
