@@ -11,11 +11,18 @@ module tx_mux
    input wfull,            // tx fifo is full, active high
    output reg [7:0] out,   // 8-bit output
    output reg winc,        // tx fifo write increase, active high
-   output reg [3:0] accept // mux accepted data, active high, low when done
+   output wire [3:0] accept // mux accepted data, active high, low when done
    );
 
    reg [1:0]  sel = 0;
    reg [15:0] in_sel = 0;
+   reg [3:0] accept_int = 0;
+   assign accept = {
+		    accept_int[3] & !wfull,
+		    accept_int[2] & !wfull,
+		    accept_int[1] & !wfull,
+		    accept_int[0] & !wfull
+		    };
 
    // serialized mux
    always @(posedge clk) begin
@@ -111,45 +118,45 @@ module tx_mux
 
       out    = 8'h00;
       winc   = 1'b0;
-      accept = 4'h0;
+      accept_int = 4'h0;
 
       if ( state == state_idle ) begin
       end
       if ( state == state_hdr_setup ) begin
 	 out         = sel;
 	 // winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_hdr_send ) begin
 	 out         = sel;
 	 winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_msb_setup ) begin
 	 out         = in_sel[15:8];
 	 // winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_msb_send ) begin
 	 out         = in_sel[15:8];
 	 winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_lsb_setup ) begin
 	 out         = in_sel[7:0];
 	 // winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_lsb_send ) begin
 	 out         = in_sel[7:0];
 	 winc        = 1'b1;
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_acc_wait ) begin
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_finish ) begin
-      	 accept[sel] = 1'b1;
+      	 accept_int[sel] = 1'b1;
       end
       
    end // always @ *

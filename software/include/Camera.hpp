@@ -90,6 +90,7 @@ private:
    double m_ccdTargetTemperature;
    PID m_pid;
    std::vector<uint16_t> m_imageData;
+   std::vector<unsigned char> m_rawPixelData;
    
 };
 

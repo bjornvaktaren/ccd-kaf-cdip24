@@ -154,7 +154,8 @@ module top
    wire [7:0] tx_fifo_wdata;
    wire	      tx_fifo_wfull;
 
-   fifo #(8, 12) tx_fifo
+   `ifdef SYNTHESIS
+   fifo #(8, 10) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
@@ -167,6 +168,21 @@ module top
       .winc(tx_fifo_winc),
       .wrst_n(tx_fifo_wrst_n)
       );
+   `else
+   fifo #(8, 3) tx_fifo
+     (
+      .rclk(ft_clkout),
+      .rdata(tx_fifo_rdata),
+      .rempty(tx_fifo_rempty),
+      .rinc(tx_fifo_rinc),
+      .rrst_n(tx_fifo_rrst_n),
+      .wclk(clk),
+      .wdata(tx_fifo_wdata),
+      .wfull(tx_fifo_wfull),
+      .winc(tx_fifo_winc),
+      .wrst_n(tx_fifo_wrst_n)
+      );
+   `endif   
 
 
 

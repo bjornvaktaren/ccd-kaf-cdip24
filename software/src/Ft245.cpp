@@ -37,10 +37,17 @@ int Ft245::init()
       return ftdi_status;
    }
    
-   ftdi_status = ftdi_set_latency_timer(&m_ftdi, 1); // 16 worked on UM232H
-   // ftdi_status = ftdi_set_latency_timer(&m_ftdi, 16); // 16 worked on UM232H
+   // ftdi_status = ftdi_set_latency_timer(&m_ftdi, 1); // 16 worked on UM232H
+   ftdi_status = ftdi_set_latency_timer(&m_ftdi, 16); // 16 worked on UM232H
    if ( ftdi_status != 0 ) {
       std::cerr << "ERROR: Can't set latency timer. Got error\n"
+	       << ftdi_get_error_string(&m_ftdi) << '\n';
+      return ftdi_status;
+   }
+   
+   ftdi_status = ftdi_read_data_set_chunksize(&m_ftdi, 512);
+   if ( ftdi_status != 0 ) {
+      std::cerr << "ERROR: Can't set chunk size. Got error\n"
 	       << ftdi_get_error_string(&m_ftdi) << '\n';
       return ftdi_status;
    }
@@ -103,11 +110,11 @@ int Ft245::writeByte(const unsigned char &byte)
 
 int Ft245::readByte(unsigned char &byte)
 {
-   // need to purge rx when reading for some etherial reason
-   if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
-      std::cerr << "ERROR: Can't purge FTDI buffers: "
-   		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
-   }
+   // // need to purge rx when reading for some etherial reason
+   // if ( ftdi_usb_purge_rx_buffer(&m_ftdi) != 0) {
+   //    std::cerr << "ERROR: Can't purge FTDI buffers: "
+   // 		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
+   // }
    
    int bytesRead = 0;
    for ( int tries = 0; tries < 10 && bytesRead != 1; ++tries) {
@@ -146,12 +153,12 @@ bool Ft245::write(const unsigned char *buffer, const int nBytes)
 
 int Ft245::read(unsigned char *buffer, const int nBytes)
 {
-   // need to purge rx when reading for some etherial reason
-   // otherwise a lot of old crap it still there
-   if ( ftdi_usb_purge_tx_buffer(&m_ftdi) != 0) {
-      std::cerr << "ERROR: Can't purge FTDI buffers: "
-		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
-   }
+   // // need to purge rx when reading for some etherial reason
+   // // otherwise a lot of old crap it still there
+   // if ( ftdi_usb_purge_tx_buffer(&m_ftdi) != 0) {
+   //    std::cerr << "ERROR: Can't purge FTDI buffers: "
+   // 		<< "       " << ftdi_get_error_string(&m_ftdi) << '\n';
+   // }
    
    int bytesRead = 0;
    for ( int tries = 0; tries < 10 && bytesRead != nBytes; ++tries) {
@@ -160,6 +167,7 @@ int Ft245::read(unsigned char *buffer, const int nBytes)
 	 std::cerr << "ERROR in Ft245::read(): "
 		   << ftdi_get_error_string(&m_ftdi) << '\n';
       }
+      bytesRead += ret;
       // else {
       // 	 std::cout << "INFO in Ft245::read(): ftdi_read_data returned "
       // 		   << ret << '\n';

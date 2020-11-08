@@ -15,9 +15,11 @@ Camera::Camera() :
    },
    m_ccdTargetTemperature { 20.0 },
    m_pid {0.0, 127.0, 1.0, 0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
-   m_imageData {}
+   m_imageData {},
+   m_rawPixelData {}
 {
    m_imageData.resize(this->getHeight() * this->getWidth(), 0);
+   m_rawPixelData.resize(3 * this->getHeight() * this->getWidth(), 0);
 }
 
 void Camera::connect()
@@ -106,16 +108,16 @@ void Camera::startExposure()
 {
    std::cout << "Flushing\n";
    this->flushSensor();
-   std::this_thread::sleep_for(std::chrono::seconds(5));
+   std::this_thread::sleep_for(std::chrono::seconds(2));
    std::cout << "Open shutter\n";
-   this->openShutter();
+   // this->openShutter();
 }
 
 
 void Camera::stopExposure()
 {
    std::cout << "Close shutter\n";
-   this->closeShutter();
+   // this->closeShutter();
    const size_t nBytesWrite = 4;
    const unsigned char writeBuffer[nBytesWrite] = {
       fpga::command::set_register,
@@ -127,27 +129,36 @@ void Camera::stopExposure()
    bool ok = m_ft.write(writeBuffer, nBytesWrite);
    
    // Get the image data
-   const size_t chunksize = 4096;
-   size_t bytesRead = 0;
+   const size_t chunksize = 128;
+   size_t totalBytesRead = 0;
+   size_t prevBytesRead = 0;
    const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
-   while ( bytesRead < bytesToRead ) {
-      size_t bytesLeft = bytesToRead - bytesRead;
+   int nTimesStuck = 0;
+   while ( totalBytesRead < bytesToRead && nTimesStuck < 10 ) {
+      size_t bytesLeft = bytesToRead - totalBytesRead;
       size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
       // std::cout << "Trying to read " << chunk << " bytes\n";
-      unsigned char buffer[chunk] = {0};
-      bytesRead += chunk;
-      m_ft.read(buffer, chunk);
-      // if ( bytesRead > 0 ) {
-      // 	 std::cout << "Read " << bytesRead << " bytes out of " << bytesToRead
-      // 		   << '\n';
-      // }
-      // Should just read it to a vector and process it later
-      for ( size_t i = 0; i < chunk/3; ++i ) {
-	 auto pkt = this->decodePacket(
-	    buffer[3*i], buffer[3*i+1], buffer[3*i+2]
-	    );
-	 m_imageData[i] = pkt.data;
+      unsigned char buffer[chunk] = {255};
+      // totalBytesRead += chunk;
+      size_t bytesRead = m_ft.read(buffer, chunk);
+      totalBytesRead += bytesRead;
+      // Just dump it to a vector and process it later
+      for ( size_t i = 0; i < bytesRead; ++i ) {
+	 m_rawPixelData[i] = buffer[i];
+	 // if ( buffer[i] > 0 ) {
+	 //    std::cout << "buffer[" << i << "] = "
+	 // 	      << std::bitset<8>(buffer[i]) << '\n';
+	 // }
       }
+   }
+   std::cout << "Read " << totalBytesRead << " bytes\n";
+   std::cout << "Processing pixel data\n";
+   // Decode raw data to 
+   for ( size_t i = 0; i < m_rawPixelData.size()/3; ++i ) {
+      auto packet = this->decodePacket(
+	 m_rawPixelData[3*i], m_rawPixelData[3*i+1], m_rawPixelData[3*i+2]
+	 );
+      m_imageData[i] = packet.data;
    }
    
 }
@@ -193,6 +204,11 @@ fpga::DataPacket Camera::decodePacket(
 	 std::cout << "DEBUG: " << " Got topic 'pixel'\n";
       }
    }
+   else {
+      std::cout << "Error: " << " Got unknown topic byte: "
+		<< std::bitset<8>(byte1) << '\n';
+   }
+   
    dataPacket.data =
       ( static_cast<uint16_t>(byte2) << 8 ) | static_cast<uint16_t>(byte3);
    if ( m_verbosity == Verbosity::debug ) {
