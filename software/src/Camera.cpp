@@ -129,7 +129,7 @@ void Camera::stopExposure()
    bool ok = m_ft.write(writeBuffer, nBytesWrite);
    
    // Get the image data
-   const size_t chunksize = 128;
+   const size_t chunksize = 3;
    size_t totalBytesRead = 0;
    size_t prevBytesRead = 0;
    const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
@@ -144,12 +144,13 @@ void Camera::stopExposure()
       totalBytesRead += bytesRead;
       // Just dump it to a vector and process it later
       for ( size_t i = 0; i < bytesRead; ++i ) {
-	 m_rawPixelData[i] = buffer[i];
+	 m_rawPixelData[prevBytesRead + i] = buffer[i];
 	 // if ( buffer[i] > 0 ) {
 	 //    std::cout << "buffer[" << i << "] = "
 	 // 	      << std::bitset<8>(buffer[i]) << '\n';
 	 // }
       }
+      prevBytesRead += bytesRead;
    }
    std::cout << "Read " << totalBytesRead << " bytes\n";
    std::cout << "Processing pixel data\n";
