@@ -318,8 +318,8 @@ module top
 
    // Peltier element control
 
-   assign pwm_peltier_1 = ( clk_div[7:0] < peltier_1_duty_cycle );
-   assign pwm_peltier_2 = ( clk_div[7:0] < peltier_2_duty_cycle );
+   assign pwm_peltier_1 = ( clk_div[12:5] < peltier_1_duty_cycle );
+   assign pwm_peltier_2 = ( clk_div[12:5] < peltier_2_duty_cycle );
    
 
    // State-machine

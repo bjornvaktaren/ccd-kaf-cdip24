@@ -30,7 +30,10 @@ EXPORT="";
 	 cool_finger(invert=true);
    }
    else {
-      window();
+      projection(cut=true)
+	 rotate(a = [-90,30,0])
+	 // translate([0,0,-2.5])
+	 window();
       // cool_finger();
    }
 }
@@ -85,9 +88,11 @@ module window() {
    r_window = 36/2;
    r_window_outer_margin = 0.5;
    r_window_inner_margin = 1;
-   R_oring = 1.78/2 + 31.47/2;
-   b_oring = 2.6;
-   o_ring_float = 0.3;
+   R_oring = 1.5/2 + 30/2;
+   b_oring = 2.1;
+   h_oring = 1.15;
+   o_ring_float = 0.2;
+   r_min_oring = 0.2;
 
    R_screw_hole = r_o1-(r_o1 - R_oring - r_window_inner_margin - b_oring/2)/2;
    r_screw_hole = 1.5;
@@ -108,17 +113,22 @@ module window() {
 	       [R_oring - r_window_inner_margin - b_oring/2, h],
 	       [R_oring - r_window_inner_margin - b_oring/2,
 		h_window + 2*o_ring_float],
-	       [r_window + r_window_outer_margin, h_window + 2*o_ring_float],
+	       [r_window + r_window_outer_margin,
+		h_window + 2*o_ring_float],
 	       [r_window + r_window_outer_margin, 0],
 	       ]
 	    );
 	 translate([0, h_window + 2*o_ring_float])
-	    oring_hole(1.3 - o_ring_float, b_oring, 0.4, R_oring);
+	    oring_hole(h_oring - o_ring_float, b_oring, r_min_oring, R_oring);
       }
-      for (i=[0:1:2]) 
+      for (i=[0:1:2]) {
 	 translate([R_screw_hole*sin(i*360/3), R_screw_hole*cos(i*360/3),
-		      h/2])
+		    h/2]) 
 	    cylinder(h=h, r=r_screw_hole, center=true);
+	 translate([R_screw_hole*sin(i*360/3), R_screw_hole*cos(i*360/3),
+		    1.45*0.5]) 
+	    cylinder(h=1.45, r2=r_screw_hole, r1=r_screw_hole+1.45, center=true);
+      }
    }
 }
 

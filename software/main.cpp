@@ -85,10 +85,12 @@ bool checkArg(int argc, char* argv[], int &argi, const char* longOpt,
 int main(int argc, char* argv[])
 {
    
-   Verbosity v  = Verbosity::info;
+   Verbosity verbosity  = Verbosity::info;
    bool plot    = false;
    bool flush   = false;
    bool capture = false;
+   bool cooling = false;
+   double targetTemperature = 20.0;
    std::chrono::milliseconds integrationTime(0);
    std::filesystem::path imageFileName = "capture_0.tiff";
    
@@ -99,7 +101,7 @@ int main(int argc, char* argv[])
       // 	 exit(EXIT_SUCCESS);
       // }
       if ( checkArg(argc, argv, i, "--debug", 0) ) {
-			v = Verbosity::debug;
+	 verbosity = Verbosity::debug;
       }
       // else if ( checkArg(argc, argv, i, "--reset", 0) ) {
       // 	 resetCamera = true;
@@ -107,11 +109,15 @@ int main(int argc, char* argv[])
       // else if ( checkArg(argc, argv, i, "--log", 0) ) {
       // 	 logging = true;
       // }
-      // else if ( checkArg(argc, argv, i, "--cool", 1) ) {
-      // 	 targetTemperature = atoi(argv[i+1]);
-      // 	 activateCooling = true;
-      // 	 ++i;
-      // }
+      else if ( checkArg(argc, argv, i, "--cool", 1) ) {
+	 targetTemperature = stod(std::string(argv[i+1]));
+	 cooling = true;
+	 ++i;
+      }
+      else if ( checkArg(argc, argv, i, "--cool-off", 0) ) {
+	 cooling = false;
+	 ++i;
+      }
       else if ( checkArg(argc, argv, i, "--output", "-o", 1) ) {
 	 imageFileName = std::string(argv[i+1]);
 	 ++i;
@@ -137,7 +143,7 @@ int main(int argc, char* argv[])
 
    
    Camera camera;
-   camera.setVerbosity(v);
+   camera.setVerbosity(verbosity);
 
    try {
       camera.connect();
@@ -153,15 +159,14 @@ int main(int argc, char* argv[])
    std::vector<float> temperatureAmbient;
    std::vector<float> temperatureCCD;
    std::vector<float> temperatureTEC;
-   std::vector<float> timeAmbient;
-   std::vector<float> timeCCD;
-   std::vector<float> timeTEC;
+   std::vector<float> timeVec;
+   std::vector<float> pwmVec;
    CImgPlot temperatureImg(temperatureImgSizeX, temperatureImgSizeY);
    temperatureImg.setTitle("Time (s)","Temperature (C)");
    temperatureImg.setXRange(30.0, true);
    CImgDisplay temperatureDisplay(temperatureImg, "Camera cooling");
-   std::chrono::system_clock::time_point start
-      = std::chrono::system_clock::now();
+   std::chrono::steady_clock::time_point start
+      = std::chrono::steady_clock::now();
 
    std::cout << "Press ENTER to exit\n";
    std::string input;
@@ -182,20 +187,25 @@ int main(int argc, char* argv[])
       camera.flushSensor();
    }
 
+   camera.setCoolerOn(cooling);
+   if ( cooling ) {
+      camera.setTemperature(targetTemperature);
+   }
+
    if ( capture ) {
       
       fileNameHandler(imageFileName);
       
       camera.sampleTemperatures();
-      auto lastTemperatureQuery = std::chrono::system_clock::now();
+      auto lastTemperatureQuery = std::chrono::steady_clock::now();
       
       std::cout << "Integrating\n";
       camera.startExposure();
-      auto start = std::chrono::system_clock::now();
+      auto start = std::chrono::steady_clock::now();
       std::chrono::milliseconds millisecSinceStart(0);
       
       while ( millisecSinceStart < integrationTime ) {
-      	 auto now = std::chrono::system_clock::now();
+      	 auto now = std::chrono::steady_clock::now();
       	 millisecSinceStart
       	    = std::chrono::duration_cast<std::chrono::milliseconds>
       	    (now - start);
@@ -220,33 +230,31 @@ int main(int argc, char* argv[])
    
    // int i = 0;
    while ( plot && !temperatureDisplay.is_closed() ) {
-      std::chrono::system_clock::time_point now
-   	 = std::chrono::system_clock::now();
+      std::chrono::steady_clock::time_point now
+   	 = std::chrono::steady_clock::now();
       auto msec
    	 = std::chrono::duration_cast<std::chrono::milliseconds>(now-start);
 
       // camera.test();
       camera.sampleTemperatures();
 
-      timeAmbient.push_back(msec.count()/1000.0);
-      timeCCD.push_back(msec.count()/1000.0);
-      timeTEC.push_back(msec.count()/1000.0);
+      timeVec.push_back(msec.count()/1000.0);
       double ambTemp = camera.getTemperature(fpga::thermistor_id::ambient);
       double ccdTemp = camera.getTemperature(fpga::thermistor_id::ccd);
       double tecTemp = camera.getTemperature(fpga::thermistor_id::tec);
       temperatureAmbient.push_back(ambTemp);
       temperatureCCD.push_back(ccdTemp);
       temperatureTEC.push_back(tecTemp);
+      
+      pwmVec.push_back(static_cast<float>(camera.getCoolerOutputPercent()));
 
       if ( temperatureAmbient.size() > 2 &&
       	   temperatureCCD.size()     > 2 &&
-      	   timeAmbient.size()        > 2 &&
-      	   timeCCD.size()            > 2 &&
-      	   timeTEC.size()            > 2 
+      	   timeVec.size()            > 2 
    	 ) {
-      	 temperatureImg.line(1, timeAmbient, temperatureAmbient, "l");
-      	 temperatureImg.line(2, timeCCD, temperatureCCD, "l");
-      	 temperatureImg.line(3, timeTEC, temperatureTEC, "l");
+      	 temperatureImg.line(1, timeVec, temperatureCCD, "l");
+      	 temperatureImg.line(2, timeVec, temperatureTEC, "l");
+      	 temperatureImg.line(3, timeVec, pwmVec, "l");
       	 temperatureImg.draw();
       	 temperatureImg.display(temperatureDisplay);
       }

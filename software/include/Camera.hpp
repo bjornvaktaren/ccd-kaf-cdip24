@@ -47,6 +47,9 @@ public:
 
    bool getCoolerOn() { return m_coolerOn; };
    void setCoolerOn(const bool on=true);
+   double getCoolerOutputPercent() const { return m_pidOutPercent; };
+
+   void setTemperature(double celsius);
    
    std::vector<uint16_t> getImageData() { return m_imageData; };
 
@@ -89,6 +92,7 @@ private:
    std::map<uint16_t, Thermistor> m_thermistors;
    double m_ccdTargetTemperature;
    PID m_pid;
+   double m_pidOutPercent;
    std::vector<uint16_t> m_imageData;
    std::vector<unsigned char> m_rawPixelData;
    

@@ -14,7 +14,8 @@ Camera::Camera() :
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
    },
    m_ccdTargetTemperature { 20.0 },
-   m_pid {0.0, 127.0, 1.0, 0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
+   m_pid {0.0, 127.0, 2.0, 0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
+   m_pidOutPercent {-1.0},
    m_imageData {},
    m_rawPixelData {}
 {
@@ -345,11 +346,11 @@ bool Camera::sampleTemperatures()
 
    // Update PID regulator if cooling is on
    if ( m_coolerOn ) {
-      unsigned char pwm = static_cast<unsigned char>(
-	 m_pid.calculate(
-	    now, this->m_thermistors.at(fpga::thermistor_id::ccd).getCelsius()
-	    )
+      double pidOut = m_pid.calculate(
+	 now, this->m_thermistors.at(fpga::thermistor_id::ccd).getCelsius()
 	 );
+      m_pidOutPercent = pidOut/(m_pid.getMaximum() - m_pid.getMinimum())*100.0;
+      unsigned char pwm = static_cast<unsigned char>(pidOut);
       this->setPeltierPWM(1, pwm);
       this->setPeltierPWM(2, pwm);
    }
@@ -402,7 +403,7 @@ bool Camera::setCCDReadoutMode(const unsigned char mode)
 {
    unsigned char writeBuffer[3];
    writeBuffer[0] = fpga::command::set_register;
-	writeBuffer[1] = fpga::reg_addr::ccd_readout_mode;
+   writeBuffer[1] = fpga::reg_addr::ccd_readout_mode;
    writeBuffer[2] = mode;
 	
    return m_ft.write(writeBuffer, 3);
@@ -411,8 +412,8 @@ bool Camera::setCCDReadoutMode(const unsigned char mode)
 
 void Camera::setVerbosity(Verbosity v)
 {
-	m_verbosity = v;
-	m_pid.setVerbosity(v);
+   m_verbosity = v;
+   m_pid.setVerbosity(v);
 }
 
 
@@ -424,4 +425,9 @@ void Camera::setCoolerOn(const bool on)
       this->setPeltierPWM(2, 0);
    }
    m_coolerOn = on;
+}
+
+void Camera::setTemperature(double celsius)
+{
+   m_pid.setTarget(celsius);
 }
