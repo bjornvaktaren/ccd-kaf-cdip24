@@ -52,9 +52,9 @@ int Ft245::init()
       return ftdi_status;
    }
 
-   ftdi_status = ftdi_usb_purge_buffers(&m_ftdi);
+   ftdi_status = ftdi_tcioflush(&m_ftdi);
    if ( ftdi_status != 0 ) {
-      std::cerr << "ERROR: Can't purge buffer. Got error\n"
+      std::cerr << "ERROR: Can't flush buffer. Got error\n"
 	       << ftdi_get_error_string(&m_ftdi) << '\n';
       return ftdi_status;
    }

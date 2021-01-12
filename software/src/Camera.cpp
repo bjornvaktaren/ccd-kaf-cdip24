@@ -19,8 +19,8 @@ Camera::Camera() :
    m_imageData {},
    m_rawPixelData {}
 {
-   m_imageData.resize(this->getHeight() * this->getWidth(), 0);
-   m_rawPixelData.resize(3 * this->getHeight() * this->getWidth(), 0);
+   // m_imageData.resize(3*this->getWidth()*(1 + this->getHeight()), 0);
+   // m_rawPixelData.resize(3*this->getWidth()*(1 + this->getHeight()), 0);
 }
 
 void Camera::connect()
@@ -127,40 +127,43 @@ void Camera::stopExposure()
       fpga::command::toggle_read_ccd
    };
    std::cout << "Initiating Readout\n";
-   bool ok = m_ft.write(writeBuffer, nBytesWrite);
-   
+   bool ok = m_ft.write(writeBuffer, nBytesWrite); 
+   // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  
    // Get the image data
-   const size_t chunksize = 3;
+   const size_t chunksize = 128;
    size_t totalBytesRead = 0;
-   size_t prevBytesRead = 0;
-   const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
+   const size_t bytesToRead = this->getWidth()*(this->getHeight() + 10000)*3;
+   // const size_t bytesToRead = m_imageData.size()*3;
    int nTimesStuck = 0;
    while ( totalBytesRead < bytesToRead && nTimesStuck < 10 ) {
       size_t bytesLeft = bytesToRead - totalBytesRead;
       size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
       // std::cout << "Trying to read " << chunk << " bytes\n";
       unsigned char buffer[chunk] = {255};
-      // totalBytesRead += chunk;
       size_t bytesRead = m_ft.read(buffer, chunk);
-      totalBytesRead += bytesRead;
       // Just dump it to a vector and process it later
       for ( size_t i = 0; i < bytesRead; ++i ) {
-	 m_rawPixelData[prevBytesRead + i] = buffer[i];
-	 // if ( buffer[i] > 0 ) {
-	 //    std::cout << "buffer[" << i << "] = "
-	 // 	      << std::bitset<8>(buffer[i]) << '\n';
-	 // }
+	 // discard first 3 pixels
+	 // if ( totalBytesRead + i < 3 ) continue;
+	 m_rawPixelData.push_back(buffer[i]);
+	 // m_rawPixelData[totalBytesRead + i] = buffer[i];
       }
-      prevBytesRead += bytesRead;
+      if ( bytesRead <= 0 ) ++nTimesStuck;
+      else nTimesStuck = 0;
+      totalBytesRead += bytesRead > 0 ? bytesRead : 0;
+      // std::this_thread::sleep_for(std::chrono::microseconds(1));
    }
    std::cout << "Read " << totalBytesRead << " bytes\n";
    std::cout << "Processing pixel data\n";
-   // Decode raw data to 
-   for ( size_t i = 0; i < m_rawPixelData.size()/3; ++i ) {
+   // Decode raw data to
+   std::cout << "m_rawPixelData.size() is " << m_rawPixelData.size() << '\n';
+   for ( int i = 0; i < totalBytesRead/3; ++i ) {
       auto packet = this->decodePacket(
 	 m_rawPixelData[3*i], m_rawPixelData[3*i+1], m_rawPixelData[3*i+2]
 	 );
-      m_imageData[i] = packet.data;
+      if ( packet.topic == fpga::DataTopic::pixel ) 
+	 m_imageData.push_back(packet.data);
    }
    
 }
@@ -430,4 +433,11 @@ void Camera::setCoolerOn(const bool on)
 void Camera::setTemperature(double celsius)
 {
    m_pid.setTarget(celsius);
+}
+
+void Camera::reset()
+{
+   if ( ! m_ft.writeByte(fpga::command::reset) ) {
+      throw std::runtime_error("Unable to reset camera");
+   }
 }

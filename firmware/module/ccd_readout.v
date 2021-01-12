@@ -19,27 +19,29 @@ module ccd_readout
    mode,       // Readout mode: none, flush (no ADC conversion), or 1x1 binning
    data_out,   // 16-bit output (pixel value)
    data_avail, // Data is available on data_out if this is high.
-   data_accept // Input high to accept data from this module
+   data_accept,// Input high to accept data from this module.
+   tx_full     // tx_fifo is full if this is high
    );
 
    `include "ccd_readout.vh"
    
-   localparam state_idle = 4'h0;  // See README
-   localparam state_h0   = 4'h1;  // --"--
-   localparam state_h1   = 4'h2;  // --"--
-   localparam state_h2   = 4'h3;  // --"--
-   localparam state_h3   = 4'h4;  // --"--
-   localparam state_h4   = 4'h5;  // --"--
-   localparam state_h5   = 4'h6;  // --"--
-   localparam state_h6   = 4'h7;  // --"--
-   localparam state_h7   = 4'h8;  // --"--
-   localparam state_h8   = 4'h9;  // --"--
-   localparam state_h9   = 4'ha;  // --"--
-   localparam state_v0   = 4'hb;  // --"--
-   localparam state_v1   = 4'hc;  // --"--
-   localparam state_v2   = 4'hd;  // --"--
-   localparam state_v3   = 4'he;  // --"--
-   localparam state_v4   = 4'hf;  // --"--
+   localparam state_fifo_check = 5'b00000;  // See README
+   localparam state_idle = 5'b00001;  // See README
+   localparam state_h0   = 5'b00011;  // --"--
+   localparam state_h1   = 5'b00010;  // --"--
+   localparam state_h2   = 5'b00110;  // --"--
+   localparam state_h3   = 5'b00111;  // --"--
+   localparam state_h4   = 5'b00101;  // --"--
+   localparam state_h5   = 5'b00100;  // --"--
+   localparam state_h6   = 5'b01100;  // --"--
+   localparam state_h7   = 5'b01101;  // --"--
+   localparam state_h8   = 5'b01111;  // --"--
+   localparam state_h9   = 5'b01110;  // --"--
+   localparam state_v0   = 5'b01010;  // --"--
+   localparam state_v1   = 5'b01011;  // --"--
+   localparam state_v2   = 5'b01001;  // --"--
+   localparam state_v3   = 5'b01000;  // --"--
+   localparam state_v4   = 5'b11000;  // --"--
 
 
    // First four 16-bit values from the ADC are undefined, as well as the
@@ -64,6 +66,7 @@ module ccd_readout
    output reg [15:0] data_out;
    output wire 	     data_avail;
    input 	     data_accept;
+   input 	     tx_full;
 
    // Internal registers and signals
    reg 		     cdsclk1;
@@ -71,7 +74,7 @@ module ccd_readout
    reg		     adclk;
    reg 		     oeb_n;
    reg               data_avail_int;
-   reg [3:0] 	     state = state_idle;
+   reg [4:0] 	     state = state_idle;
    reg [10:0] 	     v_counter;
    reg [11:0] 	     h_counter;
    reg [7:0] 	     v_delay_counter;
@@ -106,13 +109,17 @@ module ccd_readout
 	     v_delay_counter <= 0;
 	     data_out <= 16'h0000;
 	     if (mode == ccd_mode_clean)
-	       state <= state_h0;
+	       state <= state_fifo_check;
 	     if (mode == ccd_mode_readout_1x1)
-	       state <= state_h0;
+	       state <= state_fifo_check;
 	     if (mode == ccd_mode_readout_2x2)
-	       state <= state_h0;
+	       state <= state_fifo_check;
 	  end
 
+   	state_fifo_check:
+	  if ( tx_full == 1'b0 )
+	    state <= state_h0;
+	
    	state_h0:
 	  state <= state_h1;
    	state_h1:
@@ -152,7 +159,7 @@ module ccd_readout
 	end
 	
    	state_v0:
-	  state <= state_v1;
+	    state <= state_v1;
    	state_v1:
 	  if ( v_delay_counter == v_delay ) begin
 	     v_delay_counter <= 0;
@@ -175,12 +182,13 @@ module ccd_readout
 	  else
 	    v_delay_counter <= v_delay_counter + 1;
    	state_v4: begin
-	   if ( ( data_accept == 1'b1 || mode == ccd_mode_clean ) &&
-                v_delay_counter == v_delay ) begin
-	      state <= state_h0;
-	      v_counter <= v_counter + 1;
-	      h_counter <= 0;
-	      v_delay_counter <= 0;
+	   if ( v_delay_counter == v_delay) begin
+	      if ( data_accept == 1'b1 || mode == ccd_mode_clean ) begin
+		 state <= state_fifo_check;
+		 v_counter <= v_counter + 1;
+		 h_counter <= 0;
+		 v_delay_counter <= 0;
+	      end
 	   end
 	   else
 	     v_delay_counter <= v_delay_counter + 1;
@@ -208,7 +216,9 @@ module ccd_readout
       kaf_v2     = 0;
       kaf_amp    = 0;
       data_avail_int = 0;
-      
+
+      if ( state == state_fifo_check ) begin
+      end      
       if ( state == state_idle ) begin
 	 adclk = 1;
 	 oeb_n = 1;
@@ -217,17 +227,17 @@ module ccd_readout
 	 adclk  = 1;
 	 kaf_r  = 1;
 	 kaf_h1 = 1;
-	 data_avail_int = 1;
+	 // data_avail_int = 1;
       end
       if ( state == state_h1 ) begin
 	 adclk  = 1;
 	 kaf_h1 = 1;
-	 data_avail_int = 1;
+	 // data_avail_int = 1;
       end
       if ( state == state_h2 ) begin
 	 cdsclk1 = 1;
 	 kaf_h1  = 1;
-	 data_avail_int = 1;
+	 // data_avail_int = 1;
       end
       if ( state == state_h3 ) begin
 	 kaf_h1 = 1;

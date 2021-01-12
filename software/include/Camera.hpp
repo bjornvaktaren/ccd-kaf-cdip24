@@ -63,6 +63,8 @@ public:
    
    // ADC channels
    int getADCResolution() { return 16; };
+
+   void reset();
 	
    void test();
    

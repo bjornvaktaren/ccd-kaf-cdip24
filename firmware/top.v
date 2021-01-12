@@ -37,7 +37,7 @@ module top
    kaf_v1,        // CCD V1 clock
    kaf_v2,        // CCD V2 clock
    kaf_amp,       // CCD Amplifier supply on/off
-   debug,         // debug port
+   // debug,         // debug port
    );
    
    input        clk_in;
@@ -69,7 +69,7 @@ module top
    output wire 	kaf_v1;
    output wire 	kaf_v2;
    output wire 	kaf_amp;
-   output wire [4:0] debug;
+   // output wire [4:0] debug;
 
    // include header file with localparams needed across modules or for sim
    `include "controller.vh"
@@ -155,7 +155,7 @@ module top
    wire	      tx_fifo_wfull;
 
    `ifdef SYNTHESIS
-   fifo #(8, 10) tx_fifo
+   fifo #(8, 8) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
@@ -236,13 +236,14 @@ module top
       .kaf_v1(kaf_v1),
       .kaf_v2(kaf_v2),
       .kaf_amp(kaf_amp),
-      .module_clk(clk_div[1]),
+      .module_clk(clk_div[2]),
       .busy(ccd_readout_busy),
       .toggle(ccd_readout_toggle),
       .mode(ccd_readout_mode),
       .data_out(ccd_readout_data),
       .data_avail(ccd_readout_data_avail),
-      .data_accept(ccd_readout_data_accept)
+      .data_accept(ccd_readout_data_accept),
+      .tx_full(tx_fifo_wfull)
       );
 
    
@@ -306,8 +307,8 @@ module top
    
    // Shutter PWM
    
-   localparam shutter_closed_duty_cycle = 8'h96; // approx 1500 us
-   localparam shutter_open_duty_cycle = 8'h50; // approx 800 us
+   localparam shutter_closed_duty_cycle = 8'h86; // approx 1500 us
+   localparam shutter_open_duty_cycle = 8'h40; // approx 800 us
    reg [7:0] pwm_shutter_duty_cycle;
 
    // The last equality makes the PWM skip all but every 4th pulse, so that 
@@ -552,6 +553,6 @@ module top
    end
 
    
-   assign debug = {ad_config_busy, ad_config_toggle, ad_sclk, ad_sload};
+   // assign debug = {ad_config_busy, ad_config_toggle, ad_sclk, ad_sload};
    
 endmodule // top
