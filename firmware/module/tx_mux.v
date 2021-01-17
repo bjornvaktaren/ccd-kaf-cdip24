@@ -17,18 +17,10 @@ module tx_mux
    reg [1:0]  sel = 0;
    reg [15:0] in_sel = 0;
    reg [3:0] accept_int = 0;
-   assign accept = {
-		    accept_int[3] & !wfull,
-		    accept_int[2] & !wfull,
-		    accept_int[1] & !wfull,
-		    accept_int[0] & !wfull
-		    };
+   assign accept = accept_int;
 
    // serialized mux
    always @(posedge clk) begin
-      
-      // sel  <= 0;
-      // in_sel <= 16'h0000;
       
       if (req[0]) begin
 	 sel    <= 0;
@@ -98,16 +90,13 @@ module tx_mux
 	  state <= state_acc_wait;
 	
 	state_acc_wait:
-	  if ( req[sel] == 1'b1 )
+	  if ( req[sel] == 1'b0 )
 	    state <= state_finish;
 	  else
 	    state <= state_acc_wait;
 	
 	state_finish:
-	  if ( req[sel] == 1'b0 )
-	    state <= state_idle;
-	  else
-	    state <= state_finish;
+	  state <= state_idle;
 	
       endcase // case (state)
 
@@ -124,39 +113,29 @@ module tx_mux
       end
       if ( state == state_hdr_setup ) begin
 	 out         = sel;
-	 // winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_hdr_send ) begin
 	 out         = sel;
 	 winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_msb_setup ) begin
 	 out         = in_sel[15:8];
-	 // winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_msb_send ) begin
 	 out         = in_sel[15:8];
 	 winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_lsb_setup ) begin
 	 out         = in_sel[7:0];
-	 // winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_lsb_send ) begin
 	 out         = in_sel[7:0];
 	 winc        = 1'b1;
-      	 accept_int[sel] = 1'b1;
       end
       if ( state == state_acc_wait ) begin
       	 accept_int[sel] = 1'b1;
       end
       if ( state == state_finish ) begin
-      	 accept_int[sel] = 1'b1;
       end
       
    end // always @ *

@@ -164,8 +164,8 @@ int main(int argc, char* argv[])
       camera.reset();
    }
    
-   camera.setOffset(10);
-   camera.setGain(10);
+   // camera.setOffset(20);
+   camera.setGain(20);
    
    // camera.getAD9826Config();
 	
@@ -214,8 +214,13 @@ int main(int argc, char* argv[])
       // }
       for ( size_t x = 0; x < camera.getWidth()-3; ++x ) {
 	 for ( size_t y = 0; y < camera.getHeight(); ++y ) {
-	    uint16_t pixel = imageData.at((x+3) + y*(1+camera.getWidth()));
-	    image(x,y) = pixel;
+	    try {
+	       uint16_t pixel = imageData.at((x+3) + y*(1+camera.getWidth()));
+	       image(x,y) = pixel;
+	    }
+	    catch ( std::exception &e ) {
+	       ;
+	    }
 	 }
       }
       image.save(imageFileName.c_str());
