@@ -111,14 +111,14 @@ void Camera::startExposure()
    this->flushSensor();
    std::this_thread::sleep_for(std::chrono::seconds(2));
    std::cout << "Open shutter\n";
-   // this->openShutter();
+   this->openShutter();
 }
 
 
 void Camera::stopExposure()
 {
    std::cout << "Close shutter\n";
-   // this->closeShutter();
+   this->closeShutter();
    const size_t nBytesWrite = 4;
    const unsigned char writeBuffer[nBytesWrite] = {
       fpga::command::set_register,
