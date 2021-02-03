@@ -169,7 +169,7 @@ module top
       .wrst_n(tx_fifo_wrst_n)
       );
    `else
-   fifo #(8, 3) tx_fifo
+   fifo #(8, 4) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),

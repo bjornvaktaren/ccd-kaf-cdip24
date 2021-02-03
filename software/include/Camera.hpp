@@ -31,8 +31,8 @@ public:
 
    bool setGain(const unsigned char gain);
    bool setOffset(const unsigned char offset, const bool negative = false);
-   void startExposure();
-   void stopExposure();
+   void startExposure(const bool openShutter = true);
+   void stopExposure(const bool closeShutter = true);
    void flushSensor();
    bool getAD9826Config();
    bool sampleTemperatures();

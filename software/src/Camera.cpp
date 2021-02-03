@@ -105,20 +105,24 @@ bool Camera::setOffset(const unsigned char offset, const bool negative)
 }
 
 
-void Camera::startExposure()
+void Camera::startExposure(const bool openShutter)
 {
    std::cout << "Flushing\n";
    this->flushSensor();
    std::this_thread::sleep_for(std::chrono::seconds(2));
-   std::cout << "Open shutter\n";
-   this->openShutter();
+   if ( openShutter ) {
+      std::cout << "Open shutter\n";
+      this->openShutter();
+   }
 }
 
 
-void Camera::stopExposure()
+void Camera::stopExposure(const bool closeShutter)
 {
-   std::cout << "Close shutter\n";
-   this->closeShutter();
+   if ( closeShutter ) {
+      std::cout << "Close shutter\n";
+      this->closeShutter();
+   }
    const size_t nBytesWrite = 4;
    const unsigned char writeBuffer[nBytesWrite] = {
       fpga::command::set_register,
@@ -131,12 +135,12 @@ void Camera::stopExposure()
    // std::this_thread::sleep_for(std::chrono::milliseconds(1));
   
    // Get the image data
-   const size_t chunksize = 128;
+   const size_t chunksize = 255;
    size_t totalBytesRead = 0;
    const size_t bytesToRead = this->getWidth()*(this->getHeight() + 10000)*3;
    // const size_t bytesToRead = m_imageData.size()*3;
    int nTimesStuck = 0;
-   while ( totalBytesRead < bytesToRead && nTimesStuck < 10 ) {
+   while ( totalBytesRead < bytesToRead && nTimesStuck < 2 ) {
       size_t bytesLeft = bytesToRead - totalBytesRead;
       size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
       // std::cout << "Trying to read " << chunk << " bytes\n";

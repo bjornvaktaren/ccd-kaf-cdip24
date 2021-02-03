@@ -9,6 +9,7 @@
 #include <math.h>
 #include <exception>
 
+#define cimg_use_tiff
 #include <CImg.h>
 
 #include <ColorWheel.hpp>

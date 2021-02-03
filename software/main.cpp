@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
    bool plot    = false;
    bool flush   = false;
    bool capture = false;
+   bool dark    = false;
    bool cooling = false;
    bool reset   = false;
    double targetTemperature = 20.0;
@@ -131,6 +132,13 @@ int main(int argc, char* argv[])
 	    = std::chrono::milliseconds(
 	       static_cast<unsigned long>(1e3*strtod(argv[i+1], NULL)));
 	 capture = true;
+	 ++i;
+      }
+      else if ( checkArg(argc, argv, i, "--dark", "-d", 1) ) {
+	 integrationTime
+	    = std::chrono::milliseconds(
+	       static_cast<unsigned long>(1e3*strtod(argv[i+1], NULL)));
+	 dark = true;
 	 ++i;
       }
       else if ( checkArg(argc, argv, i, "--flush", "-f", 0) ) {
@@ -183,7 +191,7 @@ int main(int argc, char* argv[])
       camera.setTemperature(targetTemperature);
    }
 
-   if ( capture ) {
+   if ( capture || dark ) {
       
       fileNameHandler(imageFileName);
       
@@ -191,7 +199,7 @@ int main(int argc, char* argv[])
       auto lastTemperatureQuery = std::chrono::steady_clock::now();
       
       std::cout << "Integrating\n";
-      camera.startExposure();
+      camera.startExposure(!dark);
       auto start = std::chrono::steady_clock::now();
       std::chrono::milliseconds millisecSinceStart(0);
       
@@ -203,7 +211,7 @@ int main(int argc, char* argv[])
 	 std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
 
-      camera.stopExposure();
+      camera.stopExposure(!dark);
       std::vector<uint16_t> imageData = camera.getImageData();
       cimg_library::CImg<uint16_t> image(
 	 camera.getWidth() + 1, camera.getHeight()
