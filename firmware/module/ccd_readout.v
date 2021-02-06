@@ -1,5 +1,41 @@
 `default_nettype none
 
+/*
+ Pixel timing (two cycles)
+                _                   _                
+ kaf_r        _/ \_________________/ \_______________
+                ________            ________         
+ kaf_h1       _/        \__________/        \________
+                    __                  __           
+ ad_cdsclk1   _____/  \________________/  \__________
+                           ____                ____  
+ ad_cdsclk2   ____________/    \______________/    \_
+              _____          __________          ____
+ ad_adclk          \________/          \________/    
+              _____ ________ __________ ________ ____
+ ad_data      _____X________X__________X________X____
+               n-4     n-4     n-3        n-3      n-2
+               msb     lsb     msb        lsb      msb
+                             ____                ____ 
+ data_avail   ______________/    \______________/    \
+                              ___                 ___ 
+ data_accept  _______________/   \_______________/   \
+
+ state (h*)   0 1 2 3  4   5 6  7 0 1 2 3  4   5 6  7 
+ 
+ 
+ Line timing (one cycle)
+
+ kaf_h1       XXXX_________XXXX
+                      _
+ kaf_v1       _______/ \_______
+                    _   _
+ kaf_v2       _____/ \_/ \_____
+ 
+ state (h*)   N/A 0 1 2 3 4 N/A  
+
+  
+*/
 module ccd_readout
   (
    clk,        // System clock
@@ -99,6 +135,8 @@ module ccd_readout
    
    // state-machine: idle, clean, read_out
    always @(posedge module_clk) begin
+
+      state <= state;
       
       case (state)
 
