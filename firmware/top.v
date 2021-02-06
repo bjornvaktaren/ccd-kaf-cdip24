@@ -243,7 +243,6 @@ module top
       .data_out(ccd_readout_data),
       .data_avail(ccd_readout_data_avail),
       .data_accept(ccd_readout_data_accept),
-      .tx_full(tx_fifo_wfull)
       );
 
    

@@ -19,8 +19,6 @@ Camera::Camera() :
    m_imageData {},
    m_rawPixelData {}
 {
-   // m_imageData.resize(3*this->getWidth()*(1 + this->getHeight()), 0);
-   // m_rawPixelData.resize(3*this->getWidth()*(1 + this->getHeight()), 0);
 }
 
 void Camera::connect()
@@ -132,15 +130,14 @@ void Camera::stopExposure(const bool closeShutter)
    };
    std::cout << "Initiating Readout\n";
    bool ok = m_ft.write(writeBuffer, nBytesWrite); 
-   // std::this_thread::sleep_for(std::chrono::milliseconds(1));
   
    // Get the image data
-   const size_t chunksize = 255;
+   const size_t chunksize = 16384; // Max buffer size in libftdi
    size_t totalBytesRead = 0;
-   const size_t bytesToRead = this->getWidth()*(this->getHeight() + 10000)*3;
+   const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
    // const size_t bytesToRead = m_imageData.size()*3;
    int nTimesStuck = 0;
-   while ( totalBytesRead < bytesToRead && nTimesStuck < 2 ) {
+   while ( totalBytesRead < bytesToRead && nTimesStuck < 20 ) {
       size_t bytesLeft = bytesToRead - totalBytesRead;
       size_t chunk = bytesLeft < chunksize ? bytesLeft : chunksize;
       // std::cout << "Trying to read " << chunk << " bytes\n";

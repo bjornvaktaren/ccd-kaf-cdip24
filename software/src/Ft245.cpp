@@ -45,7 +45,7 @@ int Ft245::init()
       return ftdi_status;
    }
    
-   ftdi_status = ftdi_read_data_set_chunksize(&m_ftdi, 512);
+   ftdi_status = ftdi_read_data_set_chunksize(&m_ftdi, 16384);
    if ( ftdi_status != 0 ) {
       std::cerr << "ERROR: Can't set chunk size. Got error\n"
 	       << ftdi_get_error_string(&m_ftdi) << '\n';

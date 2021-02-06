@@ -214,16 +214,19 @@ int main(int argc, char* argv[])
       camera.stopExposure(!dark);
       std::vector<uint16_t> imageData = camera.getImageData();
       cimg_library::CImg<uint16_t> image(
-	 camera.getWidth() + 1, camera.getHeight()
+	 camera.getWidth(), camera.getHeight()
 	 );
+      // cimg_library::CImg<uint16_t> image(
+      // 	 camera.getWidth() + 1, camera.getHeight()
+      // 	 );
       // for ( size_t x = 0; x < imageData.size(); ++x ) {
       // 	 uint16_t pixel = imageData.at(x);
       // 	 image(pixel) = pixel;
       // }
-      for ( size_t x = 0; x < camera.getWidth()-3; ++x ) {
+      for ( size_t x = 0; x < camera.getWidth(); ++x ) {
 	 for ( size_t y = 0; y < camera.getHeight(); ++y ) {
 	    try {
-	       uint16_t pixel = imageData.at((x+3) + y*(1+camera.getWidth()));
+	       uint16_t pixel = imageData.at(x + y*camera.getWidth());
 	       image(x,y) = pixel;
 	    }
 	    catch ( std::exception &e ) {

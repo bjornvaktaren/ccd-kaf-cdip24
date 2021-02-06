@@ -55,7 +55,7 @@ public:
 
    // Image size in number of pixels
    constexpr int getWidth() const { return 2267; };
-   constexpr int getHeight() const { return 1510; };
+   constexpr int getHeight() const { return 1510 + 1; };
    
    // Pixel size in micrometer
    double getPixelWidth() { return 6.8; };
