@@ -52,10 +52,17 @@ public:
    void setTemperature(double celsius);
    
    std::vector<uint16_t> getImageData() { return m_imageData; };
+   std::vector<uint16_t> getActiveImageData();
 
    // Image size in number of pixels
    constexpr int getWidth() const { return 2267; };
    constexpr int getHeight() const { return 1510 + 1; };
+   constexpr int getActiveWidth() const { return 2184; };
+   constexpr int getActiveHeight() const { return 1472; };
+   constexpr int getInvalidLeft() const { return 50; };
+   constexpr int getInvalidRight() const { return 33; };
+   constexpr int getInvalidTop() const { return 35; };
+   constexpr int getInvalidBottom() const { return 4; };
    
    // Pixel size in micrometer
    double getPixelWidth() { return 6.8; };

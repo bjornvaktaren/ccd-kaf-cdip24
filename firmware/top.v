@@ -236,13 +236,13 @@ module top
       .kaf_v1(kaf_v1),
       .kaf_v2(kaf_v2),
       .kaf_amp(kaf_amp),
-      .module_clk(clk_div[2]),
+      .module_clk(clk_div[1]),
       .busy(ccd_readout_busy),
       .toggle(ccd_readout_toggle),
       .mode(ccd_readout_mode),
       .data_out(ccd_readout_data),
       .data_avail(ccd_readout_data_avail),
-      .data_accept(ccd_readout_data_accept),
+      .data_accept(ccd_readout_data_accept)
       );
 
    

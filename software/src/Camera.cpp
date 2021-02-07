@@ -19,6 +19,8 @@ Camera::Camera() :
    m_imageData {},
    m_rawPixelData {}
 {
+   m_imageData.resize(this->getWidth()*this->getHeight(), 0);
+   m_rawPixelData.resize(this->getWidth()*this->getHeight()*3, 0);
 }
 
 void Camera::connect()
@@ -135,7 +137,6 @@ void Camera::stopExposure(const bool closeShutter)
    const size_t chunksize = 16384; // Max buffer size in libftdi
    size_t totalBytesRead = 0;
    const size_t bytesToRead = this->getWidth()*this->getHeight()*3;
-   // const size_t bytesToRead = m_imageData.size()*3;
    int nTimesStuck = 0;
    while ( totalBytesRead < bytesToRead && nTimesStuck < 20 ) {
       size_t bytesLeft = bytesToRead - totalBytesRead;
@@ -145,26 +146,19 @@ void Camera::stopExposure(const bool closeShutter)
       size_t bytesRead = m_ft.read(buffer, chunk);
       // Just dump it to a vector and process it later
       for ( size_t i = 0; i < bytesRead; ++i ) {
-	 // discard first 3 pixels
-	 // if ( totalBytesRead + i < 3 ) continue;
-	 m_rawPixelData.push_back(buffer[i]);
-	 // m_rawPixelData[totalBytesRead + i] = buffer[i];
+	 m_rawPixelData[i + totalBytesRead] = buffer[i];
       }
       if ( bytesRead <= 0 ) ++nTimesStuck;
       else nTimesStuck = 0;
       totalBytesRead += bytesRead > 0 ? bytesRead : 0;
-      // std::this_thread::sleep_for(std::chrono::microseconds(1));
    }
-   std::cout << "Read " << totalBytesRead << " bytes\n";
-   std::cout << "Processing pixel data\n";
    // Decode raw data to
-   std::cout << "m_rawPixelData.size() is " << m_rawPixelData.size() << '\n';
    for ( int i = 0; i < totalBytesRead/3; ++i ) {
       auto packet = this->decodePacket(
 	 m_rawPixelData[3*i], m_rawPixelData[3*i+1], m_rawPixelData[3*i+2]
 	 );
       if ( packet.topic == fpga::DataTopic::pixel ) 
-	 m_imageData.push_back(packet.data);
+	 m_imageData[i] = packet.data;
    }
    
 }
@@ -298,7 +292,6 @@ bool Camera::getAD9826Config()
    // Read back the result, same number of bytes
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
-   std::cout << "readBytes = " << readBytes;
 
    // Decode the recieved data
    for ( int i = 0; i < 4; ++i ) {
@@ -354,9 +347,11 @@ bool Camera::sampleTemperatures()
 	 now, this->m_thermistors.at(fpga::thermistor_id::ccd).getCelsius()
 	 );
       m_pidOutPercent = pidOut/(m_pid.getMaximum() - m_pid.getMinimum())*100.0;
-      unsigned char pwm = static_cast<unsigned char>(pidOut);
-      this->setPeltierPWM(1, pwm);
-      this->setPeltierPWM(2, pwm);
+      unsigned char pwm1 = static_cast<unsigned char>(pidOut);
+      // The cold-side Peltier element should not cool as much
+      unsigned char pwm2 = static_cast<unsigned char>(pidOut*0.8);
+      this->setPeltierPWM(1, pwm1);
+      this->setPeltierPWM(2, pwm2);
    }
 
    return readBytes == nBytes;
@@ -441,4 +436,19 @@ void Camera::reset()
    if ( ! m_ft.writeByte(fpga::command::reset) ) {
       throw std::runtime_error("Unable to reset camera");
    }
+}
+
+std::vector<uint16_t> Camera::getActiveImageData()
+{
+   // Discards all invalid pixels at the sensor edges
+   std::vector<uint16_t> activeImageData;
+   for ( int y = 0; y < this->getActiveHeight(); ++y ) {
+      for ( int x = 0; x < this->getActiveWidth(); ++x ) {
+	 activeImageData.push_back(
+	    m_imageData[x +this->getInvalidLeft() + y*this->getWidth()]
+	    );
+      }
+   }
+   std::cout << m_imageData.size() << '\n';
+   return activeImageData;
 }
