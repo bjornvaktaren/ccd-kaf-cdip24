@@ -235,148 +235,166 @@ int main(int argc, char* argv[])
 	 }
 	 else if ( command == "dark" || command == "d" ) {
 	    double exposure = 1.0;
+	    int exposures = 1;
 	    std::cout << "Enter exposure time in seconds\n";
 	    std::cin >> exposure;
-	    std::cout << "Capturing dark frame for " << exposure << " s\n";
+	    std::cout << "Enter number of exposures\n";
+	    std::cin >> exposures;
+	    std::cout << "Capturing " << exposures << " dark frame(s) for "
+		      << exposure << " s\n";
 	    
 	    integrationTime
 	       = std::chrono::milliseconds(
 		  static_cast<unsigned long>(1e3*exposure));
-	    
-	    std::filesystem::path imageFileName = "dark_0.tiff";
-	    fileNameHandler(imageFileName);
-	    
-	    std::cout << "Integrating\n";
-	    camera.startExposure(false);
-	    auto start = std::chrono::steady_clock::now();
-	    std::chrono::milliseconds millisecSinceStart(0);
-	    
-	    auto lastTemperatureQuery = std::chrono::steady_clock::now();
-	    camera.sampleTemperatures();
-	    
-	    while ( millisecSinceStart < integrationTime ) {
-	       auto now = std::chrono::steady_clock::now();
+	    int exposureCount = 0;
+
+	    while ( exposureCount < exposures ) { 
+	       std::filesystem::path imageFileName = "dark_0.tiff";
+	       fileNameHandler(imageFileName);
 	       
-	       auto millisecondsSinceLastTemperatureQuery
-		  = std::chrono::duration_cast<std::chrono::milliseconds>
-		  (now - lastTemperatureQuery);
-	       if ( millisecondsSinceLastTemperatureQuery.count() > 500.0 ) {
-		  camera.sampleTemperatures();
-	       }
-	    
-	       millisecSinceStart
-		  = std::chrono::duration_cast<std::chrono::milliseconds>
-		  (now - start);
-	       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	       double ccdT = camera.getTemperature(fpga::thermistor_id::ccd);
-	       double tecT = camera.getTemperature(fpga::thermistor_id::tec);
-	       double coolPercent = camera.getCoolerOutputPercent();
-	       std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
-			 << ccdT << " C, TEC: " << tecT << " C, "
-			 << "Cooling: " << coolPercent << " %";
-	    }
-	    std::cout << '\n';
-	    
-	    camera.stopExposure(false);
-	    std::vector<uint16_t> imageData = camera.getImageData();
-	    cimg_library::CImg<uint16_t> image(
-	       camera.getWidth(), camera.getHeight()
-	       );
-	    for ( size_t x = 0; x < camera.getWidth(); ++x ) {
-	       for ( size_t y = 0; y < camera.getHeight(); ++y ) {
-		  try {
-		     uint16_t pixel = imageData.at(x + y*camera.getWidth());
-		     image(x,y) = pixel;
+	       std::cout << "Integrating\n";
+	       camera.startExposure(false);
+	       auto start = std::chrono::steady_clock::now();
+	       std::chrono::milliseconds millisecSinceStart(0);
+	       
+	       auto lastTemperatureQuery = std::chrono::steady_clock::now();
+	       camera.sampleTemperatures();
+	       
+	       while ( millisecSinceStart < integrationTime ) {
+		  auto now = std::chrono::steady_clock::now();
+		  
+		  auto millisecondsSinceLastTemperatureQuery
+		     = std::chrono::duration_cast<std::chrono::milliseconds>
+		     (now - lastTemperatureQuery);
+		  if ( millisecondsSinceLastTemperatureQuery.count() > 100.0 ){
+		     camera.sampleTemperatures();
 		  }
-		  catch ( std::exception &e ) {
-		     ;
+		  
+		  millisecSinceStart
+		     = std::chrono::duration_cast<std::chrono::milliseconds>
+		     (now - start);
+		  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		  double ccdT=camera.getTemperature(fpga::thermistor_id::ccd);
+		  double tecT=camera.getTemperature(fpga::thermistor_id::tec);
+		  double coolPercent = camera.getCoolerOutputPercent();
+		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
+			    << ccdT << " C, TEC: " << tecT << " C, "
+			    << "Cooling: "
+			    << (coolPercent > 0.0 ? coolPercent : 0.0 << " %";
+	       }
+	       std::cout << '\n';
+	    
+	       camera.stopExposure(false);
+	       std::vector<uint16_t> imageData = camera.getImageData();
+	       cimg_library::CImg<uint16_t> image(
+		  camera.getWidth(), camera.getHeight()
+		  );
+	       for ( size_t x = 0; x < camera.getWidth(); ++x ) {
+		  for ( size_t y = 0; y < camera.getHeight(); ++y ) {
+		     try {
+			uint16_t pixel = imageData.at(x + y*camera.getWidth());
+			image(x,y) = pixel;
+		     }
+		     catch ( std::exception &e ) {
+			;
+		     }
 		  }
 	       }
+	       image.save(imageFileName.c_str());
+	       CImgDisplay imgDisplay(image, imageFileName.c_str());
+	       image.resize_halfXY();
+	       imgDisplay.display(image);
+	       CImg<float> histogram(400, 300, 1, 3, 255);
+	       CImgDisplay histDisplay(histogram, "Histogram");
+	       // display histogram on display
+	       const unsigned char white[] = {255, 255, 255};
+	       histogram.draw_graph(image.get_histogram(255), white, 1, 3)
+		  .display(histDisplay);
+	       std::this_thread::sleep_for(std::chrono::seconds(3));
+	       ++exposureCount;
 	    }
-	    image.save(imageFileName.c_str());
-	    CImgDisplay imgDisplay(image, imageFileName.c_str());
-	    image.resize_halfXY();
-	    imgDisplay.display(image);
-	    CImg<float> histogram(400, 300, 1, 3, 255);
-	    CImgDisplay histDisplay(histogram, "Histogram");
-	    // display histogram on display
-	    const unsigned char white[] = {255, 255, 255};
-	    histogram.draw_graph(image.get_histogram(255), white, 1, 3)
-	       .display(histDisplay);
-	    std::this_thread::sleep_for(std::chrono::seconds(3));
-	    
 	 }
 	 else if ( command == "light" || command == "l" ) {
 	    double exposure = 1.0;
+	    int exposures = 1;
 	    std::cout << "Enter exposure time in seconds\n";
 	    std::cin >> exposure;
-	    std::cout << "Capturing light frame for " << exposure << " s\n";
+	    std::cout << "Enter number of exposures\n";
+	    std::cin >> exposures;
+	    std::cout << "Capturing "<< exposures << " light frame(s) for "
+		      << exposure << " s\n";
 	    
 	    integrationTime
 	       = std::chrono::milliseconds(
 		  static_cast<unsigned long>(1e3*exposure));
+	    int exposureCount = 0;
+
+	    while ( exposureCount < exposures ) { 
 	    
-	    std::filesystem::path imageFileName = "light_0.tiff";
-	    fileNameHandler(imageFileName);
-	    
-	    std::cout << "Integrating\n";
-	    camera.startExposure();
-	    auto start = std::chrono::steady_clock::now();
-	    std::chrono::milliseconds millisecSinceStart(0);
-	    
-	    auto lastTemperatureQuery = std::chrono::steady_clock::now();
-	    camera.sampleTemperatures();
-	    
-	    while ( millisecSinceStart < integrationTime ) {
-	       auto now = std::chrono::steady_clock::now();
+	       std::filesystem::path imageFileName = "light_0.tiff";
+	       fileNameHandler(imageFileName);
 	       
-	       auto millisecondsSinceLastTemperatureQuery
-		  = std::chrono::duration_cast<std::chrono::milliseconds>
-		  (now - lastTemperatureQuery);
-	       if ( millisecondsSinceLastTemperatureQuery.count() > 500.0 ) {
-		  camera.sampleTemperatures();
-	       }
-	    
-	       millisecSinceStart
-		  = std::chrono::duration_cast<std::chrono::milliseconds>
-		  (now - start);
-	       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	       double ccdT = camera.getTemperature(fpga::thermistor_id::ccd);
-	       double tecT = camera.getTemperature(fpga::thermistor_id::tec);
-	       double coolPercent = camera.getCoolerOutputPercent();
-	       std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
-			 << ccdT << " C, TEC: " << tecT << " C, "
-			 << "Cooling: " << coolPercent << " %";
-	    }
-	    std::cout << '\n';
-	    
-	    camera.stopExposure();
-	    std::vector<uint16_t> imageData = camera.getImageData();
-	    cimg_library::CImg<uint16_t> image(
-	       camera.getWidth(), camera.getHeight()
-	       );
-	    for ( size_t x = 0; x < camera.getWidth(); ++x ) {
-	       for ( size_t y = 0; y < camera.getHeight(); ++y ) {
-		  try {
-		     uint16_t pixel = imageData.at(x + y*camera.getWidth());
-		     image(x,y) = pixel;
+	       std::cout << "Integrating\n";
+	       camera.startExposure();
+	       auto start = std::chrono::steady_clock::now();
+	       std::chrono::milliseconds millisecSinceStart(0);
+	       
+	       auto lastTemperatureQuery = std::chrono::steady_clock::now();
+	       camera.sampleTemperatures();
+	       
+	       while ( millisecSinceStart < integrationTime ) {
+		  auto now = std::chrono::steady_clock::now();
+		  
+		  auto millisecondsSinceLastTemperatureQuery
+		     = std::chrono::duration_cast<std::chrono::milliseconds>
+		     (now - lastTemperatureQuery);
+		  if ( millisecondsSinceLastTemperatureQuery.count() > 100.0 ){
+		     camera.sampleTemperatures();
 		  }
-		  catch ( std::exception &e ) {
-		     ;
+		  
+		  millisecSinceStart
+		     = std::chrono::duration_cast<std::chrono::milliseconds>
+		     (now - start);
+		  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		  double ccdT = camera.getTemperature(fpga::thermistor_id::ccd);
+		  double tecT = camera.getTemperature(fpga::thermistor_id::tec);
+		  double coolPercent = camera.getCoolerOutputPercent();
+		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
+			    << ccdT << " C, TEC: " << tecT << " C, "
+			    << "Cooling: "
+			    << (coolPercent > 0.0 ? coolPercent : 0.0 << " %";
+	       }
+	       std::cout << '\n';
+	       
+	       camera.stopExposure();
+	       std::vector<uint16_t> imageData = camera.getImageData();
+	       cimg_library::CImg<uint16_t> image(
+		  camera.getWidth(), camera.getHeight()
+		  );
+	       for ( size_t x = 0; x < camera.getWidth(); ++x ) {
+		  for ( size_t y = 0; y < camera.getHeight(); ++y ) {
+		     try {
+			uint16_t pixel = imageData.at(x + y*camera.getWidth());
+			image(x,y) = pixel;
+		     }
+		     catch ( std::exception &e ) {
+			;
+		     }
 		  }
 	       }
+	       image.save(imageFileName.c_str());
+	       CImgDisplay imgDisplay(image, imageFileName.c_str());
+	       image.resize_halfXY();
+	       imgDisplay.display(image);
+	       CImg<float> histogram(400, 300, 1, 3, 255);
+	       CImgDisplay histDisplay(histogram, "Histogram");
+	       // display histogram on display
+	       const unsigned char white[] = {255, 255, 255};
+	       histogram.draw_graph(image.get_histogram(255), white, 1, 3)
+		  .display(histDisplay);
+	       std::this_thread::sleep_for(std::chrono::seconds(3));
+	       ++exposureCount;
 	    }
-	    image.save(imageFileName.c_str());
-	    CImgDisplay imgDisplay(image, imageFileName.c_str());
-	    image.resize_halfXY();
-	    imgDisplay.display(image);
-	    CImg<float> histogram(400, 300, 1, 3, 255);
-	    CImgDisplay histDisplay(histogram, "Histogram");
-	    // display histogram on display
-	    const unsigned char white[] = {255, 255, 255};
-	    histogram.draw_graph(image.get_histogram(255), white, 1, 3)
-	       .display(histDisplay);
-	    std::this_thread::sleep_for(std::chrono::seconds(3));
 	 }
 	 else {
 	    std::cout << "Unknown command: " << command << '\n'
