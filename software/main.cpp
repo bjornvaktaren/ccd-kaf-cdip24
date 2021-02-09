@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
 			    << ccdT << " C, TEC: " << tecT << " C, "
 			    << "Cooling: "
-			    << (coolPercent > 0.0 ? coolPercent : 0.0 << " %";
+			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %";
 	       }
 	       std::cout << '\n';
 	    
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
 			    << ccdT << " C, TEC: " << tecT << " C, "
 			    << "Cooling: "
-			    << (coolPercent > 0.0 ? coolPercent : 0.0 << " %";
+			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %";
 	       }
 	       std::cout << '\n';
 	       
