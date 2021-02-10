@@ -14,7 +14,7 @@ Camera::Camera() :
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
    },
    m_ccdTargetTemperature { 20.0 },
-   m_pid {0.0, 127.0, 2.0, 0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
+   m_pid {0.0, 255.0, -60.0, -0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
    m_pidOutPercent {-1.0},
    m_imageData {},
    m_rawPixelData {}

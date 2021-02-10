@@ -36,7 +36,7 @@ double PID::calculate(
       (processTime - m_prevTime).count();
 	
    // Calculate error
-   double error = std::abs(m_setPoint - processValue);
+   double error = m_setPoint - processValue;
 	
    // Proportional term
    double p = m_kp * error;

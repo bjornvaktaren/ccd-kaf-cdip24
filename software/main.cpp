@@ -184,12 +184,15 @@ int main(int argc, char* argv[])
 	 
 	 if ( command == "h" || command == "help" ) {
 	    std::cout << "Commands:\n"
-		      << "exit, q       : Quit\n"
-		      << "gain, g       : Set CCD gain\n"
-		      << "cool, c       : Set target temperature\n"
-		      << "dark, d       : Capture a dark frame\n"
-		      << "settings, s   : Print CCD settings\n"
-		      << "light, l      : Capture a light frame\n";
+		      << "cool      c   : Set target temperature\n"
+		      << "dark      d   : Capture a dark frame\n"
+		      << "exit      q   : Quit\n"
+		      << "gain      g   : Set CCD gain\n"
+		      << "light     l   : Capture a light frame\n"
+		      << "offset    o   : Sett CCD offest\n"
+		      << "reset     r   : Reset CCD\n"
+		      << "settings  s   : Print CCD settings\n"
+		      << "tunepid   t   : Tune cooling PID\n";
 	 }
 	 else if ( command == "gain" || command == "g" ) {
 	    double gain = 0;
@@ -202,6 +205,60 @@ int main(int argc, char* argv[])
 	    else {
 	       std::cout << "Invalid gain " << (int)gain << '\n';
 	    }
+	 }
+	 else if ( command == "monitor" || command == "m" ) {
+	    std::cout << "Close window to exit command.\n";
+	    auto lastTemperatureQuery = std::chrono::steady_clock::now();
+	    const unsigned int temperatureImgSizeX = 500;
+	    const unsigned int temperatureImgSizeY = 400;
+	    std::vector<float> temperatureAmbient;
+	    std::vector<float> temperatureCCD;
+	    std::vector<float> temperatureTEC;
+	    std::vector<float> timeVec;
+	    std::vector<float> pwmVec;
+	    CImgPlot temperatureImg(temperatureImgSizeX, temperatureImgSizeY);
+	    temperatureImg.setTitle("Time (s)","Temperature (C)");
+	    temperatureImg.setXRange(30.0, true);
+	    CImgDisplay temperatureDisplay(temperatureImg, "Camera cooling");
+	    std::chrono::steady_clock::time_point start
+	       = std::chrono::steady_clock::now();
+	    
+	    while ( !temperatureDisplay.is_closed() ) {
+	       std::chrono::steady_clock::time_point now
+		  = std::chrono::steady_clock::now();
+	       auto msec = std::chrono::duration_cast
+		  <std::chrono::milliseconds>(now-start);
+	       
+	       // camera.test();
+	       camera.sampleTemperatures();
+	       
+	       timeVec.push_back(msec.count()/1000.0);
+	       double ambTemp = camera.getTemperature(
+		  fpga::thermistor_id::ambient);
+	       double ccdTemp = camera.getTemperature(
+		  fpga::thermistor_id::ccd);
+	       double tecTemp = camera.getTemperature(
+		  fpga::thermistor_id::tec);
+	       temperatureAmbient.push_back(ambTemp);
+	       temperatureCCD.push_back(ccdTemp);
+	       temperatureTEC.push_back(tecTemp);
+	       
+	       pwmVec.push_back(static_cast<float>(
+				   camera.getCoolerOutputPercent()/10.0));
+	       
+	       if ( temperatureAmbient.size() > 2 &&
+		    temperatureCCD.size()     > 2 &&
+		    timeVec.size()            > 2 
+		  ) {
+		  temperatureImg.line(1, timeVec, temperatureCCD, "l");
+		  temperatureImg.line(2, timeVec, temperatureTEC, "l");
+		  temperatureImg.line(3, timeVec, pwmVec, "l");
+		  temperatureImg.draw();
+		  temperatureImg.display(temperatureDisplay);
+	       }
+	       std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	    }
+	    command = "";
 	 }
 	 else if ( command == "offset" || command == "o" ) {
 	    double offset = 0;
@@ -222,6 +279,9 @@ int main(int argc, char* argv[])
 	 }
 	 else if ( command == "settings" || command == "s" ) {
 	    camera.getAD9826Config();
+	 }
+	 else if ( command == "reset" || command == "r" ) {
+	    camera.reset();
 	 }
 	 else if ( command == "cool" || command == "c" ) {
 	    double celsius = 20.0;
@@ -268,6 +328,7 @@ int main(int argc, char* argv[])
 		     (now - lastTemperatureQuery);
 		  if ( millisecondsSinceLastTemperatureQuery.count() > 100.0 ){
 		     camera.sampleTemperatures();
+		     lastTemperatureQuery = std::chrono::steady_clock::now();
 		  }
 		  
 		  millisecSinceStart
@@ -277,10 +338,16 @@ int main(int argc, char* argv[])
 		  double ccdT=camera.getTemperature(fpga::thermistor_id::ccd);
 		  double tecT=camera.getTemperature(fpga::thermistor_id::tec);
 		  double coolPercent = camera.getCoolerOutputPercent();
-		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
-			    << ccdT << " C, TEC: " << tecT << " C, "
-			    << "Cooling: "
-			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %";
+		  std::cout << "  " << std::fixed << std::setprecision(1)
+			    << millisecSinceStart.count()/1000.0 << '/'
+			    << integrationTime.count()/1000.0 << " s, "
+			    << "CCD: " << ccdT << " C, "
+			    << "TEC: " << tecT << " C, "
+			    << "Target: " << camera.getTargetTemperature()
+			    << " C, Cooler: "
+			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %"
+			    << "\r";
+		  std::cout.flush();
 	       }
 	       std::cout << '\n';
 	    
@@ -350,19 +417,26 @@ int main(int argc, char* argv[])
 		     (now - lastTemperatureQuery);
 		  if ( millisecondsSinceLastTemperatureQuery.count() > 100.0 ){
 		     camera.sampleTemperatures();
+		     lastTemperatureQuery = std::chrono::steady_clock::now();
 		  }
 		  
 		  millisecSinceStart
 		     = std::chrono::duration_cast<std::chrono::milliseconds>
 		     (now - start);
 		  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		  double ccdT = camera.getTemperature(fpga::thermistor_id::ccd);
-		  double tecT = camera.getTemperature(fpga::thermistor_id::tec);
+		  double ccdT=camera.getTemperature(fpga::thermistor_id::ccd);
+		  double tecT=camera.getTemperature(fpga::thermistor_id::tec);
 		  double coolPercent = camera.getCoolerOutputPercent();
-		  std::cout << "\r CCD: " << std::fixed << std::setprecision(1)
-			    << ccdT << " C, TEC: " << tecT << " C, "
-			    << "Cooling: "
-			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %";
+		  std::cout << "  " << std::fixed << std::setprecision(1)
+			    << millisecSinceStart.count()/1000.0 << '/'
+			    << integrationTime.count()/1000.0 << " s, "
+			    << "CCD: " << ccdT << " C, "
+			    << "TEC: " << tecT << " C, "
+			    << "Target: " << camera.getTargetTemperature()
+			    << " C, Cooler: "
+			    << (coolPercent > 0.0 ? coolPercent : 0.0) << " %"
+			    << "\r";
+		  std::cout.flush();
 	       }
 	       std::cout << '\n';
 	       

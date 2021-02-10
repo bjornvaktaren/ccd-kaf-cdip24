@@ -27,6 +27,7 @@ public:
    double getKp() const { return m_kp; };
    double getKi() const { return m_ki; };
    double getKs() const { return m_kd; };
+   double getTarget() const { return m_setPoint; };
 	
    double calculate(
       const std::chrono::steady_clock::time_point processTime,

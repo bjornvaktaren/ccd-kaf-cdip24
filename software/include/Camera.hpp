@@ -41,17 +41,15 @@ public:
    bool closeShutter();
    bool setCCDReadoutMode(const unsigned char mode);
    void setVerbosity(Verbosity v);
-   void setCCDTargetTemperature(const double celsius) {
-      m_ccdTargetTemperature = celsius;
-   };
 
-   bool getCoolerOn() { return m_coolerOn; };
+   bool getCoolerOn() const { return m_coolerOn; };
    void setCoolerOn(const bool on=true);
    double getCoolerOutputPercent() const { return m_pidOutPercent; };
+   double getTargetTemperature() const { return m_pid.getTarget(); };
 
    void setTemperature(double celsius);
    
-   std::vector<uint16_t> getImageData() { return m_imageData; };
+   std::vector<uint16_t> getImageData() const { return m_imageData; };
    std::vector<uint16_t> getActiveImageData();
 
    // Image size in number of pixels
@@ -65,11 +63,11 @@ public:
    constexpr int getInvalidBottom() const { return 4; };
    
    // Pixel size in micrometer
-   double getPixelWidth() { return 6.8; };
-   double getPixelHeight() { return 6.8; };
+   double getPixelWidth() const { return 6.8; };
+   double getPixelHeight() const { return 6.8; };
    
    // ADC channels
-   int getADCResolution() { return 16; };
+   int getADCResolution() const { return 16; };
 
    void reset();
 	
