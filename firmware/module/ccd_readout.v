@@ -26,14 +26,14 @@
  
  Line timing (one cycle)
 
- kaf_h1       XXXX_________XXXX
-                      _
- kaf_v1       _______/ \_______
-                    _   _
- kaf_v2       _____/ \_/ \_____
+ kaf_h1       XXX______________XXX
+                        _
+ kaf_v1       _________/ \________
+                    _       _
+ kaf_v2       _____/ \_____/ \____
  
- state (v*)   N/A 0 1 2 3 4 N/A  
-
+ state (v*)   N/A 0 1 2 3 4 5 6 N/A  
+ 
   
 */
 module ccd_readout
@@ -60,21 +60,23 @@ module ccd_readout
 
    `include "ccd_readout.vh"
    
-   localparam state_idle = 4'b0000;
-   localparam state_h0   = 4'b0001;
-   localparam state_h1   = 4'b0011;
-   localparam state_h2   = 4'b0010;
-   localparam state_h3   = 4'b0110;
-   localparam state_h4   = 4'b0111;
-   localparam state_h5   = 4'b0101;
-   localparam state_h6   = 4'b0100;
-   localparam state_h7   = 4'b1100;
-   localparam state_h8   = 4'b1101;
-   localparam state_v0   = 4'b1111;
-   localparam state_v1   = 4'b1110;
-   localparam state_v2   = 4'b1010;
-   localparam state_v3   = 4'b1011;
-   localparam state_v4   = 4'b1001;
+   localparam state_idle = 5'b00000;
+   localparam state_h0   = 5'b00001;
+   localparam state_h1   = 5'b00011;
+   localparam state_h2   = 5'b00010;
+   localparam state_h3   = 5'b00110;
+   localparam state_h4   = 5'b00111;
+   localparam state_h5   = 5'b00101;
+   localparam state_h6   = 5'b00100;
+   localparam state_h7   = 5'b01100;
+   localparam state_h8   = 5'b01101;
+   localparam state_v0   = 5'b01111;
+   localparam state_v1   = 5'b01110;
+   localparam state_v2   = 5'b01010;
+   localparam state_v3   = 5'b01011;
+   localparam state_v4   = 5'b01001;
+   localparam state_v5   = 5'b01000;
+   localparam state_v6   = 5'b11000;
 
 
    // First four 16-bit values from the ADC are undefined, as well as the
@@ -86,7 +88,10 @@ module ccd_readout
    localparam v_regs = 5;  // number of vertical pixels in the testbench ccd
    localparam h_regs = 4;  // number of horizontal pixels in the testbench ccd
 `endif
-   localparam v_delay = 150;    // clock delays for states v1-v4.
+   localparam v_delay = 150; // clock delays for states v1, v3, v5.
+   localparam v_overlap = 1;  // clock overlap between V1 and V2.
+   localparam v_before = 0;  // clock delay for v0.
+   localparam v_after = 30;  // clock delay for v6.
 
    input             clk;
    output wire       ad_cdsclk1, ad_cdsclk2, ad_adclk, ad_oeb_n;
@@ -106,7 +111,7 @@ module ccd_readout
    reg		     adclk;
    reg 		     oeb_n;
    reg               data_avail_int;
-   reg [3:0] 	     state = state_idle;
+   reg [4:0] 	     state = state_idle;
    reg [10:0] 	     v_counter;
    reg [11:0] 	     h_counter;
    reg [7:0] 	     v_delay_counter;
@@ -187,7 +192,7 @@ module ccd_readout
 	   end
 	end
    	state_v0:
-	  if ( v_delay_counter == v_delay ) begin
+	  if ( v_delay_counter == v_before ) begin
 	     v_delay_counter <= 0;
 	     state <= state_v1;
 	  end
@@ -201,7 +206,7 @@ module ccd_readout
 	  else
 	    v_delay_counter <= v_delay_counter + 1;
    	state_v2:
-	  if ( v_delay_counter == v_delay ) begin
+	  if ( v_delay_counter == v_overlap ) begin
 	     v_delay_counter <= 0;
 	     state <= state_v3;
 	  end
@@ -214,8 +219,22 @@ module ccd_readout
 	  end
 	  else
 	    v_delay_counter <= v_delay_counter + 1;
-   	state_v4: begin
-	   if ( v_delay_counter == v_delay) begin
+   	state_v4:
+	  if ( v_delay_counter == v_overlap ) begin
+	     v_delay_counter <= 0;
+	     state <= state_v5;
+	  end
+	  else
+	    v_delay_counter <= v_delay_counter + 1;
+   	state_v5:
+	  if ( v_delay_counter == v_delay ) begin
+	     v_delay_counter <= 0;
+	     state <= state_v6;
+	  end
+	  else
+	    v_delay_counter <= v_delay_counter + 1;
+   	state_v6: begin
+	   if ( v_delay_counter == v_after) begin
 	      state <= state_h0;
 	      v_counter <= v_counter + 1;
 	      h_counter <= 0;
@@ -299,13 +318,25 @@ module ccd_readout
 	 adclk      = 1;
 	 oeb_n      = 1;
 	 kaf_v1     = 1;
+	 kaf_v2     = 1;
       end
       if ( state == state_v3 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
-	 kaf_v2     = 1;
+	 kaf_v1     = 1;
       end
       if ( state == state_v4 ) begin
+	 adclk      = 1;
+	 oeb_n      = 1;
+	 kaf_v1     = 1;
+	 kaf_v2     = 1;
+      end
+      if ( state == state_v5 ) begin
+	 adclk      = 1;
+	 oeb_n      = 1;
+	 kaf_v2     = 1;
+      end
+      if ( state == state_v6 ) begin
 	 adclk      = 1;
 	 oeb_n      = 1;
       end
