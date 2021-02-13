@@ -44,7 +44,7 @@ void Camera::connect()
    // Read back the result, same number of bytes. Discard with the result.
    unsigned char buffer[nBytes] = {0};
    int readBytes = m_ft.read(buffer, nBytes);
-
+   this->setGain(35); // default gain
 }
 
 
@@ -79,15 +79,11 @@ bool Camera::setGain(const unsigned char gain)
 
 bool Camera::setOffset(const unsigned char offset, const bool negative)
 {
-   if ( offset > 63 ) {
-      std::cout << "Offset can't be larger than 63. Ignoring.\n";
-      return false;
-   }
-
    // If negative, the LSB of the command is set to 1.
    unsigned char write_cmd = fpga::ad9826::cmd::write_offset;
    if ( negative ) write_cmd |= 0b00000001;
-   std::cout << std::bitset<8>(write_cmd) << '\n';
+   std::cout << std::bitset<8>(write_cmd) << ' ' << std::bitset<8>(offset)
+	     << '\n';
    
    // Configure the AD9826
    const size_t nBytes = 3;

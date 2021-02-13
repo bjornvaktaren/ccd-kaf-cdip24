@@ -45,7 +45,7 @@ namespace fpga {
 	 static constexpr unsigned char read_offset      = 0b11010000;
       }
       namespace reg {
-	 static constexpr uint16_t data_mask = 0b0000000011111111;
+	 static constexpr uint16_t data_mask = 0b0000000111111111;
 	 static constexpr uint16_t addr_mask = 0b0111000000000000;
 	 static constexpr uint16_t config    = 0b0000000000000000;
 	 static constexpr uint16_t muxconfig = 0b0001000000000000;

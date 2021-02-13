@@ -262,9 +262,9 @@ int main(int argc, char* argv[])
 	 }
 	 else if ( command == "offset" || command == "o" ) {
 	    double offset = 0;
-	    std::cout << "Enter offset [-63,63]\n";
+	    std::cout << "Enter offset [-255,255]\n";
 	    std::cin >> offset;
-	    if ( std::abs(offset) < 64 ) {
+	    if ( std::abs(offset) < 255 ) {
 	       std::cout << "Setting offset to " << (int)offset << '\n';
 	       unsigned char offsetChar
 		  = static_cast<unsigned char>(std::abs(offset));
@@ -470,7 +470,7 @@ int main(int argc, char* argv[])
 	       ++exposureCount;
 	    }
 	 }
-	 else {
+	 else if ( command != "q" || command != "exit" )  {
 	    std::cout << "Unknown command: " << command << '\n'
 		      << "Type h for help\n";
 	 }
