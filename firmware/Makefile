@@ -8,7 +8,7 @@ SIM_DIR=vcd
 INC_DIR=include
 MOD_DIR=module
 
-MODULES = $(addprefix $(MOD_DIR)/, ad9826_config.v mcp3008_interface.v tx_mux.v ccd_readout.v pwm.v ft245.v fifo.v)
+MODULES = $(addprefix $(MOD_DIR)/, fifo.v ad9826_config.v mcp3008_interface.v tx_mux.v ccd_readout.v pwm.v ft245.v)
 TESTBENCHES = $(wildcard testbench/*.v)
 
 all: $(TOP).bin $(TOP).rpt
@@ -19,6 +19,12 @@ $(SIM_DIR)/$(TOP)_tb: testbench/$(TOP)_tb.v $(TOP).v | $(SIM_DIR)
 $(TOP)_tb.vcd: $(SIM_DIR)/$(TOP)_tb $(MODULES) | $(SIM_DIR)
 	vvp -N $< +vcd=$@
 	mv -v $@ vcd
+
+tx_tb.vcd: $(SIM_DIR)/tx_tb $(MODULES) | $(SIM_DIR)
+	vvp -N $< +vcd=$@
+	mv -v $@ vcd
+$(SIM_DIR)/tx_tb: testbench/tx_tb.v $(TOP).v | $(SIM_DIR)
+	iverilog -I$(INC_DIR) -I$(MOD_DIR) -o $@ $^
 
 %.json: %.v $(MODULES)
 	yosys $(TOP).ys

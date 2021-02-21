@@ -1,7 +1,7 @@
 module fifo_tb();
 
-   localparam data_width = 16;
-   localparam addr_width = 2;
+   localparam data_width = 8;
+   localparam addr_width = 4;
    
    wire [data_width - 1:0] rdata;
    reg [data_width - 1:0]  wdata;
@@ -53,7 +53,7 @@ module fifo_tb();
    initial begin
       $dumpfile("fifo_tb.vcd");
       $dumpvars;
-      wdata  <= 16'b0;
+      wdata  <= 8'b0;
       winc   <= 0;
       wclk   <= 1;
       wrst_n <= 1;
@@ -68,10 +68,10 @@ module fifo_tb();
       wrst_n <= 1;
       rrst_n <= 1;
 
-      fifo_write(16'h01);
-      fifo_write(16'h02);
-      fifo_write(16'h0A);
-      fifo_write(16'h0B);
+      fifo_write(8'h1);
+      fifo_write(8'h2);
+      fifo_write(8'hA);
+      fifo_write(8'hB);
       
       #2000 $finish;
    end

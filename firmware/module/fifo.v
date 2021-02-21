@@ -3,7 +3,6 @@
 `include "sync_r2w.v"
 `include "sync_w2r.v"
 `include "fifomem.v"
-// `include "ram.v"
 `include "rptr_empty.v"
 `include "wptr_full.v"
 

@@ -27,8 +27,7 @@ module ad9826_config_tb();
       .ad_sload(ad_sload),
       .ad_sclk(ad_sclk),
       .ad_sdata(ad_sdata),
-      .toggle(toggle),
-      .counter(counter)
+      .toggle(toggle)
       );
 
    always begin
@@ -123,13 +122,13 @@ module ad9826_config_tb();
       #1 toggle <= 1'b0;
 
       // write config to 001
-      #1 ad_config_in <= 16'b0001000_000011110;
+      #1 ad_config_in <= 16'b0101000_000011110;
       #1 toggle <= 1'b1;
       #1 wait_busy_low();
       #1 toggle <= 1'b0;
       
       // read config from 000
-      #1 ad_config_in <= 16'b1000000_000000000;
+      #1 ad_config_in <= 16'b1101000_000000000;
       #1 toggle <= 1'b1;
       #1 wait_avail();
       #1 toggle <= 1'b0;
