@@ -14,7 +14,7 @@ Camera::Camera() :
 	Thermistor(2000.0, 3500.0, 3.3, 10000, 1023.0) }
    },
    m_ccdTargetTemperature { 20.0 },
-   m_pid {0.0, 255.0, -60.0, -0.1, 0.0}, // PID regulator: min, max, kp, ki, kd
+   m_pid {0.0, 255.0, -42.0, -0.3, 0.0}, // PID regulator: min, max, kp, ki, kd
    m_pidOutPercent {-1.0},
    m_imageData {},
    m_rawPixelData {}
@@ -181,23 +181,29 @@ fpga::DataPacket Camera::decodePacket(
    const unsigned char byte3
    )
 {
+   if ( m_verbosity == Verbosity::debug ) {
+      std::cout << "DEBUG: " << " Got bytes "
+		<< std::bitset<8>(byte1) << '_'
+		<< std::bitset<8>(byte2) << '_'
+		<< std::bitset<8>(byte3);
+   }
    fpga::DataPacket dataPacket;
    if ( byte1 == fpga::data_topic::mcp ) {
       dataPacket.topic = fpga::DataTopic::mcp;
       if ( m_verbosity == Verbosity::debug ) {
-	 std::cout << "DEBUG: " << " Got topic 'mcp'\n";
+	 std::cout << ": " << " topic 'mcp'";
       }
    }
    else if ( byte1 == fpga::data_topic::adconf ) {
       dataPacket.topic = fpga::DataTopic::adconf;
       if ( m_verbosity == Verbosity::debug ) {
-	 std::cout << "DEBUG: " << " Got topic 'adconf'\n";
+	 std::cout << ": " << " topic 'adconf'";
       }
    }
    else if ( byte1 == fpga::data_topic::pixel ) {
       dataPacket.topic = fpga::DataTopic::pixel;
       if ( m_verbosity == Verbosity::debug ) {
-	 std::cout << "DEBUG: " << " Got topic 'pixel'\n";
+	 std::cout << ": " << " topic 'pixel'";
       }
    }
    else {
@@ -208,8 +214,7 @@ fpga::DataPacket Camera::decodePacket(
    dataPacket.data =
       ( static_cast<uint16_t>(byte2) << 8 ) | static_cast<uint16_t>(byte3);
    if ( m_verbosity == Verbosity::debug ) {
-      std::cout << "DEBUG: " << " Got data "
-		<< std::bitset<16>(dataPacket.data) << '\n';
+      std::cout << ", data " << std::bitset<16>(dataPacket.data) << '\n';
    }
    return dataPacket;
 }
