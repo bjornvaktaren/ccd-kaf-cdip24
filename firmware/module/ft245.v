@@ -97,7 +97,7 @@ module ft245
 	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
 	    state <= state_write_1;
 	  else
-	    state <= state_write_2;
+	    state <= state_idle;
 	
 	state_write_1:
 	  if ( ft_txe_n == 1'b0 )
@@ -106,9 +106,9 @@ module ft245
 	    state <= state_idle;
 	
 	state_write_2:
-	  if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
-	    state <= state_write_setup;
-	  else
+	  // if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
+	  //   state <= state_write_setup;
+	  // else
 	    state <= state_idle;
 	
 	state_read_wait_1:
