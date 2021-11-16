@@ -1,7 +1,7 @@
 CCD-KAF-CDIP24
 ==============
 
-A complete CCD camera for astrophotography with the Kodak/ONSemi full-frame CCD sensors the CDIP24 package (KAF-0402, KAF-1600, KAF-1603, KAF-3200).
+A complete CCD camera for astrophotography with the Kodak/ONSemi full-frame CCD sensors the CDIP24 package (KAF-0402, KAF-1600, KAF-1603, KAF-3200). 
 
 Features
 --------
@@ -15,11 +15,6 @@ Features
  - Power from a 5.2 V to 5.5 V supply.
  - Sensor bias voltages are set by a few resistors to match the CCD specifications.
 
-
-
-
-PCB assembly
------------
 
 Firmware
 --------
@@ -36,10 +31,7 @@ Program the FPGA:
     make
     iceprog -I B top.bin
 
-
-To-do
------
-
- - Check the shutter PWM with oscilloscope.
- - Check V_VL and V_HL with oscilloscope.
+The state of the project
+------------------------
  
+A prototype as been built and everything electrically seems to work. Some pixels are getting lost in the USB transfer every now and them. Debugging i ongoing.
