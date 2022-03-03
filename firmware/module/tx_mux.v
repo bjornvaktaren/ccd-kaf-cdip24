@@ -55,7 +55,7 @@ module tx_mux
    reg [3:0]   state = state_idle;
    
    // state logic
-   always @(posedge clk) begin
+   always @(negedge clk) begin
       
       state <= state_idle;
       
@@ -112,10 +112,10 @@ module tx_mux
       if ( state == state_idle ) begin
       end
       if ( state == state_hdr_setup ) begin
-	 out         = sel;
+	 out         = sel + 1;
       end
       if ( state == state_hdr_send ) begin
-	 out         = sel;
+	 out         = sel + 1;
 	 winc        = 1'b1;
       end
       if ( state == state_msb_setup ) begin

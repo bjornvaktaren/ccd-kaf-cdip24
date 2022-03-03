@@ -1,7 +1,7 @@
 TOP=top
 PIN_DEF=ice40hx1k-evb.pcf
 DEVICE=hx1k
-TARGET_FREQ_MHz=100
+TARGET_FREQ_MHz=70
 PRE_PACK_FILE=nextpnr_clock_constraints.py
 PACKAGE=vq100
 SIM_DIR=vcd

@@ -20,6 +20,7 @@ module rptr_empty #(parameter addr_width = 8)
    reg [addr_width:0] 	     rbin = 0;
    wire [addr_width:0] 	     rgraynext, rbinnext;
    wire 		     rempty_val;
+   reg [addr_width:0] 	     rempty_delay;
    
    //-------------------
    // GRAYSTYLE2 pointer
@@ -45,7 +46,10 @@ module rptr_empty #(parameter addr_width = 8)
    always @(posedge rclk or negedge rrst_n)
      if (!rrst_n) 
        rempty <= 1'b1;
-     else
-       rempty <= rempty_val;
+     else begin
+	rempty_delay <= rempty_val;
+	rempty <= rempty_delay;
+     end
+   
    
 endmodule

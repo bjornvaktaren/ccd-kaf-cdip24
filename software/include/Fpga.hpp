@@ -56,9 +56,9 @@ namespace fpga {
 
    namespace data_topic {
       // Each message is sent with a 8-bit header
-      static constexpr unsigned char pixel  = 0b00000000;
-      static constexpr unsigned char mcp    = 0b00000001;
-      static constexpr unsigned char adconf = 0b00000010;
+      static constexpr unsigned char pixel  = 0b00000001;
+      static constexpr unsigned char mcp    = 0b00000010;
+      static constexpr unsigned char adconf = 0b00000011;
    }
    
    enum class DataTopic {unknown, mcp, adconf, pixel};

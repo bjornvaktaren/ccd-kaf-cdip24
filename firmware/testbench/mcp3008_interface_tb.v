@@ -1,5 +1,6 @@
 module mcp3008_interface_tb();
 
+   reg         clk;
    reg         dout;
    reg         sample;
    reg         dclk;
@@ -12,6 +13,7 @@ module mcp3008_interface_tb();
    
    mcp3008_interface dut
      (
+      clk,         // system clock
       sample,      // sample on posedge
       dclk,        // mcp3008 data clock
       dout,        // mcp3008 data out
@@ -25,6 +27,10 @@ module mcp3008_interface_tb();
 
    always begin
       #1 dclk <= !dclk;
+   end
+   
+   always begin
+      #1 clk <= !clk;
    end
 
    task mcp_wait;
@@ -45,6 +51,7 @@ module mcp3008_interface_tb();
    
    initial begin
       
+      clk <= 1'b0;
       dclk <= 1'b0;
       dout <= 1'b1;
       sample <= 1'b0;

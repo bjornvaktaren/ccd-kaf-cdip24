@@ -78,11 +78,12 @@ module top
    // Clock divider
    
    reg [23:0] 	clk_div = 0;
-   wire 	clk = clk_in; // 100 MHz
+   wire 	clk = ft_clkout; // 60 MHz
+   // wire 	clk = clk_in; // 100 MHz
    // wire 	clk = clk_div[0]; // 50 MHz
    // wire 	clk = clk_div[1]; // 25 MHz
 
-   always @(posedge clk_in) begin
+   always @(posedge clk) begin
       clk_div <= clk_div + 1;
    end
 
@@ -155,7 +156,7 @@ module top
    wire	      tx_fifo_wfull;
 
    `ifdef SYNTHESIS
-   fifo #(8, 4) tx_fifo
+   fifo #(8, 8) tx_fifo
      (
       .rclk(ft_clkout),
       .rdata(tx_fifo_rdata),
@@ -278,7 +279,6 @@ module top
    // to the tx fifo.
 
    wire        dummy_accept_1;
-   wire        dummy_accept_2;
    tx_mux tx_mux
      (
       .clk(clk),
@@ -306,8 +306,8 @@ module top
    
    // Shutter PWM
    
-   localparam shutter_closed_duty_cycle = 8'h79; //
-   localparam shutter_open_duty_cycle = 8'h40; // 
+   localparam shutter_closed_duty_cycle = 8'h49; //
+   localparam shutter_open_duty_cycle = 8'h26; // 
    reg [7:0] pwm_shutter_duty_cycle;
 
    // The last equality makes the PWM skip all but every 4th pulse, so that 
