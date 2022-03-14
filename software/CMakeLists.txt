@@ -55,6 +55,10 @@ target_link_libraries(ccd_kaf_cdip24_main ccd_kaf_cdip24)
 # Test executables
 add_executable(test_pid ${CMAKE_CURRENT_SOURCE_DIR}/tests/pid.cpp)
 target_link_libraries(test_pid ccd_kaf_cdip24)
+add_executable(
+  test_data_transfer ${CMAKE_CURRENT_SOURCE_DIR}/tests/data_transfer.cpp
+  )
+target_link_libraries(test_data_transfer ccd_kaf_cdip24)
 
 # Debian package
 set(CPACK_GENERATOR DEB)

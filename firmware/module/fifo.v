@@ -77,8 +77,23 @@ module fifo #(parameter data_width = 16, parameter addr_width = 8)
       .wclk(wclk),
       .wrst_n(wrst_n)
       );
+
    
-				     
+`ifdef FORMAL
+   
+   always @(posedge wclk)
+     begin
+	assert(rptr < wptr);
+     end
+   
+   always @(posedge rclk)
+     begin
+	assert(rptr < wptr);
+     end
+   
+	
+`endif   
+	
    
 endmodule // fifo
 

@@ -153,8 +153,12 @@ void Camera::stopExposure(const bool closeShutter)
       auto packet = this->decodePacket(
 	 m_rawPixelData[3*i], m_rawPixelData[3*i+1], m_rawPixelData[3*i+2]
 	 );
-      if ( packet.topic == fpga::DataTopic::pixel ) 
+      if ( packet.topic == fpga::DataTopic::pixel ) {
 	 m_imageData[i] = packet.data;
+      }
+      else {
+	 std::cout << "DEBUG: Expected pixel, but got someting else\n";
+      }
    }
    
 }

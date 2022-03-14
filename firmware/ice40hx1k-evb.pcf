@@ -41,8 +41,8 @@ set_io ad_data[7]      33
 set_io ad_sload        19
 set_io ad_sclk         20
 set_io ad_sdata        21
-set_io debug[0]        1
-set_io debug[1]        3
-set_io debug[2]        7
-set_io debug[3]        9
-set_io debug[4]        12
+#set_io debug[0]        1
+#set_io debug[1]        3
+#set_io debug[2]        7
+#set_io debug[3]        9
+#set_io debug[4]        12

@@ -1,0 +1,19 @@
+[options]
+mode bmc
+depth 100
+multiclock on
+
+[engines]
+smtbmc
+
+[script]
+read -formal -DFIFO fifo.v
+prep -top fifo
+
+[files]
+../module/fifo.v
+../module/fifomem.v
+../module/rptr_empty.v
+../module/wptr_full.v
+../module/sync_r2w.v
+../module/sync_w2r.v

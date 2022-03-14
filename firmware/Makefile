@@ -2,6 +2,7 @@ TOP=top
 PIN_DEF=ice40hx1k-evb.pcf
 DEVICE=hx1k
 TARGET_FREQ_MHz=70
+# TARGET_FREQ_MHz=100
 PRE_PACK_FILE=nextpnr_clock_constraints.py
 PACKAGE=vq100
 SIM_DIR=vcd
@@ -30,7 +31,7 @@ $(SIM_DIR)/tx_tb: testbench/tx_tb.v $(TOP).v | $(SIM_DIR)
 	yosys $(TOP).ys
 
 %.asc: %.json
-	nextpnr-ice40 --package $(PACKAGE) --$(DEVICE) --json $^ --pcf $(PIN_DEF) --asc $@ --freq $(TARGET_FREQ_MHz) --timing-allow-fail --pre-pack $(PRE_PACK_FILE)
+	nextpnr-ice40 --package $(PACKAGE) --$(DEVICE) --json $^ --pcf $(PIN_DEF) --asc $@ --timing-allow-fail --pre-pack $(PRE_PACK_FILE) --opt-timing
 
 %.bin: %.asc
 	icepack $< $@
@@ -73,3 +74,6 @@ timing: $(TOP).rpt
 # yosys breadboard_tests.ys
 # arachne-pnr -d 1k -P vq100 -o breadboard_tests.asc -p ice40hx1k-evb.pcf breadboard_tests.blif
 # icetime -mt -p ice40hx1k-evb.pcf -P vq100 -d hx1k breadboard_tests.asc
+
+# Test-bench compilation:
+# iverilog -Iinclude -Imodule -o fifo_tb2 testbench/fifo_tb2.v module/fifo.v && vvp -N fifo_tb2 module/fifo.v +vcd=fifo_tb2.vcd
