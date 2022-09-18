@@ -29,20 +29,24 @@ module ft245
    output reg       ft_wr_n = 1;
    output reg       ft_siwu_n = 1;
    output reg       ft_oe_n = 1;
-   output reg       tx_rinc;
+   output reg       tx_rinc = 0;
    input            tx_rempty;
    input      [7:0] tx_rdata;
    output reg [7:0] rx_wdata;
    input 	    rx_wfull;
-   output reg 	    rx_winc;
-   output reg 	    busy;
+   output reg 	    rx_winc = 0;
+   output reg 	    busy = 0;
  //   output wire [3:0] state_out;
  // = state;
 
    // reg [7:0] 	    tx_rdata_int;
-   // reg 		    tx_rinc_int = 0;
-   // reg 		    tx_rempty_int = 0;
-   // reg 		    ft_wr_n_int = 1;
+   // reg [7:0] 	    rx_wdata_int;
+   reg 		    rx_winc_int = 0;
+   reg 		    tx_rinc_int = 0;
+   reg 		    tx_rempty_int = 0;
+   reg 		    ft_wr_n_int = 1;
+   reg		    ft_rd_n_int = 1;
+   reg		    ft_oe_n_int = 1;
    
    // arachne-pnr cannot infer tristate, so need to intatiate explicitly
    wire   drive_buf = ft_oe_n;
@@ -66,18 +70,18 @@ module ft245
        rx_wdata <= ft_bus;
    `endif
    
-   // always @(posedge ft_clkout) begin
-   //    tx_rinc       <= tx_rinc_int;
-   //    ft_wr_n       <= ft_wr_n_int;
-   //    tx_rdata_int  <= tx_rdata;
-   //    tx_rempty_int <= tx_rempty;
-   // end
+   always @(negedge ft_clkout) begin
+      rx_winc   <= rx_winc_int;
+      tx_rinc   <= tx_rinc_int;
+      ft_wr_n   <= ft_wr_n_int;
+      ft_oe_n   <= ft_oe_n_int;
+      ft_rd_n   <= ft_rd_n_int;
+   end
    
    localparam state_idle        = 4'b0000; // transition to 0001 or 1000
-   localparam state_read_wait_1 = 4'b0001; //
-   localparam state_read_wait_2 = 4'b0011; //
-   localparam state_read        = 4'b0010; //
-   localparam state_read_finish = 4'b0110; // transition to 0000
+   localparam state_read_ack    = 4'b0001; //
+   localparam state_read        = 4'b0011; //
+   localparam state_read_finish = 4'b0010; // transition to 0000
    localparam state_write_setup = 4'b1000; //
    localparam state_write_1     = 4'b1001; //
    localparam state_write_2     = 4'b1011; //
@@ -91,7 +95,7 @@ module ft245
 
 	state_idle:
 	  if ( ft_rxf_n == 1'b0 && rx_wfull == 1'b0 )
-	    state <= state_read_wait_1;
+	    state <= state_read_ack;
 	  else if ( ft_txe_n == 1'b0 && tx_rempty == 1'b0 )
 	    state <= state_write_setup;
 
@@ -113,9 +117,7 @@ module ft245
 	  // else
 	    state <= state_idle;
 	
-	state_read_wait_1:
-	  state <= state_read_wait_2;
-	state_read_wait_2:
+	state_read_ack:
 	  state <= state_read;
 	
 	state_read:
@@ -131,43 +133,47 @@ module ft245
 	    
    always @* begin
 
-      ft_rd_n   = 1'b1;
       ft_siwu_n = 1'b1;
-      ft_oe_n   = 1'b1;
+      // ft_oe_n   = 1'b1;
+      // ft_rd_n   = 1'b1;
+      ft_oe_n_int   = 1'b1;
+      ft_rd_n_int   = 1'b1;
 
-      rx_winc   = 1'b0;
+      rx_winc_int   = 1'b0;
+      // rx_winc   = 1'b0;
       busy      = 1'b0;
 
-      // tx_rinc_int = 1'b0;
-      // ft_wr_n_int = 1'b1;
-      tx_rinc = 1'b0;
-      ft_wr_n = 1'b1;
+      tx_rinc_int = 1'b0;
+      ft_wr_n_int = 1'b1;
+      // tx_rinc = 1'b0;
+      // ft_wr_n = 1'b1;
 
       if ( state == state_write_setup ) begin
 	 busy        = 1'b1;
       end
       if ( state == state_write_1 ) begin
-	 ft_wr_n = 1'b0;
-	 // ft_wr_n_int = 1'b0;
+	 // ft_wr_n = 1'b0;
+	 ft_wr_n_int = 1'b0;
 	 busy        = 1'b1;
       end
       if ( state == state_write_2 ) begin
-	 tx_rinc = 1'b1; // tell tx fifo to increase read pointer
-	 // tx_rinc_int = 1'b1; // tell tx fifo to increase read pointer
+	 // tx_rinc = 1'b1; // tell tx fifo to increase read pointer
+	 tx_rinc_int = 1'b1; // tell tx fifo to increase read pointer
 	 busy        = 1'b1;
       end
-      if ( state == state_read_wait_1 ) begin
-	 busy    = 1'b1;
-      end
-      if ( state == state_read_wait_2 ) begin
-	 ft_oe_n = 1'b0;
+      if ( state == state_read_ack ) begin
+	 // ft_oe_n = 1'b0;
+	 ft_oe_n_int = 1'b0;
 	 busy    = 1'b1;
       end
       if ( state == state_read ) begin
-	 ft_oe_n = 1'b0;
-   	 ft_rd_n = 1'b0;
+	 ft_oe_n_int = 1'b0;
+   	 ft_rd_n_int = 1'b0;
+	 // ft_oe_n = 1'b0;
+   	 // ft_rd_n = 1'b0;
 	 busy    = 1'b1;
-   	 rx_winc = 1'b1; // tell rx fifo to increase write pointer
+   	 rx_winc_int = 1'b1; // tell rx fifo to increase write pointer
+   	 // rx_winc = 1'b1; // tell rx fifo to increase write pointer
       end
       if ( state == state_read_finish ) begin
 	 // ft_oe_n = 1'b0;
@@ -178,22 +184,19 @@ module ft245
    end
    
 `ifdef FORMAL
-
-   
-   always @(*)
-     assume(ft_rxf_n != ft_txe_n);
-   
    always @(posedge ft_clkout)
      begin
-	// Assume that there must be 2 clock between RXF changes and TXE 
-	// changes
+	// Assume that RXF and TXE does change on the same clock
 	assume(ft_rxf_n != $past(ft_txe_n));
 
 	// Assume rx fifo is not full or full 1 clock after rx_winc
 	assume(rx_wfull == $past(rx_winc) || rx_wfull == 1'b0);
-	
+
 	// Read operation
 	if ( ft_rxf_n == 1'b0 ) begin
+	   // Assume Ft245 does not accept write when in read mode
+	   assume(ft_txe_n == 1'b1);
+	   
 	   // We cannot write
 	   assert(ft_wr_n == 1'b1);
 
@@ -201,9 +204,8 @@ module ft245
 	   if ( rx_wfull == 1'b1 ) begin
 	      assert(ft_oe_n == 1'b1);
 	      assert(ft_rd_n == 1'b1);
+	      assert(state != state_read_ack);
 	      assert(state != state_read);
-	      assert(state != state_read_wait_1);
-	      assert(state != state_read_wait_2);
 	   end
 	   
 	end
@@ -220,14 +222,14 @@ module ft245
 	   // We do not write if tx fifo is empty
 	   if ( tx_rempty == 1'b1 ) begin
 	      assert(ft_wr_n == 1'b1);
+	      assert(state != state_write_setup);
+	      assert(state != state_write_1);
+	      assert(state != state_write_2);
 	   end
 	   
-	end
+	end // if ( ft_txe_n == 1'b0 )
 	
-
      end
-   
-	
 `endif   
    // inout      [7:0] ft_bus;
    // input            ft_rxf_n;
