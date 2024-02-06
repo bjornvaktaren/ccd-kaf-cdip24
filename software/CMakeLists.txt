@@ -3,6 +3,8 @@ project(ccd-kaf-cdip24)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS On)
+
 # LibFTDI stuff
 find_package(LibFTDI1 NO_MODULE REQUIRED)
 include(${LIBFTDI_USE_FILE})
@@ -57,8 +59,13 @@ add_executable(test_pid ${CMAKE_CURRENT_SOURCE_DIR}/tests/pid.cpp)
 target_link_libraries(test_pid ccd_kaf_cdip24)
 add_executable(
   test_data_transfer ${CMAKE_CURRENT_SOURCE_DIR}/tests/data_transfer.cpp
-  )
+)
 target_link_libraries(test_data_transfer ccd_kaf_cdip24)
+  
+add_executable(platform_loopback_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/platform/loopback.cpp)
+target_link_libraries(platform_loopback_test ccd_kaf_cdip24)
+
+add_subdirectory(tests/unit_tests)
 
 # Debian package
 set(CPACK_GENERATOR DEB)
