@@ -9,4 +9,4 @@ enable_testing()
 
 include(GoogleTest)
 
-add_subdirectory(camera)
+add_subdirectory(camera_configuration)

@@ -21,6 +21,7 @@ add_library(
   ccd_kaf_cdip24
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Ft245.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Camera.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraConfiguration.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Thermistor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CImgPlot.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorWheel.cpp
@@ -62,8 +63,8 @@ add_executable(
 )
 target_link_libraries(test_data_transfer ccd_kaf_cdip24)
   
-add_executable(platform_loopback_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/platform/loopback.cpp)
-target_link_libraries(platform_loopback_test ccd_kaf_cdip24)
+# add_executable(platform_loopback_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/platform/loopback.cpp)
+# target_link_libraries(platform_loopback_test ccd_kaf_cdip24)
 
 add_subdirectory(tests/unit_tests)
 

@@ -130,6 +130,7 @@ int main(int argc, char *argv[]) {
    }
 
    Ft245 ft245;
+   ft245.Open();
    Camera camera(ft245);
    camera.setVerbosity(verbosity);
 

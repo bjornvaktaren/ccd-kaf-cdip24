@@ -26,29 +26,30 @@ class Camera {
 
    void connect();
    // void disconnect();
+  
+   // void setVerbosity(Verbosity v);
 
    // bool setGain(const unsigned char gain);
    // bool setOffset(const unsigned char offset, const bool negative = false);
+   // bool getAD9826Config();
+   // bool setCCDReadoutMode(const unsigned char mode);
+  
+   // std::vector<uint16_t> getImageData() const { return m_imageData; };
+   // std::vector<uint16_t> getActiveImageData();
    // void startExposure(const bool openShutter = true);
    // void stopExposure(const bool closeShutter = true);
    // void flushSensor();
-   // bool getAD9826Config();
-   // bool sampleTemperatures();
-   // double getTemperature(const uint16_t thermistor);
    // bool openShutter();
    // bool closeShutter();
-   // bool setCCDReadoutMode(const unsigned char mode);
-   // void setVerbosity(Verbosity v);
 
+   // bool sampleTemperatures();
+   // double getTemperature(const uint16_t thermistor);
    // bool getCoolerOn() const { return m_coolerOn; };
    // void setCoolerOn(const bool on = true);
    // double getCoolerOutputPercent() const { return m_pidOutPercent; };
    // double getTargetTemperature() const { return m_pid.getTarget(); };
-
    // void setTemperature(double celsius);
 
-   // std::vector<uint16_t> getImageData() const { return m_imageData; };
-   // std::vector<uint16_t> getActiveImageData();
 
    // Image size in number of pixels
    constexpr int getWidth() const { return 2267; };
