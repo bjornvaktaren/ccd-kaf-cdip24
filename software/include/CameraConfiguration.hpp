@@ -6,7 +6,7 @@
 
 namespace camera {
 
-enum class ReadoutMode { kFlush, k1x1, k2x2 };
+enum class ReadoutMode { kFlush = 0, k1x1 = 1, k2x2 = 2 };
 struct Configuration {
    uint8_t gain;
    int16_t offset;

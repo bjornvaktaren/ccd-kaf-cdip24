@@ -14,23 +14,23 @@
 // };
 
 class Ft245 : public Ft245Interface {
- public:
-  Ft245(){};
-  ~Ft245(){};
+  public:
+   Ft245() {};
+   ~Ft245() {};
 
-  // Ft245interface
-  bool Open() override;
-  void Close() override;
-  bool WriteByte(uint8_t byte) override;
-  std::optional<uint8_t> ReadByte() override;
-  bool Write(const std::vector<uint8_t> &data) override;
-  std::vector<uint8_t> Read(unsigned int bytes_to_read) override;
+   // Ft245interface
+   bool Open() override;
+   void Close() override;
+   bool WriteByte(uint8_t byte) override;
+   std::optional<uint8_t> ReadByte() override;
+   bool Write(const std::vector<uint8_t> &data) override;
+   std::vector<uint8_t> Read(unsigned int bytes_to_read) override;
 
- private:
-  struct ftdi_context m_ftdi;
-  struct FtdiSetup_t m_ftdiSetup;
-  enum class Verbosity { debug, warnings, info };
-  Verbosity m_verbosity = Verbosity::info;
+  private:
+   struct ftdi_context m_ftdi;
+   struct FtdiSetup_t m_ftdiSetup;
+   enum class Verbosity { debug, warnings, info };
+   Verbosity m_verbosity = Verbosity::info;
 };
 
 #endif

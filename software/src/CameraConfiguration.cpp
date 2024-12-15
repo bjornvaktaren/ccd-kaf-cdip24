@@ -42,8 +42,26 @@ bool CameraConfiguration::SetOffset(int16_t offset) {
    return ft_.Write(std::move(message));
 }
 
-bool CameraConfiguration::SetReadoutMode(ReadoutMode mode) {}
+bool CameraConfiguration::SetReadoutMode(ReadoutMode mode) {
+   std::vector<uint8_t> writeBuffer{fpga::command::set_register,
+                                    fpga::reg_addr::ccd_readout_mode,
+                                    static_cast<uint8_t>(mode)};
 
-bool CameraConfiguration::getAD9826Config() {}
+   return ft_.Write(std::move(writeBuffer));
+}
+
+std::optional<Configuration> CameraConfiguration::GetConfiguration() {
+   // const size_t nBytes = 12;
+   // const unsigned char writeBuffer[nBytes] = {
+   //     fpga::command::rw_adconf, fpga::ad9826::cmd::read_config,     0x00,
+   //     fpga::command::rw_adconf, fpga::ad9826::cmd::read_mux_config, 0x00,
+   //     fpga::command::rw_adconf, fpga::ad9826::cmd::read_gain,       0x00,
+   //     fpga::command::rw_adconf, fpga::ad9826::cmd::read_offset,     0x00};
+   // ft245_.write(writeBuffer, nBytes);
+
+   // // Read back the result, same number of bytes
+   // unsigned char buffer[nBytes] = {0};
+   // int readBytes = ft245_.read(buffer, nBytes);
+}
 
 };  // namespace camera

@@ -127,7 +127,7 @@ std::optional<uint8_t> Ft245::ReadByte() {
    return byte;
 }
 
-bool Ft245::Write(const std::vector<uint8_t> &data) {
+bool Ft245::Write(std::vector<uint8_t> data) {
    // // need to purge tx when writing for some etherial reason
    // if ( ftdi_usb_purge_tx_buffer(&m_ftdi) != 0) {
    //    std::cerr << "ERROR: Can't purge FTDI tx buffer: "
